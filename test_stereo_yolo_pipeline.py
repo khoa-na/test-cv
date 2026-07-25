@@ -3,7 +3,12 @@ import unittest
 import numpy as np
 
 from benchmark_stereo_yolo import summarize
-from stereo_yolo_pipeline import fuse_mask, mask_bbox, road_surface_area_mm2
+from stereo_yolo_pipeline import (
+    fuse_mask,
+    mask_bbox,
+    road_surface_area_mm2,
+    select_area_mm2,
+)
 
 
 class StereoYOLOPipelineTest(unittest.TestCase):
@@ -58,6 +63,16 @@ class StereoYOLOPipelineTest(unittest.TestCase):
         mask[2:6, 5:10] = True
 
         self.assertEqual(mask_bbox(mask, (100, 200)), [50, 20, 100, 60])
+
+    def test_area_uses_yolo_unscaled_and_calibrates_fallback(self):
+        self.assertEqual(
+            select_area_mm2(100, False, 1.5),
+            (100, "yolo_mask", False),
+        )
+        self.assertEqual(
+            select_area_mm2(100, True, 1.5),
+            (150, "stereo_residual", True),
+        )
 
 
 if __name__ == "__main__":

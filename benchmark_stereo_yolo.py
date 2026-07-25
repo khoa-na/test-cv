@@ -208,6 +208,7 @@ def run(args: argparse.Namespace) -> dict:
                     "depth_mm": best["depth_mm"] if best else None,
                     "relative_error": relative_error,
                     "area_cm2": best["area_cm2"] if best else None,
+                    "area_source": best["area_source"] if best else None,
                     "area_relative_error": area_relative_error,
                     "residual_coverage": best["residual_coverage"] if best else None,
                     "detection_residual_iou": best["detection_residual_iou"]
@@ -234,6 +235,7 @@ def run(args: argparse.Namespace) -> dict:
                     "depth_mm": None,
                     "relative_error": None,
                     "area_cm2": None,
+                    "area_source": None,
                     "area_relative_error": None,
                     "residual_coverage": None,
                     "detection_residual_iou": None,

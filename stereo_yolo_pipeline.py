@@ -49,6 +49,18 @@ def mask_bbox(mask: np.ndarray, target_shape: tuple[int, int]) -> list[float]:
     ]
 
 
+def select_area_mm2(
+    raw_area_mm2: float, fallback_applied: bool, residual_scale: float
+) -> tuple[float, str, bool]:
+    if fallback_applied:
+        return (
+            raw_area_mm2 * residual_scale,
+            "stereo_residual",
+            residual_scale != 1.0,
+        )
+    return raw_area_mm2, "yolo_mask", False
+
+
 def road_surface_area_mm2(
     mask: np.ndarray,
     road_disparity: np.ndarray,
@@ -57,26 +69,22 @@ def road_surface_area_mm2(
 ) -> float:
     height, width = road_disparity.shape
     mask = mask.astype(bool)
-    ys, xs = np.nonzero(mask)
-    if xs.size < 2:
+    if height < 2 or width < 2 or np.count_nonzero(mask) < 2:
         raise ValueError("Mask quá nhỏ để tính diện tích")
-    x1, x2 = max(0, xs.min() - 1), min(width, xs.max() + 2)
-    y1, y2 = max(0, ys.min() - 1), min(height, ys.max() + 2)
-    y, x = np.mgrid[y1:y2, x1:x2]
-    disparity = np.maximum(road_disparity[y1:y2, x1:x2], 1e-6)
-    z = focal_px * baseline_mm / disparity
-    points = np.stack(
-        (
-            (x - (width - 1) / 2) * baseline_mm / disparity,
-            (y - (height - 1) / 2) * baseline_mm / disparity,
-            z,
-        ),
-        axis=-1,
+    slope_x = float(road_disparity[0, 1] - road_disparity[0, 0])
+    slope_y = float(road_disparity[1, 0] - road_disparity[0, 0])
+    center_term = float(
+        road_disparity[0, 0]
+        + slope_x * (width - 1) / 2
+        + slope_y * (height - 1) / 2
     )
-    step_x = np.gradient(points, axis=1)
-    step_y = np.gradient(points, axis=0)
-    pixel_area = np.linalg.norm(np.cross(step_x, step_y), axis=-1)
-    return float(np.sum(pixel_area[mask[y1:y2, x1:x2]]))
+    normal = np.sqrt(
+        (focal_px * slope_x) ** 2
+        + (focal_px * slope_y) ** 2
+        + center_term**2
+    )
+    disparity = np.maximum(road_disparity[mask], 1e-6)
+    return float(np.sum(baseline_mm**2 * normal / disparity**3))
 
 
 class StereoYOLOPipeline:
@@ -175,17 +183,24 @@ class StereoYOLOPipeline:
                         self.focal_px * self.image_scale * self.metric_scale,
                         self.baseline_mm,
                     )
+                    area_mask = geometry_mask if fallback_applied else detection_mask
                     raw_area_mm2 = road_surface_area_mm2(
-                        geometry_mask,
+                        area_mask,
                         road,
                         self.focal_px * self.image_scale * self.metric_scale,
                         self.baseline_mm,
                     )
+                    area_mm2, area_source, area_calibrated = select_area_mm2(
+                        raw_area_mm2,
+                        fallback_applied,
+                        self.area_scale,
+                    )
                     measurement = {
                         "depth_mm": geometry["depth_mm_p90"],
                         "raw_area_mm2": raw_area_mm2,
-                        "area_mm2": raw_area_mm2 * self.area_scale,
-                        "area_cm2": raw_area_mm2 * self.area_scale / 100,
+                        "area_mm2": area_mm2,
+                        "area_cm2": area_mm2 / 100,
+                        "area_source": area_source,
                         "valid_depth_pixels": geometry["valid_depth_pixels"],
                         "residual_coverage": intersection
                         / np.count_nonzero(residual_mask),
@@ -197,7 +212,7 @@ class StereoYOLOPipeline:
                         ),
                         "fallback_applied": fallback_applied,
                         "metric_calibrated": self.metric_scale != 1.0,
-                        "area_calibrated": self.area_scale != 1.0,
+                        "area_calibrated": area_calibrated,
                     }
                 except ValueError as error:
                     measurement = {"error": str(error), "metric_calibrated": False}
