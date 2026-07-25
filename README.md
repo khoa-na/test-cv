@@ -70,3 +70,141 @@ YOLO_CONFIG_DIR="$PWD/.cache/ultralytics" .venv/bin/yolo export \
 - Model có một class `pothole`; severity sẽ được suy ra từ depth và area.
 - Monocular depth chỉ cho relative depth nếu chưa hiệu chuẩn camera/ground plane.
 - Kết quả FPS hiện chưa bao gồm depth inference và visualization.
+
+## Audit PothRGBD
+
+PothRGBD được giữ ngoài Git tại `.cache/data/pothrgbd`. Kiểm tra pairing,
+định dạng depth và metadata calibration bằng:
+
+```bash
+.venv/bin/python audit_pothrgbd.py \
+  --dataset ".cache/data/pothrgbd/PUBLIC POTHOLE DATASET" \
+  --output artifacts/pothrgbd-audit.json
+```
+
+Không quy đổi depth sang mét hoặc area sang m² nếu báo cáo audit chưa xác nhận
+được `depth_scale` và camera intrinsics.
+
+Kết quả audit archive công khai:
+
+| Hạng mục | Kết quả |
+|---|---:|
+| RGB / depth / label | 1.000 / 1.000 / 1.000 |
+| Triplet ghép chắc chắn | 996 |
+| Triplet sẵn sàng cho hình học | 981 |
+| Depth shape và dtype | 480x640 `uint16` |
+| Segmentation instances | 1.097 |
+| Calibration/depth scale metadata | Không có |
+
+15 RGB đã bị crop trong khi depth giữ nguyên 480x640 và 4 mẫu có timestamp
+trùng nên bị loại khỏi benchmark hình học. Depth có dạng raw sensor nhưng đơn
+vị metric chưa được xác minh từ metadata của dataset.
+
+## Depth Anything V2 ONNX
+
+Đặt model dynamic tại `.cache/models/depth_anything_v2_vits_dynamic.onnx`.
+Tải bản ONNX ViT-S dynamic:
+
+```bash
+mkdir -p .cache/models
+curl -L \
+  https://github.com/fabio-sim/Depth-Anything-ONNX/releases/download/v2.0.0/depth_anything_v2_vits_dynamic.onnx \
+  -o .cache/models/depth_anything_v2_vits_dynamic.onnx
+```
+
+Chạy relative depth và benchmark CPU:
+
+```bash
+.venv/bin/python depth_inference.py \
+  --model .cache/models/depth_anything_v2_vits_dynamic.onnx \
+  --image ".cache/data/pothrgbd/PUBLIC POTHOLE DATASET/images/IMAGE.jpg" \
+  --size 224 --output artifacts/depth
+```
+
+Input 224px là mặc định cân bằng tốc độ; depth map float được resize về kích
+thước ảnh gốc và vẫn là **relative depth**, chưa phải mét.
+
+Benchmark ONNX Runtime CPU trên i5-13400F:
+
+| Input | Depth inference | FPS |
+|---:|---:|---:|
+| 196 | 53,5 ms | 18,7 |
+| 224 | 65,0 ms | 15,4 |
+| 252 | 78,3 ms | 12,8 |
+| 280 | 107,5 ms | 9,3 |
+| 518 static | 335,4 ms | 3,0 |
+
+Khi tính cả preprocessing và resize output, CLI 224px đạt khoảng 14,7 FPS.
+Pipeline cuối cần chạy depth bất đồng bộ hoặc tái sử dụng depth map giữa các
+frame.
+
+## Ghép detection, depth và area
+
+Chạy pipeline trên một ảnh:
+
+```bash
+.venv/bin/python pothole_pipeline.py \
+  --detector models/pothole_yolo26n_seg.onnx \
+  --depth-model .cache/models/depth_anything_v2_vits_dynamic.onnx \
+  --image path/to/image.jpg \
+  --depth-size 196 --warmup 1 --output artifacts/pipeline
+```
+
+Pipeline fit mặt phẳng depth cục bộ từ vành đai quanh mỗi segmentation mask,
+sau đó báo `relative_depth`, `relative_area` và severity heuristic. Các trường
+`metric_calibrated` và `severity_calibrated` giữ `false` cho đến khi có camera
+intrinsics/depth scale đáng tin cậy.
+
+## Benchmark relative depth
+
+Benchmark Depth Anything bằng GT mask và raw RealSense depth của PothRGBD:
+
+```bash
+.venv/bin/python benchmark_depth_pothrgbd.py \
+  --dataset ".cache/data/pothrgbd/PUBLIC POTHOLE DATASET" \
+  --model .cache/models/depth_anything_v2_vits_dynamic.onnx \
+  --size 196 --threads 6 --output artifacts/depth-benchmark
+```
+
+Script fit đúng một scale trên calibration split, tự chọn hướng dấu depth bằng
+calibration data, sau đó khóa cả hai để tính relative error trên test split.
+Đơn vị vẫn được ghi là raw sensor units vì archive không kèm `depth_scale`.
+
+Kết quả trên 967 ảnh hợp lệ cho thấy ground-plane normalization vẫn có median
+relative error 56,6% và chỉ 12,4% test instances nằm trong ±15%. Vì vậy
+Depth Anything V2 Small relative 196px hiện **không đạt** KPI depth accuracy;
+pipeline giữ model này làm baseline tốc độ, không coi là phương án depth cuối.
+
+## ROI depth regression
+
+Train MobileNetV3-Small từ RGB crop, segmentation mask và RealSense depth của
+PothRGBD:
+
+```bash
+.venv/bin/python train_depth_regressor.py \
+  --dataset ".cache/data/pothrgbd/PUBLIC POTHOLE DATASET" \
+  --output artifacts/depth-regressor-context
+```
+
+Chạy pipeline YOLO segmentation + ROI depth ONNX:
+
+```bash
+.venv/bin/python pothole_pipeline.py \
+  --detector artifacts/final/pothole_yolo26n_seg.onnx \
+  --depth-model artifacts/depth-regressor-context/pothole_depth_regressor.onnx \
+  --image path/to/image.jpg \
+  --output artifacts/pipeline-roi
+```
+
+Benchmark end-to-end bằng predicted mask trên test split PothRGBD:
+
+```bash
+.venv/bin/python benchmark_roi_pipeline.py \
+  --dataset ".cache/data/pothrgbd/PUBLIC POTHOLE DATASET" \
+  --detector artifacts/final/pothole_yolo26n_seg.onnx \
+  --depth-model artifacts/depth-regressor-context/pothole_depth_regressor.onnx
+```
+
+Benchmark hiện tại đạt 25,5 FPS nhưng chỉ match 57,3% GT instances trên
+PothRGBD. Median depth error trên matched instances là 24,4% và median
+relative-area error là 19,5%; cấu hình này đạt KPI tốc độ nhưng chưa đạt A2.
