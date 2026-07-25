@@ -137,3 +137,20 @@ Benchmark ONNX Runtime CPU trên i5-13400F:
 Khi tính cả preprocessing và resize output, CLI 224px đạt khoảng 14,7 FPS.
 Pipeline cuối cần chạy depth bất đồng bộ hoặc tái sử dụng depth map giữa các
 frame.
+
+## Ghép detection, depth và area
+
+Chạy pipeline trên một ảnh:
+
+```bash
+.venv/bin/python pothole_pipeline.py \
+  --detector models/pothole_yolo26n_seg.onnx \
+  --depth-model .cache/models/depth_anything_v2_vits_dynamic.onnx \
+  --image path/to/image.jpg \
+  --depth-size 196 --warmup 1 --output artifacts/pipeline
+```
+
+Pipeline fit mặt phẳng depth cục bộ từ vành đai quanh mỗi segmentation mask,
+sau đó báo `relative_depth`, `relative_area` và severity heuristic. Các trường
+`metric_calibrated` và `severity_calibrated` giữ `false` cho đến khi có camera
+intrinsics/depth scale đáng tin cậy.

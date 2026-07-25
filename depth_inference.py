@@ -35,6 +35,7 @@ class DepthAnythingONNX:
             raise ValueError("Depth input size phải là bội số của 14")
         options = ort.SessionOptions()
         options.graph_optimization_level = ort.GraphOptimizationLevel.ORT_ENABLE_ALL
+        options.add_session_config_entry("session.intra_op.allow_spinning", "0")
         if threads:
             options.intra_op_num_threads = threads
         self.session = ort.InferenceSession(
