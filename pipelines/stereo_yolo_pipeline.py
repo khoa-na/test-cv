@@ -14,7 +14,7 @@ import numpy as np
 from ultralytics import YOLO
 from ultralytics.utils import ops
 
-from stereo_sgbm import (
+from pipelines.stereo_sgbm import (
     compute_disparity,
     expand_residual_mask,
     fit_road_disparity,
@@ -94,10 +94,10 @@ class StereoYOLOPipeline:
         focal_px: float,
         baseline_mm: float,
         metric_scale: float = 1.0,
-        image_scale: float = 0.35,
+        image_scale: float = 0.325,
         num_disparities: int = 128,
         confidence: float = 0.25,
-        opencv_threads: int = 8,
+        opencv_threads: int = 4,
         min_alignment_iou: float = 0.1,
         area_quantile: float = 0.986,
         area_scale: float = 1.0,
@@ -114,7 +114,7 @@ class StereoYOLOPipeline:
         self.area_quantile = area_quantile
         self.area_scale = area_scale
 
-    def predict(self, left: np.ndarray, right: np.ndarray) -> tuple[dict, np.ndarray]:
+    def detect(self, left: np.ndarray) -> tuple[object, float]:
         started = time.perf_counter()
         result = self.detector.predict(
             left,
@@ -125,12 +125,14 @@ class StereoYOLOPipeline:
             retina_masks=False,
             verbose=False,
         )[0]
-        detection_ms = (time.perf_counter() - started) * 1000
-        disparity_started = time.perf_counter()
+        return result, (time.perf_counter() - started) * 1000
+
+    def estimate_geometry(self, left: np.ndarray, right: np.ndarray) -> dict:
+        started = time.perf_counter()
         disparity, sgbm_ms = compute_disparity(
             left, right, self.image_scale, self.num_disparities
         )
-        disparity_total_ms = (time.perf_counter() - disparity_started) * 1000
+        disparity_total_ms = (time.perf_counter() - started) * 1000
 
         road = fit_road_disparity(disparity)
         residual = road - disparity
@@ -143,8 +145,24 @@ class StereoYOLOPipeline:
             residual_seed,
             self.area_quantile,
         )
-        geometry_ready = time.perf_counter()
+        return {
+            "disparity": disparity,
+            "road": road,
+            "residual_mask": residual_mask,
+            "residual_threshold_px": residual_threshold,
+            "area_threshold_px": area_threshold,
+            "sgbm_ms": sgbm_ms,
+            "disparity_total_ms": disparity_total_ms,
+            "geometry_ms": (time.perf_counter() - started) * 1000,
+        }
 
+    def fuse(
+        self, left: np.ndarray, result: object, geometry_state: dict
+    ) -> tuple[dict, np.ndarray, float]:
+        started = time.perf_counter()
+        disparity = geometry_state["disparity"]
+        road = geometry_state["road"]
+        residual_mask = geometry_state["residual_mask"]
         annotated = left.copy()
         potholes = []
         if result.masks is not None:
@@ -244,23 +262,31 @@ class StereoYOLOPipeline:
                     cv2.LINE_AA,
                 )
 
-        finished = time.perf_counter()
-        total_ms = (finished - started) * 1000
         return {
             "potholes": potholes,
             "count": len(potholes),
             "depth_type": "stereo_road_disparity",
-            "residual_threshold_px": residual_threshold,
-            "area_threshold_px": area_threshold,
-            "latency": {
-                "detection_ms": detection_ms,
-                "sgbm_ms": sgbm_ms,
-                "disparity_total_ms": disparity_total_ms,
-                "geometry_ready_ms": (geometry_ready - started) * 1000,
-                "total_ms": total_ms,
-                "fps": 1000 / total_ms,
-            },
-        }, annotated
+            "residual_threshold_px": geometry_state["residual_threshold_px"],
+            "area_threshold_px": geometry_state["area_threshold_px"],
+        }, annotated, (time.perf_counter() - started) * 1000
+
+    def predict(self, left: np.ndarray, right: np.ndarray) -> tuple[dict, np.ndarray]:
+        started = time.perf_counter()
+        result, detection_ms = self.detect(left)
+        geometry_state = self.estimate_geometry(left, right)
+        report, annotated, fusion_ms = self.fuse(left, result, geometry_state)
+        total_ms = (time.perf_counter() - started) * 1000
+        report["latency"] = {
+            "detection_ms": detection_ms,
+            "sgbm_ms": geometry_state["sgbm_ms"],
+            "disparity_total_ms": geometry_state["disparity_total_ms"],
+            "geometry_ready_ms": detection_ms + geometry_state["geometry_ms"],
+            "geometry_ms": geometry_state["geometry_ms"],
+            "fusion_ms": fusion_ms,
+            "total_ms": total_ms,
+            "fps": 1000 / total_ms,
+        }
+        return report, annotated
 
 
 def main() -> None:
@@ -271,10 +297,10 @@ def main() -> None:
     parser.add_argument("--focal", type=float, required=True)
     parser.add_argument("--baseline-mm", type=float, required=True)
     parser.add_argument("--metric-scale", type=float, default=1.0)
-    parser.add_argument("--scale", type=float, default=0.35)
+    parser.add_argument("--scale", type=float, default=0.325)
     parser.add_argument("--num-disparities", type=int, default=128)
     parser.add_argument("--confidence", type=float, default=0.25)
-    parser.add_argument("--opencv-threads", type=int, default=8)
+    parser.add_argument("--opencv-threads", type=int, default=4)
     parser.add_argument("--min-alignment-iou", type=float, default=0.1)
     parser.add_argument("--area-quantile", type=float, default=0.986)
     parser.add_argument("--area-scale", type=float, default=1.0)

@@ -16,7 +16,7 @@ from pathlib import Path
 import cv2
 import numpy as np
 
-from stereo_sgbm import (
+from pipelines.stereo_sgbm import (
     compute_disparity,
     fit_road_disparity,
     measure_pothole,

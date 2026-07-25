@@ -3,7 +3,7 @@ import unittest
 import cv2
 import numpy as np
 
-from pothole_pipeline import estimate_geometry, regression_severity, severity
+from pipelines.pothole_pipeline import estimate_geometry, regression_severity, severity
 
 
 class PotholePipelineTest(unittest.TestCase):

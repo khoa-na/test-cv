@@ -8,9 +8,9 @@ from pathlib import Path
 import cv2
 import numpy as np
 
-from audit_pothrgbd import find_dataset_root, index_files, sample_id
-from depth_inference import DepthAnythingONNX
-from pothole_pipeline import estimate_geometry
+from data_tools.audit_pothrgbd import find_dataset_root, index_files, sample_id
+from pipelines.depth_inference import DepthAnythingONNX
+from pipelines.pothole_pipeline import estimate_geometry
 
 
 def split_name(key: str, test_fraction: float, seed: int) -> str:

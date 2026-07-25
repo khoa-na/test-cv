@@ -7,10 +7,14 @@ from pathlib import Path
 import cv2
 import numpy as np
 
-from audit_pothrgbd import find_dataset_root
-from benchmark_depth_pothrgbd import geometry_ready_samples, polygon_masks, split_name
-from depth_regressor_inference import DepthRegressorONNX
-from pothole_pipeline import estimate_geometry
+from benchmarks.benchmark_depth_pothrgbd import (
+    geometry_ready_samples,
+    polygon_masks,
+    split_name,
+)
+from data_tools.audit_pothrgbd import find_dataset_root
+from pipelines.depth_regressor_inference import DepthRegressorONNX
+from pipelines.pothole_pipeline import estimate_geometry
 
 
 def mask_iou(first: np.ndarray, second: np.ndarray) -> float:

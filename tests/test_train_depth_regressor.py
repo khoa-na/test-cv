@@ -3,8 +3,8 @@ import unittest
 import numpy as np
 import torch
 
-from depth_regressor_inference import preprocess_roi, roi_crop
-from train_depth_regressor import DepthRegressor, split_name
+from pipelines.depth_regressor_inference import preprocess_roi, roi_crop
+from training.train_depth_regressor import DepthRegressor, split_name
 
 
 class DepthRegressorTest(unittest.TestCase):

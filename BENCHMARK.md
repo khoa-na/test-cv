@@ -77,3 +77,26 @@ protocol. Full test ở 196px giảm ground-plane median error còn 46,9%, đạ
 Metric Outdoor cải thiện baseline nhưng vẫn không đạt A2. Tăng resolution
 không đủ bù domain gap và làm mất KPI 15 FPS, nên cấu hình 196px được giữ làm
 baseline monocular; hướng RGB-D/stereo cần được ưu tiên cho phép đo metric.
+
+## YOLO + stereo metric
+
+Dataset: Fan stereo pothole, 27 pair / 3 potholes vật lý
+
+Protocol: `model1` calibration; `model2` và `model3` held-out (19 pair).
+Stereo working scale 0,325; 4 OpenCV threads; mỗi pair đo 3 lần.
+
+| Metric held-out | Kết quả |
+|---|---:|
+| Detection/fusion coverage | 100% / 100% |
+| Median depth error | 5,07% |
+| Depth trong ±15% | 100% |
+| Median area error | 11,33% |
+| Area trong ±15% | 84,21% |
+| Depth + area cùng trong ±15% | 84,21% |
+| Median latency / FPS end-to-end | 64,2 ms / 15,57 FPS |
+
+Đối chứng CPU cho thấy cấu hình sequential dùng khoảng 72% tổng 16 logical
+CPU. Pipeline hai stage dùng khoảng 91% nhưng chậm hơn do ONNX Runtime và
+OpenCV tranh core; tăng utilization không đồng nghĩa tăng throughput. Scale
+0,325 tạo working width 208 px, nhanh hơn scale 0,35 nhưng giữ nguyên tỷ lệ
+held-out nằm trong ngưỡng ±15%.

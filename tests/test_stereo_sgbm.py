@@ -2,8 +2,12 @@ import unittest
 
 import numpy as np
 
-from benchmark_fan_stereo import robust_z_extent
-from stereo_sgbm import expand_residual_mask, fit_road_disparity, measure_pothole
+from benchmarks.benchmark_fan_stereo import robust_z_extent
+from pipelines.stereo_sgbm import (
+    expand_residual_mask,
+    fit_road_disparity,
+    measure_pothole,
+)
 
 
 class StereoSGBMTest(unittest.TestCase):

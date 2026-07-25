@@ -2,8 +2,8 @@ import unittest
 
 import numpy as np
 
-from benchmark_stereo_yolo import summarize
-from stereo_yolo_pipeline import (
+from benchmarks.benchmark_stereo_yolo import summarize
+from pipelines.stereo_yolo_pipeline import (
     fuse_mask,
     mask_bbox,
     road_surface_area_mm2,

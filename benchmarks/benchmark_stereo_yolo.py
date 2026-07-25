@@ -11,13 +11,13 @@ from pathlib import Path
 import cv2
 import numpy as np
 
-from benchmark_fan_stereo import (
+from benchmarks.benchmark_fan_stereo import (
     CALIBRATION,
     paired_images,
     read_binary_ply_xyz,
     robust_z_extent,
 )
-from stereo_yolo_pipeline import StereoYOLOPipeline
+from pipelines.stereo_yolo_pipeline import StereoYOLOPipeline
 
 
 def ground_truth_depth(model_dir: Path) -> float:
@@ -307,13 +307,13 @@ def parse_args() -> argparse.Namespace:
         default=Path("artifacts/stereo-yolo-benchmark"),
     )
     parser.add_argument("--metric-scale", type=float, default=0.8334711918061039)
-    parser.add_argument("--scale", type=float, default=0.35)
+    parser.add_argument("--scale", type=float, default=0.325)
     parser.add_argument("--num-disparities", type=int, default=128)
     parser.add_argument("--confidence", type=float, default=0.25)
     parser.add_argument("--min-alignment-iou", type=float, default=0.1)
     parser.add_argument("--area-quantile", type=float, default=0.986)
     parser.add_argument("--area-scale", type=float, default=1.3755604448201877)
-    parser.add_argument("--opencv-threads", type=int, default=8)
+    parser.add_argument("--opencv-threads", type=int, default=4)
     parser.add_argument("--warmup", type=int, default=3)
     parser.add_argument("--repeats", type=int, default=3)
     return parser.parse_args()

@@ -2,8 +2,8 @@ import unittest
 
 import numpy as np
 
-from benchmark_roi_pipeline import greedy_match, mask_iou
-from benchmark_depth_pothrgbd import evaluate, fit_scale, split_name
+from benchmarks.benchmark_depth_pothrgbd import evaluate, fit_scale, split_name
+from benchmarks.benchmark_roi_pipeline import greedy_match, mask_iou
 
 
 class DepthBenchmarkTest(unittest.TestCase):

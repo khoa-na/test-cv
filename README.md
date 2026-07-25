@@ -39,7 +39,7 @@ python3 -m venv .venv
 Tải và giải nén Pothole-600 vào `.cache/data/pothole600`, sau đó:
 
 ```bash
-YOLO_CONFIG_DIR="$PWD/.cache/ultralytics" .venv/bin/python train_pothole600.py \
+YOLO_CONFIG_DIR="$PWD/.cache/ultralytics" .venv/bin/python -m training.train_pothole600 \
   --dataset .cache/data/pothole600 \
   --model yolo26n-seg.pt \
   --output artifacts/yolo26n-seg \
@@ -61,7 +61,7 @@ YOLO_CONFIG_DIR="$PWD/.cache/ultralytics" .venv/bin/yolo export \
 ## Kiểm thử trainer
 
 ```bash
-.venv/bin/python train_pothole600.py \
+.venv/bin/python -m training.train_pothole600 \
   --dataset .cache/data/pothole600 --prepare-only
 ```
 
@@ -77,7 +77,7 @@ PothRGBD được giữ ngoài Git tại `.cache/data/pothrgbd`. Kiểm tra pair
 định dạng depth và metadata calibration bằng:
 
 ```bash
-.venv/bin/python audit_pothrgbd.py \
+.venv/bin/python -m data_tools.audit_pothrgbd \
   --dataset ".cache/data/pothrgbd/PUBLIC POTHOLE DATASET" \
   --output artifacts/pothrgbd-audit.json
 ```
@@ -115,7 +115,7 @@ curl -L \
 Chạy relative depth và benchmark CPU:
 
 ```bash
-.venv/bin/python depth_inference.py \
+.venv/bin/python -m pipelines.depth_inference \
   --model .cache/models/depth_anything_v2_vits_dynamic.onnx \
   --image ".cache/data/pothrgbd/PUBLIC POTHOLE DATASET/images/IMAGE.jpg" \
   --size 224 --output artifacts/depth
@@ -143,7 +143,7 @@ frame.
 Chạy pipeline trên một ảnh:
 
 ```bash
-.venv/bin/python pothole_pipeline.py \
+.venv/bin/python -m pipelines.pothole_pipeline \
   --detector models/pothole_yolo26n_seg.onnx \
   --depth-model .cache/models/depth_anything_v2_vits_dynamic.onnx \
   --image path/to/image.jpg \
@@ -160,7 +160,7 @@ intrinsics/depth scale đáng tin cậy.
 Benchmark Depth Anything bằng GT mask và raw RealSense depth của PothRGBD:
 
 ```bash
-.venv/bin/python benchmark_depth_pothrgbd.py \
+.venv/bin/python -m benchmarks.benchmark_depth_pothrgbd \
   --dataset ".cache/data/pothrgbd/PUBLIC POTHOLE DATASET" \
   --model .cache/models/depth_anything_v2_vits_dynamic.onnx \
   --size 196 --threads 6 --output artifacts/depth-benchmark
@@ -181,7 +181,7 @@ Train MobileNetV3-Small từ RGB crop, segmentation mask và RealSense depth c�
 PothRGBD:
 
 ```bash
-.venv/bin/python train_depth_regressor.py \
+.venv/bin/python -m training.train_depth_regressor \
   --dataset ".cache/data/pothrgbd/PUBLIC POTHOLE DATASET" \
   --output artifacts/depth-regressor-context
 ```
@@ -189,7 +189,7 @@ PothRGBD:
 Chạy pipeline YOLO segmentation + ROI depth ONNX:
 
 ```bash
-.venv/bin/python pothole_pipeline.py \
+.venv/bin/python -m pipelines.pothole_pipeline \
   --detector artifacts/final/pothole_yolo26n_seg.onnx \
   --depth-model artifacts/depth-regressor-context/pothole_depth_regressor.onnx \
   --image path/to/image.jpg \
@@ -199,7 +199,7 @@ Chạy pipeline YOLO segmentation + ROI depth ONNX:
 Benchmark end-to-end bằng predicted mask trên test split PothRGBD:
 
 ```bash
-.venv/bin/python benchmark_roi_pipeline.py \
+.venv/bin/python -m benchmarks.benchmark_roi_pipeline \
   --dataset ".cache/data/pothrgbd/PUBLIC POTHOLE DATASET" \
   --detector artifacts/final/pothole_yolo26n_seg.onnx \
   --depth-model artifacts/depth-regressor-context/pothole_depth_regressor.onnx
@@ -208,3 +208,31 @@ Benchmark end-to-end bằng predicted mask trên test split PothRGBD:
 Benchmark hiện tại đạt 25,5 FPS nhưng chỉ match 57,3% GT instances trên
 PothRGBD. Median depth error trên matched instances là 24,4% và median
 relative-area error là 19,5%; cấu hình này đạt KPI tốc độ nhưng chưa đạt A2.
+
+## Stereo depth và area metric
+
+Pipeline cuối dùng YOLO mask để định vị và StereoSGBM để đo chênh lệch so với
+mặt đường. Cấu hình CPU mặc định dùng stereo scale `0.325` (208 px trên bộ
+Fan) và 4 OpenCV threads:
+
+```bash
+.venv/bin/python -m benchmarks.benchmark_stereo_yolo \
+  --dataset .cache/data/fan-stereo-pothole \
+  --detector models/pothole_yolo26n_seg.onnx
+```
+
+Benchmark 27 stereo pair, trong đó `model1` dùng để calibration và 19 pair của
+`model2/model3` được giữ làm held-out:
+
+| KPI held-out | Kết quả |
+|---|---:|
+| Fusion coverage | 100% |
+| Median depth error | 5,07% |
+| Depth trong ±15% | 100% |
+| Median area error | 11,33% |
+| Depth + area cùng trong ±15% | 84,21% |
+| Median end-to-end FPS CPU | 15,57 |
+
+Thử chạy detector và stereo đồng thời làm mức dùng CPU tăng từ khoảng 72% lên
+91%, nhưng throughput giảm vì tranh chấp core. Vì vậy runtime giữ luồng
+sequential, không dùng queue và giới hạn OpenCV ở 4 threads.

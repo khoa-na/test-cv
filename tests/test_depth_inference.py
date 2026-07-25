@@ -2,7 +2,7 @@ import unittest
 
 import numpy as np
 
-from depth_inference import colorize_depth, preprocess
+from pipelines.depth_inference import colorize_depth, preprocess
 
 
 class DepthInferenceTest(unittest.TestCase):
