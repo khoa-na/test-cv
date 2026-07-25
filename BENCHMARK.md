@@ -61,3 +61,19 @@ Depth inference median là 62,6 ms, tương đương 16,0 FPS. Relative Depth
 Anything V2 Small không đạt KPI depth error <=15% trên PothRGBD; tăng ngưỡng
 độ sâu tối thiểu cũng không đưa median error về gần 15%. Kết quả dùng raw
 sensor units vì dataset không cung cấp `depth_scale` hay camera intrinsics.
+
+### Metric Outdoor Small
+
+Model `depth_anything_v2_vits_outdoor_dynamic.onnx` được đánh giá bằng cùng
+protocol. Full test ở 196px giảm ground-plane median error còn 46,9%, đạt
+16,5% instances trong ±15%, coverage 96,9% và 15,9 FPS.
+
+| Input | Phạm vi | Median error | Within ±15% | FPS |
+|---|---:|---:|---:|---:|
+| 196 | 967 ảnh | 46,9% | 16,5% | 15,9 |
+| 392 | 200 ảnh smoke | 47,0% | 20,0% | 4,9 |
+| 518 | 200 ảnh smoke | 41,5% | 18,2% | 3,0 |
+
+Metric Outdoor cải thiện baseline nhưng vẫn không đạt A2. Tăng resolution
+không đủ bù domain gap và làm mất KPI 15 FPS, nên cấu hình 196px được giữ làm
+baseline monocular; hướng RGB-D/stereo cần được ưu tiên cho phép đo metric.
