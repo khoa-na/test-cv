@@ -94,8 +94,8 @@ class StereoYOLOPipeline:
         focal_px: float,
         baseline_mm: float,
         metric_scale: float = 1.0,
-        image_scale: float = 0.325,
-        num_disparities: int = 128,
+        image_scale: float = 0.3125,
+        num_disparities: int = 112,
         confidence: float = 0.25,
         opencv_threads: int = 4,
         min_alignment_iou: float = 0.1,
@@ -297,8 +297,8 @@ def main() -> None:
     parser.add_argument("--focal", type=float, required=True)
     parser.add_argument("--baseline-mm", type=float, required=True)
     parser.add_argument("--metric-scale", type=float, default=1.0)
-    parser.add_argument("--scale", type=float, default=0.325)
-    parser.add_argument("--num-disparities", type=int, default=128)
+    parser.add_argument("--scale", type=float, default=0.3125)
+    parser.add_argument("--num-disparities", type=int, default=112)
     parser.add_argument("--confidence", type=float, default=0.25)
     parser.add_argument("--opencv-threads", type=int, default=4)
     parser.add_argument("--min-alignment-iou", type=float, default=0.1)

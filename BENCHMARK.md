@@ -83,20 +83,21 @@ baseline monocular; hướng RGB-D/stereo cần được ưu tiên cho phép đo
 Dataset: Fan stereo pothole, 27 pair / 3 potholes vật lý
 
 Protocol: `model1` calibration; `model2` và `model3` held-out (19 pair).
-Stereo working scale 0,325; 4 OpenCV threads; mỗi pair đo 3 lần.
+Stereo working scale 0,3125; 112 disparities; 4 OpenCV threads; mỗi pair đo
+3 lần.
 
 | Metric held-out | Kết quả |
 |---|---:|
 | Detection/fusion coverage | 100% / 100% |
-| Median depth error | 5,07% |
+| Median depth error | 4,97% |
 | Depth trong ±15% | 100% |
-| Median area error | 11,33% |
-| Area trong ±15% | 84,21% |
-| Depth + area cùng trong ±15% | 84,21% |
-| Median latency / FPS end-to-end | 64,2 ms / 15,57 FPS |
+| Median area error | 11,61% |
+| Area trong ±15% | 89,47% |
+| Depth + area cùng trong ±15% | 89,47% |
+| Median latency / FPS end-to-end | 57,3 ms / 17,45 FPS |
 
 Đối chứng CPU cho thấy cấu hình sequential dùng khoảng 72% tổng 16 logical
 CPU. Pipeline hai stage dùng khoảng 91% nhưng chậm hơn do ONNX Runtime và
 OpenCV tranh core; tăng utilization không đồng nghĩa tăng throughput. Scale
-0,325 tạo working width 208 px, nhanh hơn scale 0,35 nhưng giữ nguyên tỷ lệ
-held-out nằm trong ngưỡng ±15%.
+0,3125 tạo working width 200 px và 112 disparities, nhanh hơn cấu hình
+0,325/128 đồng thời tăng tỷ lệ held-out đạt cả depth và area trong ±15%.

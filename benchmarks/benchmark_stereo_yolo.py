@@ -307,8 +307,8 @@ def parse_args() -> argparse.Namespace:
         default=Path("artifacts/stereo-yolo-benchmark"),
     )
     parser.add_argument("--metric-scale", type=float, default=0.8334711918061039)
-    parser.add_argument("--scale", type=float, default=0.325)
-    parser.add_argument("--num-disparities", type=int, default=128)
+    parser.add_argument("--scale", type=float, default=0.3125)
+    parser.add_argument("--num-disparities", type=int, default=112)
     parser.add_argument("--confidence", type=float, default=0.25)
     parser.add_argument("--min-alignment-iou", type=float, default=0.1)
     parser.add_argument("--area-quantile", type=float, default=0.986)

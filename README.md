@@ -212,8 +212,8 @@ relative-area error là 19,5%; cấu hình này đạt KPI tốc độ nhưng ch
 ## Stereo depth và area metric
 
 Pipeline cuối dùng YOLO mask để định vị và StereoSGBM để đo chênh lệch so với
-mặt đường. Cấu hình CPU mặc định dùng stereo scale `0.325` (208 px trên bộ
-Fan) và 4 OpenCV threads:
+mặt đường. Cấu hình CPU mặc định dùng stereo scale `0.3125` (200 px trên bộ
+Fan), 112 disparities và 4 OpenCV threads:
 
 ```bash
 .venv/bin/python -m benchmarks.benchmark_stereo_yolo \
@@ -227,11 +227,11 @@ Benchmark 27 stereo pair, trong đó `model1` dùng để calibration và 19 pai
 | KPI held-out | Kết quả |
 |---|---:|
 | Fusion coverage | 100% |
-| Median depth error | 5,07% |
+| Median depth error | 4,97% |
 | Depth trong ±15% | 100% |
-| Median area error | 11,33% |
-| Depth + area cùng trong ±15% | 84,21% |
-| Median end-to-end FPS CPU | 15,57 |
+| Median area error | 11,61% |
+| Depth + area cùng trong ±15% | 89,47% |
+| Median end-to-end FPS CPU | 17,45 |
 
 Thử chạy detector và stereo đồng thời làm mức dùng CPU tăng từ khoảng 72% lên
 91%, nhưng throughput giảm vì tranh chấp core. Vì vậy runtime giữ luồng
