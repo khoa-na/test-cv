@@ -12,10 +12,10 @@ from torch import nn
 from torch.utils.data import DataLoader, Dataset
 from torchvision.models import MobileNet_V3_Small_Weights, mobilenet_v3_small
 
-from audit_pothrgbd import find_dataset_root
-from benchmark_depth_pothrgbd import geometry_ready_samples, polygon_masks
-from depth_regressor_inference import MEAN, STD, mask_features, roi_crop
-from pothole_pipeline import estimate_geometry
+from benchmarks.benchmark_depth_pothrgbd import geometry_ready_samples, polygon_masks
+from data_tools.audit_pothrgbd import find_dataset_root
+from pipelines.depth_regressor_inference import MEAN, STD, mask_features, roi_crop
+from pipelines.pothole_pipeline import estimate_geometry
 
 
 def split_name(key: str, seed: int = 42) -> str:

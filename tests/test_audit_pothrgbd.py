@@ -5,7 +5,7 @@ from pathlib import Path
 import cv2
 import numpy as np
 
-from audit_pothrgbd import audit_dataset
+from data_tools.audit_pothrgbd import audit_dataset
 
 
 class AuditPothRGBDTest(unittest.TestCase):

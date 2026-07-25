@@ -2,8 +2,13 @@ import unittest
 
 import numpy as np
 
-from benchmark_stereo_yolo import summarize
-from stereo_yolo_pipeline import fuse_mask, road_surface_area_mm2
+from benchmarks.benchmark_stereo_yolo import summarize
+from pipelines.stereo_yolo_pipeline import (
+    fuse_mask,
+    mask_bbox,
+    road_surface_area_mm2,
+    select_area_mm2,
+)
 
 
 class StereoYOLOPipelineTest(unittest.TestCase):
@@ -31,7 +36,9 @@ class StereoYOLOPipelineTest(unittest.TestCase):
                 "detections": 1,
                 "fusion_success": True,
                 "strong_alignment": True,
+                "fallback_applied": False,
                 "relative_error": 0.05,
+                "area_relative_error": 0.05,
                 "total_ms": 50,
             },
             {
@@ -39,7 +46,9 @@ class StereoYOLOPipelineTest(unittest.TestCase):
                 "detections": 1,
                 "fusion_success": False,
                 "strong_alignment": False,
+                "fallback_applied": False,
                 "relative_error": None,
+                "area_relative_error": None,
                 "total_ms": 100,
             },
         ]
@@ -48,6 +57,22 @@ class StereoYOLOPipelineTest(unittest.TestCase):
 
         self.assertEqual(result["held_out"]["fusion_coverage"], 0.5)
         self.assertEqual(result["held_out"]["end_to_end_within_15_percent"], 0.5)
+
+    def test_mask_bbox_scales_residual_localization(self):
+        mask = np.zeros((10, 20), dtype=bool)
+        mask[2:6, 5:10] = True
+
+        self.assertEqual(mask_bbox(mask, (100, 200)), [50, 20, 100, 60])
+
+    def test_area_uses_yolo_unscaled_and_calibrates_fallback(self):
+        self.assertEqual(
+            select_area_mm2(100, False, 1.5),
+            (100, "yolo_mask", False),
+        )
+        self.assertEqual(
+            select_area_mm2(100, True, 1.5),
+            (150, "stereo_residual", True),
+        )
 
 
 if __name__ == "__main__":

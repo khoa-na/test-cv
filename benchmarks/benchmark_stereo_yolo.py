@@ -11,13 +11,13 @@ from pathlib import Path
 import cv2
 import numpy as np
 
-from benchmark_fan_stereo import (
+from benchmarks.benchmark_fan_stereo import (
     CALIBRATION,
     paired_images,
     read_binary_ply_xyz,
     robust_z_extent,
 )
-from stereo_yolo_pipeline import StereoYOLOPipeline
+from pipelines.stereo_yolo_pipeline import StereoYOLOPipeline
 
 
 def ground_truth_depth(model_dir: Path) -> float:
@@ -30,10 +30,23 @@ def ground_truth_depth(model_dir: Path) -> float:
     return float(np.median(depths))
 
 
+def ground_truth_area(model_dir: Path) -> float:
+    areas = []
+    for path in sorted((model_dir / "gt").glob("*.ply")):
+        xy = read_binary_ply_xyz(path)[:, :2]
+        low, high = np.percentile(xy, (0.5, 99.5), axis=0)
+        xy = xy[((xy >= low) & (xy <= high)).all(axis=1)]
+        areas.append(cv2.contourArea(cv2.convexHull(xy.astype(np.float32))))
+    if not areas:
+        raise ValueError(f"No laser scans found in {model_dir}")
+    return float(np.median(areas))
+
+
 def summarize(rows: list[dict]) -> dict:
     test = [row for row in rows if row["model"] in {"model2", "model3"}]
     fused = [row for row in test if row["fusion_success"]]
     errors = np.asarray([row["relative_error"] for row in fused])
+    area_errors = np.asarray([row["area_relative_error"] for row in fused])
     latencies = np.asarray([row["total_ms"] for row in rows])
     return {
         "pairs": len(rows),
@@ -42,11 +55,15 @@ def summarize(rows: list[dict]) -> dict:
         "strong_alignment_coverage": float(
             np.mean([row["strong_alignment"] for row in rows])
         ),
+        "fallback_rate": float(np.mean([row["fallback_applied"] for row in rows])),
         "held_out": {
             "pairs": len(test),
             "fusion_coverage": len(fused) / len(test),
             "strong_alignment_coverage": float(
                 np.mean([row["strong_alignment"] for row in test])
+            ),
+            "fallback_rate": float(
+                np.mean([row["fallback_applied"] for row in test])
             ),
             "median_relative_error": float(np.median(errors)) if errors.size else None,
             "mean_relative_error": float(np.mean(errors)) if errors.size else None,
@@ -56,12 +73,33 @@ def summarize(rows: list[dict]) -> dict:
             "within_8_percent_of_fused": float(np.mean(errors <= 0.08))
             if errors.size
             else 0.0,
+            "area_median_relative_error": float(np.median(area_errors))
+            if area_errors.size
+            else None,
+            "area_mean_relative_error": float(np.mean(area_errors))
+            if area_errors.size
+            else None,
+            "area_within_15_percent": float(np.mean(area_errors <= 0.15))
+            if area_errors.size
+            else 0.0,
+            "area_within_8_percent": float(np.mean(area_errors <= 0.08))
+            if area_errors.size
+            else 0.0,
             "end_to_end_within_15_percent": float(
                 np.mean(
                     [
                         row["fusion_success"]
-                        and row["strong_alignment"]
                         and row["relative_error"] <= 0.15
+                        for row in test
+                    ]
+                )
+            ),
+            "end_to_end_depth_area_within_15_percent": float(
+                np.mean(
+                    [
+                        row["fusion_success"]
+                        and row["relative_error"] <= 0.15
+                        and row["area_relative_error"] <= 0.15
                         for row in test
                     ]
                 )
@@ -84,14 +122,17 @@ def run(args: argparse.Namespace) -> dict:
     warm_left = cv2.imread(str(first_left))
     warm_right = cv2.imread(str(first_right))
     pipeline = StereoYOLOPipeline(
-        args.detector,
-        CALIBRATION["model1"]["focal_px"],
-        CALIBRATION["model1"]["baseline_mm"],
-        args.metric_scale,
-        args.scale,
-        args.num_disparities,
-        args.confidence,
-        args.opencv_threads,
+        detector_path=args.detector,
+        focal_px=CALIBRATION["model1"]["focal_px"],
+        baseline_mm=CALIBRATION["model1"]["baseline_mm"],
+        metric_scale=args.metric_scale,
+        image_scale=args.scale,
+        num_disparities=args.num_disparities,
+        confidence=args.confidence,
+        opencv_threads=args.opencv_threads,
+        min_alignment_iou=args.min_alignment_iou,
+        area_quantile=args.area_quantile,
+        area_scale=args.area_scale,
     )
     for _ in range(args.warmup):
         pipeline.predict(warm_left, warm_right)
@@ -99,12 +140,17 @@ def run(args: argparse.Namespace) -> dict:
     args.output.mkdir(parents=True, exist_ok=True)
     failure_dir = args.output / "failures"
     failure_dir.mkdir(exist_ok=True)
+    fallback_dir = args.output / "fallbacks"
+    fallback_dir.mkdir(exist_ok=True)
     for stale_image in failure_dir.glob("*.jpg"):
+        stale_image.unlink()
+    for stale_image in fallback_dir.glob("*.jpg"):
         stale_image.unlink()
     rows = []
     for model_name, calibration in CALIBRATION.items():
         model_dir = dataset / model_name
         truth = ground_truth_depth(model_dir)
+        truth_area = ground_truth_area(model_dir)
         pipeline.focal_px = calibration["focal_px"]
         pipeline.baseline_mm = calibration["baseline_mm"]
         for left_path, right_path in paired_images(model_dir):
@@ -123,34 +169,47 @@ def run(args: argparse.Namespace) -> dict:
                 relative_error = (
                     abs(best["depth_mm"] - truth) / truth if best is not None else None
                 )
+                area_relative_error = (
+                    abs(best["area_mm2"] - truth_area) / truth_area
+                    if best is not None
+                    else None
+                )
                 fusion_success = best is not None
                 strong_alignment = (
                     best is not None
                     and best["detection_residual_iou"] >= args.min_alignment_iou
                 )
+                fallback_applied = best is not None and best["fallback_applied"]
                 status = (
                     "no_detection"
                     if report["count"] == 0
                     else "fusion_failed"
                     if not fusion_success
-                    else "weak_alignment"
-                    if not strong_alignment
                     else "depth_error"
                     if relative_error > 0.15
+                    else "area_error"
+                    if area_relative_error > 0.15
                     else "success"
                 )
                 row = {
                     "model": model_name,
                     "pair": left_path.stem[1:],
                     "ground_truth_mm": truth,
+                    "ground_truth_area_cm2": truth_area / 100,
                     "status": status,
                     "detections": report["count"],
                     "fusion_success": fusion_success,
                     "strong_alignment": strong_alignment,
+                    "fallback_applied": fallback_applied,
+                    "localization_source": best["localization_source"]
+                    if best
+                    else None,
                     "confidence": best["confidence"] if best else None,
                     "depth_mm": best["depth_mm"] if best else None,
                     "relative_error": relative_error,
                     "area_cm2": best["area_cm2"] if best else None,
+                    "area_source": best["area_source"] if best else None,
+                    "area_relative_error": area_relative_error,
                     "residual_coverage": best["residual_coverage"] if best else None,
                     "detection_residual_iou": best["detection_residual_iou"]
                     if best
@@ -165,14 +224,19 @@ def run(args: argparse.Namespace) -> dict:
                     "model": model_name,
                     "pair": left_path.stem[1:],
                     "ground_truth_mm": truth,
+                    "ground_truth_area_cm2": truth_area / 100,
                     "status": "pipeline_error",
                     "detections": 0,
                     "fusion_success": False,
                     "strong_alignment": False,
+                    "fallback_applied": False,
+                    "localization_source": None,
                     "confidence": None,
                     "depth_mm": None,
                     "relative_error": None,
                     "area_cm2": None,
+                    "area_source": None,
+                    "area_relative_error": None,
                     "residual_coverage": None,
                     "detection_residual_iou": None,
                     "total_ms": float("nan"),
@@ -185,6 +249,11 @@ def run(args: argparse.Namespace) -> dict:
                     str(failure_dir / f"{model_name}_{left_path.stem}.jpg"),
                     annotated,
                 )
+            if row["fallback_applied"]:
+                cv2.imwrite(
+                    str(fallback_dir / f"{model_name}_{left_path.stem}.jpg"),
+                    annotated,
+                )
             print(
                 f"{model_name}/{left_path.stem}: {row['status']} "
                 f"{row['fps']:.1f} FPS"
@@ -195,14 +264,18 @@ def run(args: argparse.Namespace) -> dict:
         "calibration_group": "model1",
         "test_groups": ["model2", "model3"],
         "metric_scale": args.metric_scale,
+        "area_scale": args.area_scale,
+        "area_ground_truth_definition": (
+            "Median robust XY convex-hull area across each model's laser scans"
+        ),
         "strong_alignment_definition": (
-            f"detection-residual IoU >= {args.min_alignment_iou}; "
-            "heuristic proxy, not labeled-mask IoU"
+            f"raw YOLO detection-residual IoU >= {args.min_alignment_iou}; "
+            "weak alignment uses residual localization fallback"
         ),
         **summarize(rows),
         "limitations": [
             "Depth ground truth is the per-model laser z-extent proxy.",
-            "Area has no independent ground truth in this benchmark.",
+            "Area truth is a laser XY convex-hull proxy, not a manually traced opening.",
             "Only three physical potholes are represented.",
         ],
     }
@@ -234,11 +307,13 @@ def parse_args() -> argparse.Namespace:
         default=Path("artifacts/stereo-yolo-benchmark"),
     )
     parser.add_argument("--metric-scale", type=float, default=0.8334711918061039)
-    parser.add_argument("--scale", type=float, default=0.35)
-    parser.add_argument("--num-disparities", type=int, default=128)
+    parser.add_argument("--scale", type=float, default=0.3125)
+    parser.add_argument("--num-disparities", type=int, default=112)
     parser.add_argument("--confidence", type=float, default=0.25)
     parser.add_argument("--min-alignment-iou", type=float, default=0.1)
-    parser.add_argument("--opencv-threads", type=int, default=8)
+    parser.add_argument("--area-quantile", type=float, default=0.986)
+    parser.add_argument("--area-scale", type=float, default=1.3755604448201877)
+    parser.add_argument("--opencv-threads", type=int, default=4)
     parser.add_argument("--warmup", type=int, default=3)
     parser.add_argument("--repeats", type=int, default=3)
     return parser.parse_args()

@@ -7,7 +7,7 @@ import cv2
 import numpy as np
 from ultralytics import YOLO
 
-from depth_regressor_inference import DepthRegressorONNX
+from pipelines.depth_regressor_inference import DepthRegressorONNX
 
 
 def fit_road_plane(depth: np.ndarray, ring: np.ndarray) -> np.ndarray:
