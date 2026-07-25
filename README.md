@@ -174,3 +174,37 @@ Kết quả trên 967 ảnh hợp lệ cho thấy ground-plane normalization v�
 relative error 56,6% và chỉ 12,4% test instances nằm trong ±15%. Vì vậy
 Depth Anything V2 Small relative 196px hiện **không đạt** KPI depth accuracy;
 pipeline giữ model này làm baseline tốc độ, không coi là phương án depth cuối.
+
+## ROI depth regression
+
+Train MobileNetV3-Small từ RGB crop, segmentation mask và RealSense depth của
+PothRGBD:
+
+```bash
+.venv/bin/python train_depth_regressor.py \
+  --dataset ".cache/data/pothrgbd/PUBLIC POTHOLE DATASET" \
+  --output artifacts/depth-regressor-context
+```
+
+Chạy pipeline YOLO segmentation + ROI depth ONNX:
+
+```bash
+.venv/bin/python pothole_pipeline.py \
+  --detector artifacts/final/pothole_yolo26n_seg.onnx \
+  --depth-model artifacts/depth-regressor-context/pothole_depth_regressor.onnx \
+  --image path/to/image.jpg \
+  --output artifacts/pipeline-roi
+```
+
+Benchmark end-to-end bằng predicted mask trên test split PothRGBD:
+
+```bash
+.venv/bin/python benchmark_roi_pipeline.py \
+  --dataset ".cache/data/pothrgbd/PUBLIC POTHOLE DATASET" \
+  --detector artifacts/final/pothole_yolo26n_seg.onnx \
+  --depth-model artifacts/depth-regressor-context/pothole_depth_regressor.onnx
+```
+
+Benchmark hiện tại đạt 25,5 FPS nhưng chỉ match 57,3% GT instances trên
+PothRGBD. Median depth error trên matched instances là 24,4% và median
+relative-area error là 19,5%; cấu hình này đạt KPI tốc độ nhưng chưa đạt A2.

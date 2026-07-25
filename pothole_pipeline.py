@@ -7,7 +7,7 @@ import cv2
 import numpy as np
 from ultralytics import YOLO
 
-from depth_inference import DepthAnythingONNX, colorize_depth
+from depth_regressor_inference import DepthRegressorONNX
 
 
 def fit_road_plane(depth: np.ndarray, ring: np.ndarray) -> np.ndarray:
@@ -76,20 +76,32 @@ def severity(geometry: dict) -> str:
     return "minor"
 
 
+def regression_severity(geometry: dict) -> str:
+    if geometry["normalized_depth"] >= 0.05 or geometry["relative_area"] >= 0.08:
+        return "severe"
+    if geometry["normalized_depth"] >= 0.02 or geometry["relative_area"] >= 0.03:
+        return "moderate"
+    return "minor"
+
+
 class PotholePipeline:
     def __init__(
         self,
         detector_path: Path,
         depth_path: Path,
-        depth_size: int = 196,
+        depth_size: int = 128,
         confidence: float = 0.25,
         depth_threads: int = 6,
+        reliable_min: float = 32.46,
+        reliable_max: float = 59.48,
     ):
         self.detector = YOLO(str(detector_path), task="segment")
-        self.depth = DepthAnythingONNX(depth_path, depth_size, depth_threads)
+        self.depth = DepthRegressorONNX(
+            depth_path, depth_size, depth_threads, reliable_min, reliable_max
+        )
         self.confidence = confidence
 
-    def predict(self, image: np.ndarray) -> tuple[dict, np.ndarray, np.ndarray]:
+    def predict(self, image: np.ndarray) -> tuple[dict, np.ndarray]:
         started = time.perf_counter()
         result = self.detector.predict(
             image,
@@ -101,30 +113,43 @@ class PotholePipeline:
             verbose=False,
         )[0]
         after_detection = time.perf_counter()
-        depth = self.depth.predict(image)
-        after_depth = time.perf_counter()
 
         annotated = image.copy()
         potholes = []
+        depth_ms = 0.0
         if result.masks is not None:
             masks = result.masks.data.cpu().numpy()
             boxes = result.boxes.xyxy.cpu().numpy()
             confidences = result.boxes.conf.cpu().numpy()
             for index, (raw_mask, box, score) in enumerate(zip(masks, boxes, confidences)):
                 mask = raw_mask > 0.5
-                if mask.shape != depth.shape:
+                if mask.shape != image.shape[:2]:
                     mask = cv2.resize(
                         mask.astype(np.uint8),
-                        (depth.shape[1], depth.shape[0]),
+                        (image.shape[1], image.shape[0]),
                         interpolation=cv2.INTER_NEAREST,
                     ).astype(bool)
                 try:
-                    geometry = estimate_geometry(mask, depth)
+                    depth_started = time.perf_counter()
+                    geometry = self.depth.predict(image, mask)
+                    depth_ms += (time.perf_counter() - depth_started) * 1000
+                    area_pixels = int(np.count_nonzero(mask))
+                    geometry.update(
+                        {
+                            "relative_area": area_pixels / mask.size,
+                            "area_pixels": area_pixels,
+                            "units": {
+                                "depth": "realsense_raw_regression",
+                                "area": "image_fraction",
+                                "metric_calibrated": False,
+                            },
+                        }
+                    )
                 except ValueError as error:
                     geometry = {"error": str(error)}
                     level = "unknown"
                 else:
-                    level = severity(geometry)
+                    level = regression_severity(geometry)
                 potholes.append(
                     {
                         "id": index,
@@ -155,8 +180,8 @@ class PotholePipeline:
         finished = time.perf_counter()
         latency = {
             "detection_ms": (after_detection - started) * 1000,
-            "depth_ms": (after_depth - after_detection) * 1000,
-            "fusion_ms": (finished - after_depth) * 1000,
+            "depth_ms": depth_ms,
+            "fusion_ms": (finished - after_detection) * 1000 - depth_ms,
             "total_ms": (finished - started) * 1000,
         }
         latency["sequential_fps"] = 1000 / latency["total_ms"]
@@ -164,18 +189,21 @@ class PotholePipeline:
             "potholes": potholes,
             "count": len(potholes),
             "latency": latency,
-            "depth_type": "relative",
+            "depth_type": "roi_scalar_regression",
             "metric_calibrated": False,
-        }, annotated, depth
+        }, annotated
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Pothole segmentation + relative depth/area")
+    parser = argparse.ArgumentParser(description="Pothole segmentation + ROI depth/area")
     parser.add_argument("--detector", type=Path, required=True)
     parser.add_argument("--depth-model", type=Path, required=True)
     parser.add_argument("--image", type=Path, required=True)
     parser.add_argument("--output", type=Path, default=Path("artifacts/pipeline"))
-    parser.add_argument("--depth-size", type=int, default=196)
+    parser.add_argument("--depth-size", type=int, default=128)
+    parser.add_argument("--depth-threads", type=int, default=6)
+    parser.add_argument("--reliable-min", type=float, default=32.46)
+    parser.add_argument("--reliable-max", type=float, default=59.48)
     parser.add_argument("--confidence", type=float, default=0.25)
     parser.add_argument("--warmup", type=int, default=1)
     args = parser.parse_args()
@@ -184,15 +212,19 @@ def main() -> None:
     if image is None:
         raise FileNotFoundError(f"Không đọc được ảnh: {args.image}")
     pipeline = PotholePipeline(
-        args.detector, args.depth_model, args.depth_size, args.confidence
+        args.detector,
+        args.depth_model,
+        args.depth_size,
+        args.confidence,
+        args.depth_threads,
+        args.reliable_min,
+        args.reliable_max,
     )
     for _ in range(args.warmup):
         pipeline.predict(image)
-    report, annotated, depth = pipeline.predict(image)
+    report, annotated = pipeline.predict(image)
     args.output.mkdir(parents=True, exist_ok=True)
     cv2.imwrite(str(args.output / "result.jpg"), annotated)
-    cv2.imwrite(str(args.output / "depth.jpg"), colorize_depth(depth))
-    np.save(args.output / "relative_depth.npy", depth)
     (args.output / "report.json").write_text(
         json.dumps(report, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
     )

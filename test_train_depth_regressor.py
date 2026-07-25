@@ -3,7 +3,8 @@ import unittest
 import numpy as np
 import torch
 
-from train_depth_regressor import DepthRegressor, roi_crop, split_name
+from depth_regressor_inference import preprocess_roi, roi_crop
+from train_depth_regressor import DepthRegressor, split_name
 
 
 class DepthRegressorTest(unittest.TestCase):
@@ -16,6 +17,11 @@ class DepthRegressorTest(unittest.TestCase):
         crop, mask = roi_crop(image, points, 32)
         self.assertEqual(crop.shape, (32, 32, 3))
         self.assertEqual(mask.shape, (32, 32))
+        full_mask = np.zeros(image.shape[:2], dtype=np.uint8)
+        full_mask[10:30, 10:40] = 1
+        image_input, geometry_input = preprocess_roi(image, full_mask, 32)
+        self.assertEqual(image_input.shape, (1, 4, 32, 32))
+        self.assertEqual(geometry_input.shape, (1, 6))
 
     def test_model_outputs_two_depth_targets(self):
         model = DepthRegressor(pretrained=False).eval()
