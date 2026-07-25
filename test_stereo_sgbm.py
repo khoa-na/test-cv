@@ -3,7 +3,7 @@ import unittest
 import numpy as np
 
 from benchmark_fan_stereo import robust_z_extent
-from stereo_sgbm import fit_road_disparity, measure_pothole
+from stereo_sgbm import expand_residual_mask, fit_road_disparity, measure_pothole
 
 
 class StereoSGBMTest(unittest.TestCase):
@@ -28,6 +28,18 @@ class StereoSGBMTest(unittest.TestCase):
 
         self.assertGreater(robust_z_extent(points), 39)
         self.assertLess(robust_z_extent(points), 41)
+
+    def test_residual_seed_expands_to_connected_pothole(self):
+        residual = np.zeros((100, 100), dtype=np.float32)
+        residual[30:70, 30:70] = 5
+        residual[45:55, 45:55] = 10
+        seed = residual == 10
+
+        mask, _ = expand_residual_mask(
+            residual, np.ones_like(seed), seed, quantile=0.85
+        )
+
+        self.assertEqual(np.count_nonzero(mask), 1600)
 
 
 if __name__ == "__main__":

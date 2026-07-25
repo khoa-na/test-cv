@@ -81,6 +81,25 @@ def segment_residual(
     return labels == largest, threshold
 
 
+def expand_residual_mask(
+    residual: np.ndarray,
+    valid: np.ndarray,
+    seed_mask: np.ndarray,
+    quantile: float = 0.986,
+) -> tuple[np.ndarray, float]:
+    threshold = float(np.quantile(residual[valid], quantile))
+    candidate = (valid & (residual >= threshold)).astype(np.uint8)
+    candidate = cv2.morphologyEx(
+        candidate, cv2.MORPH_CLOSE, np.ones((7, 7), dtype=np.uint8)
+    )
+    seed_points = np.argwhere(seed_mask.astype(bool) & (candidate > 0))
+    if not seed_points.size:
+        raise ValueError("Không thể mở rộng residual component từ seed")
+    seed_y, seed_x = seed_points[0]
+    cv2.floodFill(candidate, None, (int(seed_x), int(seed_y)), 2)
+    return candidate == 2, threshold
+
+
 def measure_pothole(
     disparity: np.ndarray,
     road_disparity: np.ndarray,

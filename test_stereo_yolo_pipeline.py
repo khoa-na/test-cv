@@ -33,6 +33,7 @@ class StereoYOLOPipelineTest(unittest.TestCase):
                 "strong_alignment": True,
                 "fallback_applied": False,
                 "relative_error": 0.05,
+                "area_relative_error": 0.05,
                 "total_ms": 50,
             },
             {
@@ -42,6 +43,7 @@ class StereoYOLOPipelineTest(unittest.TestCase):
                 "strong_alignment": False,
                 "fallback_applied": False,
                 "relative_error": None,
+                "area_relative_error": None,
                 "total_ms": 100,
             },
         ]
