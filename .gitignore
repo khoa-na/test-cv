@@ -209,6 +209,15 @@ tempCodeRunnerFile.py
 # PyPI configuration file
 .pypirc
 
+# Local CV assets and generated benchmark outputs
+.cache/
+artifacts/
+*.onnx
+*.pt
+Bài test AI - Computer Vision Fresher.md
+!models/
+!models/*.onnx
+
 # Marimo
 marimo/_static/
 marimo/_lsp/
