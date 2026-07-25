@@ -26,7 +26,9 @@ def fit_road_plane(depth: np.ndarray, ring: np.ndarray) -> np.ndarray:
     return coefficients
 
 
-def estimate_geometry(mask: np.ndarray, depth: np.ndarray, ring_width: int = 15) -> dict:
+def estimate_geometry(
+    mask: np.ndarray, depth: np.ndarray, ring_width: int = 15, depth_direction: int = 1
+) -> dict:
     mask = mask.astype(bool)
     if mask.shape != depth.shape:
         raise ValueError("Mask và depth phải cùng kích thước")
@@ -47,7 +49,9 @@ def estimate_geometry(mask: np.ndarray, depth: np.ndarray, ring_width: int = 15)
     residual = depth[inside_y, inside_x] - expected_road
     local_values = depth[(mask | ring) & np.isfinite(depth)]
     local_range = max(float(np.percentile(local_values, 95) - np.percentile(local_values, 5)), 1e-6)
-    relative_depth = max(0.0, float(np.percentile(residual, 90)))
+    if depth_direction not in (-1, 1):
+        raise ValueError("depth_direction phải là -1 hoặc 1")
+    relative_depth = max(0.0, float(np.percentile(depth_direction * residual, 90)))
     area_pixels = int(np.count_nonzero(mask))
     return {
         "relative_depth": relative_depth,

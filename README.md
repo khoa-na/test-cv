@@ -154,3 +154,23 @@ Pipeline fit mặt phẳng depth cục bộ từ vành đai quanh mỗi segmenta
 sau đó báo `relative_depth`, `relative_area` và severity heuristic. Các trường
 `metric_calibrated` và `severity_calibrated` giữ `false` cho đến khi có camera
 intrinsics/depth scale đáng tin cậy.
+
+## Benchmark relative depth
+
+Benchmark Depth Anything bằng GT mask và raw RealSense depth của PothRGBD:
+
+```bash
+.venv/bin/python benchmark_depth_pothrgbd.py \
+  --dataset ".cache/data/pothrgbd/PUBLIC POTHOLE DATASET" \
+  --model .cache/models/depth_anything_v2_vits_dynamic.onnx \
+  --size 196 --threads 6 --output artifacts/depth-benchmark
+```
+
+Script fit đúng một scale trên calibration split, tự chọn hướng dấu depth bằng
+calibration data, sau đó khóa cả hai để tính relative error trên test split.
+Đơn vị vẫn được ghi là raw sensor units vì archive không kèm `depth_scale`.
+
+Kết quả trên 967 ảnh hợp lệ cho thấy ground-plane normalization vẫn có median
+relative error 56,6% và chỉ 12,4% test instances nằm trong ±15%. Vì vậy
+Depth Anything V2 Small relative 196px hiện **không đạt** KPI depth accuracy;
+pipeline giữ model này làm baseline tốc độ, không coi là phương án depth cuối.

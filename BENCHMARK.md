@@ -40,3 +40,24 @@ SHA256:
 
 ONNX raw head được chọn vì đạt KPI accuracy và vẫn vượt yêu cầu tốc độ của
 module detection. FPS toàn pipeline phải được đo lại sau khi thêm depth/area.
+
+## Depth Anything V2 Small
+
+Dataset: PothRGBD, GT segmentation mask + RealSense raw depth
+
+Split: deterministic 80% calibration / 20% test
+Input: 196x196, ONNX Runtime CPU, 6 threads
+
+| Metric | Raw global scale | Ground-plane normalized |
+|---|---:|---:|
+| Test instances evaluated | 194 | 193 |
+| Coverage | 86,2% | 85,8% |
+| Mean relative error | 188,8% | 116,8% |
+| Median relative error | 72,6% | 56,6% |
+| Within ±15% | 8,8% | 12,4% |
+| Within ±8% | 6,2% | 6,7% |
+
+Depth inference median là 62,6 ms, tương đương 16,0 FPS. Relative Depth
+Anything V2 Small không đạt KPI depth error <=15% trên PothRGBD; tăng ngưỡng
+độ sâu tối thiểu cũng không đưa median error về gần 15%. Kết quả dùng raw
+sensor units vì dataset không cung cấp `depth_scale` hay camera intrinsics.
