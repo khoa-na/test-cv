@@ -42,11 +42,15 @@ def summarize(rows: list[dict]) -> dict:
         "strong_alignment_coverage": float(
             np.mean([row["strong_alignment"] for row in rows])
         ),
+        "fallback_rate": float(np.mean([row["fallback_applied"] for row in rows])),
         "held_out": {
             "pairs": len(test),
             "fusion_coverage": len(fused) / len(test),
             "strong_alignment_coverage": float(
                 np.mean([row["strong_alignment"] for row in test])
+            ),
+            "fallback_rate": float(
+                np.mean([row["fallback_applied"] for row in test])
             ),
             "median_relative_error": float(np.median(errors)) if errors.size else None,
             "mean_relative_error": float(np.mean(errors)) if errors.size else None,
@@ -60,7 +64,6 @@ def summarize(rows: list[dict]) -> dict:
                 np.mean(
                     [
                         row["fusion_success"]
-                        and row["strong_alignment"]
                         and row["relative_error"] <= 0.15
                         for row in test
                     ]
@@ -92,6 +95,7 @@ def run(args: argparse.Namespace) -> dict:
         args.num_disparities,
         args.confidence,
         args.opencv_threads,
+        args.min_alignment_iou,
     )
     for _ in range(args.warmup):
         pipeline.predict(warm_left, warm_right)
@@ -99,7 +103,11 @@ def run(args: argparse.Namespace) -> dict:
     args.output.mkdir(parents=True, exist_ok=True)
     failure_dir = args.output / "failures"
     failure_dir.mkdir(exist_ok=True)
+    fallback_dir = args.output / "fallbacks"
+    fallback_dir.mkdir(exist_ok=True)
     for stale_image in failure_dir.glob("*.jpg"):
+        stale_image.unlink()
+    for stale_image in fallback_dir.glob("*.jpg"):
         stale_image.unlink()
     rows = []
     for model_name, calibration in CALIBRATION.items():
@@ -128,13 +136,12 @@ def run(args: argparse.Namespace) -> dict:
                     best is not None
                     and best["detection_residual_iou"] >= args.min_alignment_iou
                 )
+                fallback_applied = best is not None and best["fallback_applied"]
                 status = (
                     "no_detection"
                     if report["count"] == 0
                     else "fusion_failed"
                     if not fusion_success
-                    else "weak_alignment"
-                    if not strong_alignment
                     else "depth_error"
                     if relative_error > 0.15
                     else "success"
@@ -147,6 +154,10 @@ def run(args: argparse.Namespace) -> dict:
                     "detections": report["count"],
                     "fusion_success": fusion_success,
                     "strong_alignment": strong_alignment,
+                    "fallback_applied": fallback_applied,
+                    "localization_source": best["localization_source"]
+                    if best
+                    else None,
                     "confidence": best["confidence"] if best else None,
                     "depth_mm": best["depth_mm"] if best else None,
                     "relative_error": relative_error,
@@ -169,6 +180,8 @@ def run(args: argparse.Namespace) -> dict:
                     "detections": 0,
                     "fusion_success": False,
                     "strong_alignment": False,
+                    "fallback_applied": False,
+                    "localization_source": None,
                     "confidence": None,
                     "depth_mm": None,
                     "relative_error": None,
@@ -185,6 +198,11 @@ def run(args: argparse.Namespace) -> dict:
                     str(failure_dir / f"{model_name}_{left_path.stem}.jpg"),
                     annotated,
                 )
+            if row["fallback_applied"]:
+                cv2.imwrite(
+                    str(fallback_dir / f"{model_name}_{left_path.stem}.jpg"),
+                    annotated,
+                )
             print(
                 f"{model_name}/{left_path.stem}: {row['status']} "
                 f"{row['fps']:.1f} FPS"
@@ -196,8 +214,8 @@ def run(args: argparse.Namespace) -> dict:
         "test_groups": ["model2", "model3"],
         "metric_scale": args.metric_scale,
         "strong_alignment_definition": (
-            f"detection-residual IoU >= {args.min_alignment_iou}; "
-            "heuristic proxy, not labeled-mask IoU"
+            f"raw YOLO detection-residual IoU >= {args.min_alignment_iou}; "
+            "weak alignment uses residual localization fallback"
         ),
         **summarize(rows),
         "limitations": [

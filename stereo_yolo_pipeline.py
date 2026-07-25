@@ -34,6 +34,20 @@ def fuse_mask(
     return residual_mask.astype(bool)
 
 
+def mask_bbox(mask: np.ndarray, target_shape: tuple[int, int]) -> list[float]:
+    x, y, width, height = cv2.boundingRect(mask.astype(np.uint8))
+    if not width or not height:
+        raise ValueError("Mask rỗng, không thể tạo bounding box")
+    scale_x = target_shape[1] / mask.shape[1]
+    scale_y = target_shape[0] / mask.shape[0]
+    return [
+        x * scale_x,
+        y * scale_y,
+        (x + width) * scale_x,
+        (y + height) * scale_y,
+    ]
+
+
 def road_surface_area_mm2(
     mask: np.ndarray,
     road_disparity: np.ndarray,
@@ -75,6 +89,7 @@ class StereoYOLOPipeline:
         num_disparities: int = 128,
         confidence: float = 0.25,
         opencv_threads: int = 8,
+        min_alignment_iou: float = 0.1,
     ):
         self.detector = YOLO(str(detector_path), task="segment")
         cv2.setNumThreads(min(opencv_threads, os.cpu_count() or 1))
@@ -84,6 +99,7 @@ class StereoYOLOPipeline:
         self.image_scale = image_scale
         self.num_disparities = num_disparities
         self.confidence = confidence
+        self.min_alignment_iou = min_alignment_iou
 
     def predict(self, left: np.ndarray, right: np.ndarray) -> tuple[dict, np.ndarray]:
         started = time.perf_counter()
@@ -132,6 +148,13 @@ class StereoYOLOPipeline:
                     geometry_mask = fuse_mask(detection_mask, residual_mask)
                     intersection = np.count_nonzero(detection_mask & residual_mask)
                     union = np.count_nonzero(detection_mask | residual_mask)
+                    alignment_iou = intersection / union
+                    fallback_applied = alignment_iou < self.min_alignment_iou
+                    output_box = (
+                        mask_bbox(geometry_mask, left.shape[:2])
+                        if fallback_applied
+                        else [float(value) for value in box]
+                    )
                     geometry = measure_pothole(
                         disparity,
                         road,
@@ -152,21 +175,29 @@ class StereoYOLOPipeline:
                         "valid_depth_pixels": geometry["valid_depth_pixels"],
                         "residual_coverage": intersection
                         / np.count_nonzero(residual_mask),
-                        "detection_residual_iou": intersection / union,
+                        "detection_residual_iou": alignment_iou,
+                        "localization_source": (
+                            "stereo_residual_fallback"
+                            if fallback_applied
+                            else "yolo"
+                        ),
+                        "fallback_applied": fallback_applied,
                         "metric_calibrated": self.metric_scale != 1.0,
                     }
                 except ValueError as error:
                     measurement = {"error": str(error), "metric_calibrated": False}
+                    output_box = [float(value) for value in box]
 
                 potholes.append(
                     {
                         "id": index,
                         "confidence": float(score),
-                        "bbox": [float(value) for value in box],
+                        "bbox": output_box,
+                        "detector_bbox": [float(value) for value in box],
                         **measurement,
                     }
                 )
-                x1, y1, x2, y2 = box.astype(int)
+                x1, y1, x2, y2 = np.asarray(output_box).astype(int)
                 color = (0, 200, 0) if "error" not in measurement else (0, 0, 255)
                 cv2.rectangle(annotated, (x1, y1), (x2, y2), color, 2)
                 label = f"{score:.2f}"
@@ -213,6 +244,7 @@ def main() -> None:
     parser.add_argument("--num-disparities", type=int, default=128)
     parser.add_argument("--confidence", type=float, default=0.25)
     parser.add_argument("--opencv-threads", type=int, default=8)
+    parser.add_argument("--min-alignment-iou", type=float, default=0.1)
     parser.add_argument("--warmup", type=int, default=1)
     parser.add_argument("--output", type=Path, default=Path("artifacts/stereo-yolo"))
     args = parser.parse_args()
@@ -230,6 +262,7 @@ def main() -> None:
         args.num_disparities,
         args.confidence,
         args.opencv_threads,
+        args.min_alignment_iou,
     )
     for _ in range(args.warmup):
         pipeline.predict(left, right)
