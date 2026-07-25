@@ -99,3 +99,41 @@ Kết quả audit archive công khai:
 15 RGB đã bị crop trong khi depth giữ nguyên 480x640 và 4 mẫu có timestamp
 trùng nên bị loại khỏi benchmark hình học. Depth có dạng raw sensor nhưng đơn
 vị metric chưa được xác minh từ metadata của dataset.
+
+## Depth Anything V2 ONNX
+
+Đặt model dynamic tại `.cache/models/depth_anything_v2_vits_dynamic.onnx`.
+Tải bản ONNX ViT-S dynamic:
+
+```bash
+mkdir -p .cache/models
+curl -L \
+  https://github.com/fabio-sim/Depth-Anything-ONNX/releases/download/v2.0.0/depth_anything_v2_vits_dynamic.onnx \
+  -o .cache/models/depth_anything_v2_vits_dynamic.onnx
+```
+
+Chạy relative depth và benchmark CPU:
+
+```bash
+.venv/bin/python depth_inference.py \
+  --model .cache/models/depth_anything_v2_vits_dynamic.onnx \
+  --image ".cache/data/pothrgbd/PUBLIC POTHOLE DATASET/images/IMAGE.jpg" \
+  --size 224 --output artifacts/depth
+```
+
+Input 224px là mặc định cân bằng tốc độ; depth map float được resize về kích
+thước ảnh gốc và vẫn là **relative depth**, chưa phải mét.
+
+Benchmark ONNX Runtime CPU trên i5-13400F:
+
+| Input | Depth inference | FPS |
+|---:|---:|---:|
+| 196 | 53,5 ms | 18,7 |
+| 224 | 65,0 ms | 15,4 |
+| 252 | 78,3 ms | 12,8 |
+| 280 | 107,5 ms | 9,3 |
+| 518 static | 335,4 ms | 3,0 |
+
+Khi tính cả preprocessing và resize output, CLI 224px đạt khoảng 14,7 FPS.
+Pipeline cuối cần chạy depth bất đồng bộ hoặc tái sử dụng depth map giữa các
+frame.
