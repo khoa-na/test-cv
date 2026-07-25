@@ -70,3 +70,32 @@ YOLO_CONFIG_DIR="$PWD/.cache/ultralytics" .venv/bin/yolo export \
 - Model có một class `pothole`; severity sẽ được suy ra từ depth và area.
 - Monocular depth chỉ cho relative depth nếu chưa hiệu chuẩn camera/ground plane.
 - Kết quả FPS hiện chưa bao gồm depth inference và visualization.
+
+## Audit PothRGBD
+
+PothRGBD được giữ ngoài Git tại `.cache/data/pothrgbd`. Kiểm tra pairing,
+định dạng depth và metadata calibration bằng:
+
+```bash
+.venv/bin/python audit_pothrgbd.py \
+  --dataset ".cache/data/pothrgbd/PUBLIC POTHOLE DATASET" \
+  --output artifacts/pothrgbd-audit.json
+```
+
+Không quy đổi depth sang mét hoặc area sang m² nếu báo cáo audit chưa xác nhận
+được `depth_scale` và camera intrinsics.
+
+Kết quả audit archive công khai:
+
+| Hạng mục | Kết quả |
+|---|---:|
+| RGB / depth / label | 1.000 / 1.000 / 1.000 |
+| Triplet ghép chắc chắn | 996 |
+| Triplet sẵn sàng cho hình học | 981 |
+| Depth shape và dtype | 480x640 `uint16` |
+| Segmentation instances | 1.097 |
+| Calibration/depth scale metadata | Không có |
+
+15 RGB đã bị crop trong khi depth giữ nguyên 480x640 và 4 mẫu có timestamp
+trùng nên bị loại khỏi benchmark hình học. Depth có dạng raw sensor nhưng đơn
+vị metric chưa được xác minh từ metadata của dataset.
