@@ -122,10 +122,16 @@ def match(truths: list[dict], detections: list[dict]) -> dict:
     false_positives = sum(label != "true_positive" for label in labels)
     false_negatives = len(truths) - true_positives
 
-    latencies = [
-        detections[matched_truth[truth_index]]["timestamp"]
-        - truths[truth_index]["start"]
-        for truth_index in matched_truth
+    # KPI B3 của đề là latency, nên mốc quy chiếu quyết định con số. Mốc đúng là
+    # lúc khúc quay KẾT THÚC: đó là thời điểm sớm nhất mà "đã xảy ra U-turn" là
+    # mệnh đề đúng. Đo từ lúc bắt đầu quay thì đang phạt hệ vì xe quay lâu.
+    since_start = [
+        detections[matched_truth[index]]["timestamp"] - truths[index]["start"]
+        for index in matched_truth
+    ]
+    since_completion = [
+        detections[matched_truth[index]]["timestamp"] - truths[index]["end"]
+        for index in matched_truth
     ]
 
     return {
@@ -139,8 +145,26 @@ def match(truths: list[dict], detections: list[dict]) -> dict:
         ),
         "recall": true_positives / len(truths) if truths else float("nan"),
         "detection_latency_s": {
-            "median": float(np.median(latencies)) if latencies else None,
-            "max": float(np.max(latencies)) if latencies else None,
+            "definition": (
+                "KPI B3: thời điểm phát hiện trừ thời điểm khúc quay kết thúc. "
+                "Âm nghĩa là hệ báo trước khi xe quay xong."
+            ),
+            "target_s": 2.0,
+            "excellent_s": 1.0,
+            "median": float(np.median(since_completion)) if since_completion else None,
+            "p95": float(np.percentile(since_completion, 95)) if since_completion else None,
+            "max": float(np.max(since_completion)) if since_completion else None,
+            "within_target": (
+                bool(np.max(since_completion) <= 2.0) if since_completion else None
+            ),
+            "within_excellent": (
+                bool(np.max(since_completion) <= 1.0) if since_completion else None
+            ),
+        },
+        "latency_from_turn_start_s": {
+            "definition": "Phụ: đo từ lúc bắt đầu quay, phụ thuộc độ dài khúc quay.",
+            "median": float(np.median(since_start)) if since_start else None,
+            "max": float(np.max(since_start)) if since_start else None,
         },
         "missed_turns": [
             truths[index]
@@ -222,17 +246,22 @@ def main() -> None:
             name, recording, calibration, args.max_vo_frames
         )
         summary = cases[name]["system_global_heading"]
+        latency = summary["detection_latency_s"]
         print(
             f"{name}: GT {summary['ground_truth_turns']}  "
             f"TP {summary['true_positives']}  "
             f"FP {summary['false_positives']}  "
             f"FN {summary['false_negatives']}  "
             f"precision {summary['precision']:.3f}  "
-            f"recall {summary['recall']:.3f}"
+            f"recall {summary['recall']:.3f}  "
+            f"latency median {latency['median']:+.2f}s max {latency['max']:+.2f}s"
         )
 
     report = {
         "kpi": {
+            "metric": "detection latency vs turn completion",
+            "target_s": 2.0,
+            "excellent_s": 1.0,
             "threshold_degrees": 150.0,
             "window_seconds": 8.0,
             "note": (

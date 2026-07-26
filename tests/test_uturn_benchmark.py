@@ -45,6 +45,24 @@ def test_match_counts_duplicate_as_false_positive():
     assert result["recall"] == 1.0
 
 
+def test_latency_is_negative_when_detection_precedes_turn_completion():
+    truths = [{"start": 10.0, "end": 16.0}]
+    result = match(truths, [{"timestamp": 14.0}])
+    # KPI đo so với lúc quay xong, nên báo sớm phải ra số âm.
+    assert result["detection_latency_s"]["median"] == -2.0
+    assert result["detection_latency_s"]["within_excellent"] is True
+    # Mốc phụ tính từ lúc bắt đầu quay và luôn dương.
+    assert result["latency_from_turn_start_s"]["median"] == 4.0
+
+
+def test_late_detection_fails_the_excellent_gate():
+    truths = [{"start": 10.0, "end": 16.0}]
+    result = match(truths, [{"timestamp": 17.5}])
+    assert result["detection_latency_s"]["max"] == 1.5
+    assert result["detection_latency_s"]["within_target"] is True
+    assert result["detection_latency_s"]["within_excellent"] is False
+
+
 def test_match_reports_missed_turn_outside_tolerance():
     truths = [{"start": 10.0, "end": 16.0}, {"start": 40.0, "end": 46.0}]
     result = match(truths, [{"timestamp": 15.0}, {"timestamp": 60.0}])
