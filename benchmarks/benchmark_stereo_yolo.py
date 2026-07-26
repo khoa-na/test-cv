@@ -133,6 +133,7 @@ def run(args: argparse.Namespace) -> dict:
         min_alignment_iou=args.min_alignment_iou,
         area_quantile=args.area_quantile,
         area_scale=args.area_scale,
+        yolo_area_scale=args.yolo_area_scale,
     )
     for _ in range(args.warmup):
         pipeline.predict(warm_left, warm_right)
@@ -265,6 +266,7 @@ def run(args: argparse.Namespace) -> dict:
         "test_groups": ["model2", "model3"],
         "metric_scale": args.metric_scale,
         "area_scale": args.area_scale,
+        "yolo_area_scale": args.yolo_area_scale,
         "area_ground_truth_definition": (
             "Median robust XY convex-hull area across each model's laser scans"
         ),
@@ -313,6 +315,9 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--min-alignment-iou", type=float, default=0.1)
     parser.add_argument("--area-quantile", type=float, default=0.986)
     parser.add_argument("--area-scale", type=float, default=1.3755604448201877)
+    # 0.9095955714468327 (fit trên model1) nén median nhưng kéo dài đuôi lỗi
+    # vì model3 cần hệ số ngược hướng; nghiệm thu theo ngưỡng ±15% nên giữ 1.0.
+    parser.add_argument("--yolo-area-scale", type=float, default=1.0)
     parser.add_argument("--opencv-threads", type=int, default=4)
     parser.add_argument("--warmup", type=int, default=3)
     parser.add_argument("--repeats", type=int, default=3)

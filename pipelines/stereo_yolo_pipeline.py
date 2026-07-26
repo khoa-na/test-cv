@@ -50,7 +50,10 @@ def mask_bbox(mask: np.ndarray, target_shape: tuple[int, int]) -> list[float]:
 
 
 def select_area_mm2(
-    raw_area_mm2: float, fallback_applied: bool, residual_scale: float
+    raw_area_mm2: float,
+    fallback_applied: bool,
+    residual_scale: float,
+    yolo_scale: float = 1.0,
 ) -> tuple[float, str, bool]:
     if fallback_applied:
         return (
@@ -58,7 +61,7 @@ def select_area_mm2(
             "stereo_residual",
             residual_scale != 1.0,
         )
-    return raw_area_mm2, "yolo_mask", False
+    return raw_area_mm2 * yolo_scale, "yolo_mask", yolo_scale != 1.0
 
 
 def road_surface_area_mm2(
@@ -101,6 +104,7 @@ class StereoYOLOPipeline:
         min_alignment_iou: float = 0.1,
         area_quantile: float = 0.986,
         area_scale: float = 1.0,
+        yolo_area_scale: float = 1.0,
     ):
         self.detector = YOLO(str(detector_path), task="segment")
         cv2.setNumThreads(min(opencv_threads, os.cpu_count() or 1))
@@ -113,6 +117,7 @@ class StereoYOLOPipeline:
         self.min_alignment_iou = min_alignment_iou
         self.area_quantile = area_quantile
         self.area_scale = area_scale
+        self.yolo_area_scale = yolo_area_scale
 
     def detect(self, left: np.ndarray) -> tuple[object, float]:
         started = time.perf_counter()
@@ -145,6 +150,9 @@ class StereoYOLOPipeline:
             residual_seed,
             self.area_quantile,
         )
+        # Pass 1 fit gồm cả pixel hố nên mặt phẳng bị võng xuống, depth và area
+        # đều thiếu. Fit lại loại pixel hố ra; mask giữ nguyên từ pass 1.
+        road = fit_road_disparity(disparity, exclude=residual_mask)
         return {
             "disparity": disparity,
             "road": road,
@@ -212,6 +220,7 @@ class StereoYOLOPipeline:
                         raw_area_mm2,
                         fallback_applied,
                         self.area_scale,
+                        self.yolo_area_scale,
                     )
                     measurement = {
                         "depth_mm": geometry["depth_mm_p90"],
@@ -304,6 +313,7 @@ def main() -> None:
     parser.add_argument("--min-alignment-iou", type=float, default=0.1)
     parser.add_argument("--area-quantile", type=float, default=0.986)
     parser.add_argument("--area-scale", type=float, default=1.0)
+    parser.add_argument("--yolo-area-scale", type=float, default=1.0)
     parser.add_argument("--warmup", type=int, default=1)
     parser.add_argument("--output", type=Path, default=Path("artifacts/stereo-yolo"))
     args = parser.parse_args()
@@ -324,6 +334,7 @@ def main() -> None:
         args.min_alignment_iou,
         args.area_quantile,
         args.area_scale,
+        args.yolo_area_scale,
     )
     for _ in range(args.warmup):
         pipeline.predict(left, right)
