@@ -97,6 +97,51 @@ def detect(timestamps: np.ndarray, heading: np.ndarray) -> list[dict]:
     return events
 
 
+def swept_at_detection(
+    timestamps: np.ndarray,
+    heading: np.ndarray,
+    truths: list[dict],
+    detections: list[dict],
+) -> dict:
+    """Khúc quay đó đã tự quay được bao nhiêu độ lúc detector bắn.
+
+    Cửa sổ trượt 8 s dài hơn khoảng cách giữa các khúc quay liên tiếp trong
+    garage (~9 s, mỗi khúc đã chiếm 6-7 s). Các khúc lại cùng chiều, nên cửa sổ
+    cộng dồn góc qua hai khúc và detector có thể bắn trước khi khúc hiện tại đủ
+    150 độ. Không có số này thì latency âm trông như độ nhạy, trong khi một phần
+    là do cửa sổ không tách được hai khúc liền nhau.
+    """
+    unwrapped = unwrap_heading(heading)
+    swept = []
+    for truth in truths:
+        event = next(
+            (
+                item
+                for item in detections
+                if truth["start"] <= item["timestamp"] <= truth["end"] + MATCH_TOLERANCE_S
+            ),
+            None,
+        )
+        if event is None:
+            continue
+        start_angle = np.interp(truth["start"], timestamps, unwrapped)
+        detect_angle = np.interp(event["timestamp"], timestamps, unwrapped)
+        swept.append(abs(float(np.rad2deg(detect_angle - start_angle))))
+    if not swept:
+        return {"samples": 0}
+    swept_array = np.asarray(swept)
+    return {
+        "samples": len(swept),
+        "median_deg": float(np.median(swept_array)),
+        "min_deg": float(swept_array.min()),
+        "below_threshold_count": int((swept_array < 150.0 - 1.0).sum()),
+        "note": (
+            "Dưới 150 độ nghĩa là detector bắn nhờ góc cộng dồn từ khúc quay "
+            "trước trong cùng cửa sổ, không phải nhờ khúc hiện tại."
+        ),
+    }
+
+
 def match(truths: list[dict], detections: list[dict]) -> dict:
     matched_truth: dict[int, int] = {}
     labels = []
@@ -198,7 +243,16 @@ def evaluate(
         yaw_source="imu",
     )
 
-    system = match(truths, detect(timestamps, predicted[:, 2]))
+    system_detections = detect(timestamps, predicted[:, 2])
+    system = match(truths, system_detections)
+    system["swept_at_detection"] = swept_at_detection(
+        reference_timestamps, reference_heading, truths, system_detections
+    )
+    # Khoảng cách giữa các khúc quay so với cửa sổ 8 s: nguồn gốc của hiện tượng.
+    gaps = [
+        later["start"] - earlier["end"]
+        for earlier, later in zip(truths, truths[1:])
+    ]
     # Kênh phụ: heading local frame, không chịu xoay từ map->odom correction.
     local_only = match(truths, detect(timestamps, local[:, 2]))
     # Trần lý thuyết: detector chạy trực tiếp trên reference heading.
@@ -208,6 +262,13 @@ def evaluate(
 
     return {
         "recording": recording.name,
+        "turn_spacing_s": {
+            "window_seconds": 8.0,
+            "median_gap": float(np.median(gaps)) if gaps else None,
+            "min_gap": float(np.min(gaps)) if gaps else None,
+            "gaps_shorter_than_window": int(sum(gap < 8.0 for gap in gaps)),
+            "turns": len(truths),
+        },
         "ground_truth": {
             "source": "reference pose (evaluation only)",
             "uses_ground_truth": True,
