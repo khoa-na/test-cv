@@ -21,6 +21,9 @@ SEQUENCES = {
     "office_loop_1": "recording_2020-03-24_17-36-22",
     "neighborhood_4": "recording_2020-12-22_11-54-24",
     "garage_2": "recording_2021-02-25_13-39-06",
+    # Bước 3 dựng landmark map từ garage_3, nên drift của chính nó là trần chất
+    # lượng map — không thể suy ra từ garage_2.
+    "garage_3": "recording_2021-05-10_19-15-19",
 }
 
 

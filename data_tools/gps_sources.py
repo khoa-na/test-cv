@@ -338,11 +338,17 @@ def load_nmea_replay(
     align_to_reference: bool = False,
     alignment_mode: str | None = None,
     time_offset_s: float = 0.0,
+    datum: tuple[float, float] | None = None,
 ) -> GPSReplay:
     """Load GGA trong raw ENU, rigid-fit offline, hoặc transform chain.
 
     ``time_offset_s`` là calibration clock: timestamp dùng bởi fusion bằng
     timestamp GGA cộng offset. Giá trị 0 giữ nguyên replay cũ.
+
+    ``datum`` là gốc ENU ``(lat, lon)`` dùng chung giữa nhiều recording — cần
+    cho Bước 3 vì map dựng ở traversal này phải dùng được ở traversal kia.
+    ``None`` giữ nguyên hành vi cũ: datum là fix quality-4 đầu tiên của chính
+    recording đó, nên mọi benchmark vòng 3–5 tái lập nguyên vẹn.
     """
     rec = Path(recording)
     if alignment_mode is None:
@@ -361,10 +367,13 @@ def load_nmea_replay(
     if not valid:
         raise ValueError(f"{rec} không có GGA position hợp lệ")
     datum_row = next((row for row in valid if row["fix_quality"] == 4), valid[0])
+    datum_latitude, datum_longitude = (
+        (datum_row["lat"], datum_row["lon"]) if datum is None else datum
+    )
     latitudes = np.array([row["lat"] for row in valid])
     longitudes = np.array([row["lon"] for row in valid])
     enu = geodetic_to_enu(
-        latitudes, longitudes, datum_row["lat"], datum_row["lon"]
+        latitudes, longitudes, datum_latitude, datum_longitude
     )[:, :2]
     chain_metadata = None
     if alignment_mode == "transform_chain":
@@ -455,8 +464,9 @@ def load_nmea_replay(
         measurements,
         metadata={
             "alignment": alignment,
-            "datum_latitude": datum_row["lat"],
-            "datum_longitude": datum_row["lon"],
+            "datum_latitude": datum_latitude,
+            "datum_longitude": datum_longitude,
+            "datum_source": "recording_first_quality4" if datum is None else "shared",
             "rotation": rotation.tolist(),
             "translation": translation.tolist(),
             "alignment_error": alignment_error,

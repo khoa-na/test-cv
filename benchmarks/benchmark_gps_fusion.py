@@ -433,8 +433,14 @@ def run_fusion(
     calibration_dir: Path | None = None,
     max_vo_frames: int | None = None,
     yaw_source: str = "visual",
+    reference_override: tuple[np.ndarray, np.ndarray] | None = None,
 ) -> tuple[dict, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
-    timestamps, reference, _ = load_reference_trajectory(recording)
+    # ``reference_override`` cho phép chấm trong common map frame của Bước 3
+    # (``data_tools.map_frame``). None giữ nguyên đường vòng 3–5.
+    if reference_override is None:
+        timestamps, reference, _ = load_reference_trajectory(recording)
+    else:
+        timestamps, reference = reference_override
     if odom_source == "proxy":
         odometry_events = [
             (
