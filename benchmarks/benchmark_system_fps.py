@@ -156,6 +156,12 @@ def main() -> None:
 
     recording = args.dataset / SEQUENCES[args.sequence]
     calibration = args.dataset / "calibration"
+    load_before = os.getloadavg()
+    if load_before[0] > 1.0:
+        print(
+            f"cảnh báo: load average {load_before[0]:.2f} trước khi đo, "
+            "FPS sẽ thấp hơn thực tế"
+        )
     runs = []
     for threads in args.threads:
         result = measure(
@@ -184,6 +190,10 @@ def main() -> None:
             "processor": platform.processor(),
             "cpu_count": os.cpu_count(),
             "opencv": cv2.__version__,
+            # Máy bận làm FPS tụt ~10%; ghi lại để đọc artifact biết số đo trong
+            # điều kiện nào, không phải tin lời mô tả.
+            "load_average_before": load_before,
+            "load_average_after": os.getloadavg(),
         },
         "runs": runs,
         "headline": {

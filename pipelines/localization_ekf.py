@@ -675,6 +675,9 @@ class LocalizationFusion:
                 "local": self.local_pose.tolist(),
                 "global": pose.tolist(),
                 "state": self.integrity.state.value,
+                # Bước 3 cần covariance mỗi keyframe để gán cho landmark entry.
+                # Thuần quan sát: không phương trình nào đọc lại trường này.
+                "covariance": self.global_position_covariance().tolist(),
             }
         )
         return pose
