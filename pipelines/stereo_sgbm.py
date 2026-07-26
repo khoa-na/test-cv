@@ -16,10 +16,10 @@ def compute_disparity(
         raise ValueError("num_disparities phải là bội số của 16")
     size = (round(left.shape[1] * scale), round(left.shape[0] * scale))
     left_gray = cv2.resize(
-        cv2.cvtColor(left, cv2.COLOR_BGR2GRAY), size, interpolation=cv2.INTER_AREA
+        cv2.cvtColor(left, cv2.COLOR_BGR2GRAY), size, interpolation=cv2.INTER_LINEAR
     )
     right_gray = cv2.resize(
-        cv2.cvtColor(right, cv2.COLOR_BGR2GRAY), size, interpolation=cv2.INTER_AREA
+        cv2.cvtColor(right, cv2.COLOR_BGR2GRAY), size, interpolation=cv2.INTER_LINEAR
     )
     matcher = cv2.StereoSGBM_create(
         minDisparity=0,
@@ -40,30 +40,41 @@ def compute_disparity(
 
 
 def fit_road_disparity(
-    disparity: np.ndarray, stride: int = 16, iterations: int = 4, keep_fraction: float = 0.8
+    disparity: np.ndarray,
+    stride: int = 16,
+    iterations: int = 4,
+    keep_fraction: float = 0.8,
+    exclude: np.ndarray | None = None,
 ) -> np.ndarray:
-    valid = np.isfinite(disparity) & (disparity > 0)
+    # Subsample lưới step×step thay vì nonzero toàn ảnh rồi lấy mỗi điểm thứ
+    # `stride`: cùng mật độ mẫu ~1/stride nhưng rẻ hơn nhiều lần.
+    height, width = disparity.shape
+    step = max(1, round(stride**0.5))
+    sub = disparity[::step, ::step]
+    valid = np.isfinite(sub) & (sub > 0)
+    if exclude is not None:
+        valid &= ~exclude[::step, ::step].astype(bool)
     y, x = np.nonzero(valid)
     if x.size < 100:
         raise ValueError("Không đủ valid disparity để fit mặt đường")
-    height, width = disparity.shape
-    x, y = x[::stride], y[::stride]
+    values = sub[y, x]
+    x, y = x * step, y * step
     design = np.column_stack(
         (x / max(width - 1, 1), y / max(height - 1, 1), np.ones(x.size))
     )
-    values = disparity[y, x]
     for _ in range(iterations):
         coefficients, *_ = np.linalg.lstsq(design, values, rcond=None)
         errors = values - design @ coefficients
         centered = np.abs(errors - np.median(errors))
         keep = centered <= np.quantile(centered, keep_fraction)
         design, values = design[keep], values[keep]
-    yy, xx = np.mgrid[:height, :width]
+    xs = np.arange(width, dtype=np.float32)[None, :] / max(width - 1, 1)
+    ys = np.arange(height, dtype=np.float32)[:, None] / max(height - 1, 1)
     return (
-        coefficients[0] * xx / max(width - 1, 1)
-        + coefficients[1] * yy / max(height - 1, 1)
-        + coefficients[2]
-    ).astype(np.float32)
+        np.float32(coefficients[0]) * xs
+        + np.float32(coefficients[1]) * ys
+        + np.float32(coefficients[2])
+    )
 
 
 def segment_residual(

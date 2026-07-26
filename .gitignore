@@ -212,6 +212,7 @@ tempCodeRunnerFile.py
 # Local CV assets and generated benchmark outputs
 .cache/
 artifacts/
+runs/
 *.onnx
 *.pt
 Bài test AI - Computer Vision Fresher.md
