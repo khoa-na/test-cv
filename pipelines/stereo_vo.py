@@ -482,6 +482,43 @@ class StereoVO:
         self._previous_points_3d = points_3d
         self._previous_timestamp = timestamp
 
+    def keyframe_features(
+        self, img_left: np.ndarray, img_right: np.ndarray
+    ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+        """Feature stereo của một frame đơn lẻ, không đụng state temporal.
+
+        Landmark DB (Bước 3) cần đúng detector/gate/triangulation của VO nhưng
+        không cần tracking. Trả về ``(pixels[N,2], descriptors[N,32],
+        points_3d[N,3])`` trong ``cam0 optical frame``; chỉ giữ keypoint có
+        depth stereo hợp lệ. Không dùng ``process`` để tránh làm bẩn state.
+        """
+        left = self._gray(img_left)
+        right = self._gray(img_right)
+        if left.shape != right.shape:
+            raise ValueError("Hai ảnh stereo phải cùng kích thước")
+        left_keypoints, left_descriptors = self._detect_grid(left)
+        right_keypoints, right_descriptors = self._detect_grid(right)
+        points_3d = self._stereo_points(
+            left_keypoints,
+            left_descriptors,
+            right_keypoints,
+            right_descriptors,
+        )
+        indices = sorted(points_3d)
+        if not indices or left_descriptors is None:
+            empty_pixels = np.zeros((0, 2), dtype=np.float32)
+            return (
+                empty_pixels,
+                np.zeros((0, 32), dtype=np.uint8),
+                np.zeros((0, 3), dtype=np.float32),
+            )
+        pixels = np.array(
+            [left_keypoints[index].pt for index in indices], dtype=np.float32
+        )
+        descriptors = np.asarray(left_descriptors)[indices].astype(np.uint8)
+        points = np.array([points_3d[index] for index in indices], dtype=np.float32)
+        return pixels, descriptors, points
+
     def process(
         self,
         img_left: np.ndarray,
