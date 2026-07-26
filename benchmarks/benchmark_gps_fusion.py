@@ -5,7 +5,7 @@ from __future__ import annotations
 
 import argparse
 import json
-from collections import defaultdict
+from collections import Counter, defaultdict
 from pathlib import Path
 
 import cv2
@@ -101,6 +101,39 @@ def metric_at_time(
     return float(np.linalg.norm(predicted[index, :2] - reference[index]))
 
 
+def stable_relock_metric(
+    timestamps: np.ndarray,
+    errors: np.ndarray,
+    anchor_time: float,
+    *,
+    threshold_m: float = 5.0,
+    stable_duration_seconds: float = 1.0,
+    max_window_seconds: float = 10.0,
+) -> dict:
+    """Đo lần đầu error GT ổn định dưới threshold trong cửa sổ hữu hạn."""
+    start_index = int(np.searchsorted(timestamps, anchor_time))
+    deadline = anchor_time + max_window_seconds
+    for index in range(start_index, len(timestamps)):
+        candidate_time = float(timestamps[index])
+        stable_end = candidate_time + stable_duration_seconds
+        if stable_end > deadline:
+            break
+        if errors[index] > threshold_m:
+            continue
+        end_index = int(np.searchsorted(timestamps, stable_end))
+        if end_index >= len(timestamps) or timestamps[end_index] > deadline:
+            continue
+        if np.all(errors[index : end_index + 1] <= threshold_m):
+            return {
+                "time_to_stable_5m_seconds": candidate_time - anchor_time,
+                "error_at_stable_m": float(errors[index]),
+            }
+    return {
+        "time_to_stable_5m_seconds": None,
+        "error_at_stable_m": None,
+    }
+
+
 def path_length_between(
     timestamps: np.ndarray, reference: np.ndarray, start: float, end: float
 ) -> float:
@@ -174,6 +207,7 @@ def evaluate_run(
     relocks = []
     active_loss = None
     recovering_time = None
+    trajectory_errors = np.linalg.norm(predicted[:, :2] - reference, axis=1)
     for transition in transitions:
         if transition["current"] == "LOST" and active_loss is None:
             active_loss = transition["timestamp"]
@@ -185,29 +219,54 @@ def evaluate_run(
         ):
             recovering_time = transition["timestamp"]
         elif active_loss is not None and transition["current"] == "GOOD":
+            recovery_anchor = next(
+                (
+                    row["timestamp"]
+                    for row in fusion.gps_log
+                    if row["timestamp"] >= active_loss
+                    and row["state_before"] == GPSState.LOST.value
+                    and row["state_after"] == GPSState.RECOVERING.value
+                    and row["accepted"]
+                ),
+                recovering_time,
+            )
             error = metric_at_time(
                 timestamps,
                 predicted,
                 reference,
                 transition["timestamp"] + 2.0,
             )
-            convergence = None
-            if recovering_time is not None:
-                start_index = int(np.searchsorted(timestamps, recovering_time))
-                end_index = int(
-                    np.searchsorted(timestamps, transition["timestamp"] + 5.0)
+            stable = {
+                "time_to_stable_5m_seconds": None,
+                "error_at_stable_m": None,
+            }
+            quality_counts = {}
+            if recovery_anchor is not None:
+                stable = stable_relock_metric(
+                    timestamps,
+                    trajectory_errors,
+                    recovery_anchor,
                 )
-                for index in range(start_index, min(end_index + 1, len(timestamps))):
-                    if np.linalg.norm(predicted[index, :2] - reference[index]) <= 5.0:
-                        convergence = float(timestamps[index] - recovering_time)
-                        break
+                quality_counts = dict(
+                    sorted(
+                        Counter(
+                            str(item.fix_quality)
+                            for item in replay.measurements
+                            if recovery_anchor
+                            <= item.timestamp
+                            <= recovery_anchor + 10.0
+                        ).items()
+                    )
+                )
             relocks.append(
                 {
                     "lost_timestamp": active_loss,
                     "recovering_timestamp": recovering_time,
+                    "recovery_anchor_timestamp": recovery_anchor,
                     "good_timestamp": transition["timestamp"],
                     "error_after_2s_m": error,
-                    "convergence_to_5m_seconds": convergence,
+                    **stable,
+                    "gps_quality_counts_10s": quality_counts,
                 }
             )
             active_loss = None
@@ -273,14 +332,13 @@ def evaluate_run(
         actual = predicted[index, :2] - predicted[index - 1, :2]
         correction_discontinuities.append(float(np.linalg.norm(actual - expected)))
 
-    errors = np.linalg.norm(predicted[:, :2] - reference, axis=1)
     return {
         "frames": len(timestamps),
         "duration_seconds": float(timestamps[-1] - timestamps[0]),
         "trajectory_error_m": {
-            "median": float(np.median(errors)),
-            "p95": float(np.percentile(errors, 95)),
-            "final": float(errors[-1]),
+            "median": float(np.median(trajectory_errors)),
+            "p95": float(np.percentile(trajectory_errors, 95)),
+            "final": float(trajectory_errors[-1]),
         },
         "handover": {
             "events": handovers,
@@ -314,6 +372,38 @@ def evaluate_run(
                 if any(item["error_after_2s_m"] is not None for item in relocks)
                 else None
             ),
+            "max_time_to_stable_5m_seconds": (
+                max(
+                    item["time_to_stable_5m_seconds"]
+                    for item in relocks
+                    if item["time_to_stable_5m_seconds"] is not None
+                )
+                if any(
+                    item["time_to_stable_5m_seconds"] is not None
+                    for item in relocks
+                )
+                else None
+            ),
+            "max_error_at_stable_m": (
+                max(
+                    item["error_at_stable_m"]
+                    for item in relocks
+                    if item["error_at_stable_m"] is not None
+                )
+                if any(
+                    item["error_at_stable_m"] is not None
+                    for item in relocks
+                )
+                else None
+            ),
+            "all_stable_within_10s": (
+                all(
+                    item["time_to_stable_5m_seconds"] is not None
+                    for item in relocks
+                )
+                if relocks
+                else None
+            ),
         },
         "dropouts": dropouts,
         "local_continuity": {
@@ -343,9 +433,9 @@ def run_fusion(
     local = []
     aligned_reference = []
     for index, measurement in enumerate(odometry, start=1):
-        fusion.process_odometry(measurement)
         for gps_measurement in replay.pop_until(measurement.timestamp):
             fusion.process_gps(gps_measurement)
+        fusion.process_odometry(measurement)
         output_timestamps.append(measurement.timestamp)
         predicted.append(fusion.global_pose)
         local.append(fusion.local_pose)
@@ -359,6 +449,18 @@ def run_fusion(
     report = evaluate_run(fusion, replay, *arrays)
     report["recording"] = recording.name
     report["gps_source"] = replay.metadata
+    report["recovery_events"] = [
+        {
+            **event,
+            "reference_error_m": metric_at_time(
+                arrays[0],
+                arrays[1],
+                arrays[3],
+                event["timestamp"],
+            ),
+        }
+        for event in fusion.recovery_log
+    ]
     report["reference_usage"] = (
         "Offline only: odometry proxy, simulated GPS, ENU rigid alignment and evaluation"
     )

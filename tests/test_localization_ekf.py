@@ -97,9 +97,15 @@ def test_gps_changes_global_target_not_local_and_nis_rejects_outlier():
     np.testing.assert_allclose(fusion.target_map_to_odom, target_before)
 
 
-def test_direct_loss_timeout_and_degraded_recovery_hysteresis():
+def test_quality_zero_debounce_timeout_and_degraded_recovery_hysteresis():
     direct = GPSIntegrityMonitor(initial_state=GPSState.GOOD)
     transition = direct.observe(gps(1.0, None, None, quality=0, satellites=0), False)
+    assert transition is not None
+    assert transition.current == GPSState.DEGRADED
+    direct.observe(gps(1.1, None, None, quality=0, satellites=0), False)
+    transition = direct.observe(
+        gps(1.2, None, None, quality=0, satellites=0), False
+    )
     assert transition is not None
     assert transition.current == GPSState.LOST
 
@@ -121,6 +127,53 @@ def test_direct_loss_timeout_and_degraded_recovery_hysteresis():
     assert monitor.state == GPSState.GOOD
 
 
+def test_quality_zero_flapping_does_not_confirm_lost():
+    monitor = GPSIntegrityMonitor(initial_state=GPSState.GOOD)
+    monitor.observe(gps(0.0), True)
+    for index in range(6):
+        monitor.observe(
+            gps(
+                0.1 + index * 0.2,
+                None,
+                None,
+                quality=0,
+                satellites=0,
+            ),
+            False,
+        )
+        assert monitor.state == GPSState.DEGRADED
+        monitor.observe(gps(0.2 + index * 0.2), True)
+        assert monitor.state in {GPSState.DEGRADED, GPSState.RECOVERING}
+    assert all(
+        transition.current != GPSState.LOST
+        for transition in monitor.transitions
+    )
+
+
+def test_degraded_escapes_to_recovery_gate_after_normal_nis_rejects():
+    monitor = GPSIntegrityMonitor(initial_state=GPSState.GOOD)
+    monitor.observe(gps(0.0), True)
+    for index in range(3):
+        monitor.observe(gps(0.1 + index * 0.1), False)
+    assert monitor.state == GPSState.DEGRADED
+    assert monitor.recovery_required
+    assert monitor.uses_recovery_gate
+    monitor.observe(gps(0.5), True, used_recovery_gate=True)
+    assert monitor.state == GPSState.RECOVERING
+
+
+def test_messages_without_usable_fix_eventually_become_lost():
+    monitor = GPSIntegrityMonitor(initial_state=GPSState.GOOD)
+    monitor.observe(gps(0.0), True)
+    monitor.observe(gps(0.1, None, None, quality=0, satellites=0), False)
+    for timestamp in (0.3, 0.5, 0.7, 0.9, 1.1):
+        monitor.observe(gps(timestamp), False, used_recovery_gate=True)
+    transition = monitor.tick(1.6)
+    assert transition is not None
+    assert transition.current == GPSState.LOST
+    assert transition.reason == "no_usable_fix_timeout"
+
+
 def test_recovering_rejects_transition_to_degraded_not_lost():
     monitor = GPSIntegrityMonitor()
     monitor.observe(gps(1.0), True)
@@ -139,8 +192,18 @@ def test_latched_pose_is_immutable_during_error_episode():
     latched = fusion.latched_global_pose.copy()
     latched_timestamp = fusion.latched_timestamp
     fusion.process_odometry(odom(0.7))
-    fusion.process_gps(gps(0.7, None, None, quality=0, satellites=0))
+    for index in range(3):
+        fusion.process_gps(
+            gps(
+                0.7 + index * 0.1,
+                None,
+                None,
+                quality=0,
+                satellites=0,
+            )
+        )
     fusion.process_odometry(odom(0.8))
+    assert fusion.integrity.state == GPSState.LOST
     np.testing.assert_allclose(fusion.latched_global_pose, latched)
     assert fusion.latched_timestamp == latched_timestamp
 
@@ -148,17 +211,26 @@ def test_latched_pose_is_immutable_during_error_episode():
 def test_recovery_correction_is_rate_limited_and_local_has_no_jump():
     fusion = LocalizationFusion()
     make_good(fusion)
-    fusion.process_gps(gps(0.6, None, None, quality=0, satellites=0))
+    for index in range(3):
+        fusion.process_gps(
+            gps(
+                0.6 + index * 0.1,
+                None,
+                None,
+                quality=0,
+                satellites=0,
+            )
+        )
     for index in range(20):
-        fusion.process_odometry(odom(0.7 + index * 0.1))
+        fusion.process_odometry(odom(0.9 + index * 0.1))
     before_global = fusion.global_pose.copy()
     before_local = fusion.local_pose.copy()
     recovery_position = before_global[:2] + np.array([4.0, 0.0])
     result = fusion.process_gps(
-        gps(2.7, float(recovery_position[0]), float(recovery_position[1]), quality=1)
+        gps(2.9, float(recovery_position[0]), float(recovery_position[1]), quality=1)
     )
     assert result["accepted"]
-    fusion.process_odometry(odom(2.8))
+    fusion.process_odometry(odom(3.0))
     global_delta = fusion.global_pose[:2] - before_global[:2]
     local_delta = fusion.local_pose[:2] - before_local[:2]
     correction_discontinuity = np.linalg.norm(global_delta - local_delta)
@@ -227,16 +299,247 @@ def test_odometry_proxy_is_reproducible_signed_and_wraps_angle():
 def test_recovery_accepts_reasonable_innovation_but_rejects_extreme_outlier():
     reasonable = LocalizationFusion()
     make_good(reasonable)
-    reasonable.process_gps(gps(0.6, None, None, quality=0, satellites=0))
+    for index in range(3):
+        reasonable.process_gps(
+            gps(
+                0.6 + index * 0.1,
+                None,
+                None,
+                quality=0,
+                satellites=0,
+            )
+        )
     result = reasonable.process_gps(gps(1.0, 4.0, 0.0, quality=1, hdop=1.0))
     assert result["accepted"]
     assert reasonable.integrity.state == GPSState.RECOVERING
 
     extreme = LocalizationFusion()
     make_good(extreme)
-    extreme.process_gps(gps(0.6, None, None, quality=0, satellites=0))
+    for index in range(3):
+        extreme.process_gps(
+            gps(
+                0.6 + index * 0.1,
+                None,
+                None,
+                quality=0,
+                satellites=0,
+            )
+        )
     result = extreme.process_gps(gps(1.0, 50.0, 0.0, quality=1, hdop=1.0))
     assert not result["accepted"]
+
+
+def test_flapping_with_large_drift_can_build_consensus_and_relock():
+    fusion = LocalizationFusion()
+    make_good(fusion)
+    fusion.local.state[0] = 20.0
+    fusion.local.covariance[:2, :2] = np.eye(2) * 100.0
+    for index in range(3):
+        fusion.process_gps(
+            gps(
+                1.0 + index * 0.2,
+                None,
+                None,
+                quality=0,
+                satellites=0,
+            )
+        )
+        result = fusion.process_gps(gps(1.1 + index * 0.2, 0.0, 0.0))
+        assert result["accepted"]
+    assert fusion.recovery_consensus_achieved
+    assert fusion.fast_correction_active
+    for index in range(60):
+        fusion.process_odometry(
+            odom(1.7 + index / 30, dt=1 / 30, dx=0.0)
+        )
+    assert np.linalg.norm(fusion.global_pose[:2]) <= 5.0
+
+
+def test_consensus_buffer_survives_good_transition_and_completes_late():
+    fusion = LocalizationFusion()
+    make_good(fusion)
+    fusion.local.covariance[:2, :2] = np.eye(2) * 100.0
+    for index in range(3):
+        fusion.process_gps(
+            gps(
+                1.0 + index * 0.1,
+                None,
+                None,
+                quality=0,
+                satellites=0,
+            )
+        )
+    for index, x in enumerate((0.0, 10.0, -10.0, 10.0, -10.0)):
+        fusion.process_gps(gps(1.4 + index * 0.1, x, 0.0))
+    assert fusion.integrity.state == GPSState.GOOD
+    assert fusion.integrity.recovery_required
+    assert not fusion.recovery_consensus_achieved
+    candidates_before = len(fusion.recovery_candidates)
+    for index, x in enumerate((2.0, 2.1, 1.9)):
+        fusion.process_gps(gps(2.0 + index * 0.1, x, 0.0))
+    assert len(fusion.recovery_candidates) >= candidates_before
+    assert fusion.recovery_consensus_achieved
+    assert fusion.fast_correction_active
+
+
+def test_quality_one_fix_does_not_enable_fast_correction():
+    fusion = LocalizationFusion()
+    make_good(fusion)
+    for index in range(3):
+        fusion.process_gps(
+            gps(
+                1.0 + index * 0.1,
+                None,
+                None,
+                quality=0,
+                satellites=0,
+            )
+        )
+    for index in range(5):
+        result = fusion.process_gps(
+            gps(
+                1.4 + index * 0.1,
+                0.0,
+                0.0,
+                quality=1,
+                satellites=10,
+                hdop=1.0,
+            )
+        )
+        assert result["accepted"]
+    assert fusion.integrity.state == GPSState.GOOD
+    assert not fusion.recovery_candidates
+    assert not fusion.recovery_consensus_achieved
+    assert not fusion.fast_correction_active
+
+    for index in range(3):
+        fusion.process_gps(
+            gps(
+                2.0 + index * 0.1,
+                0.0,
+                0.0,
+                quality=2,
+                satellites=10,
+                hdop=1.0,
+            )
+        )
+    assert any(
+        event["event"] == "consensus_achieved"
+        and event["fix_quality"] == 2
+        for event in fusion.recovery_log
+    )
+
+
+def test_consensus_recovery_finishes_with_high_confidence():
+    fusion = LocalizationFusion()
+    make_good(fusion)
+    for index in range(3):
+        fusion.process_gps(
+            gps(
+                1.0 + index * 0.1,
+                None,
+                None,
+                quality=0,
+                satellites=0,
+            )
+        )
+    for index in range(5):
+        fusion.process_gps(gps(1.4 + index * 0.1))
+
+    completed = [
+        event
+        for event in fusion.recovery_log
+        if event["event"] == "episode_completed"
+    ]
+    assert completed[-1]["outcome"] == "consensus_settled"
+    assert fusion.global_confidence == "high"
+    assert not fusion.integrity.recovery_required
+
+
+def test_consensus_timeout_settles_as_low_confidence_without_deadlock():
+    fusion = LocalizationFusion()
+    make_good(fusion)
+    for index in range(3):
+        fusion.process_gps(
+            gps(
+                1.0 + index * 0.1,
+                None,
+                None,
+                quality=0,
+                satellites=0,
+            )
+        )
+    for index in range(5):
+        fusion.process_gps(
+            gps(
+                1.4 + index * 0.1,
+                quality=1,
+                satellites=10,
+                hdop=1.0,
+            )
+        )
+    fusion.process_gps(
+        gps(6.3, quality=1, satellites=10, hdop=1.0)
+    )
+
+    completed = [
+        event
+        for event in fusion.recovery_log
+        if event["event"] == "episode_completed"
+        and event["timestamp"] >= 1.0
+    ]
+    assert completed[-1]["outcome"] == "timeout_settled_low_confidence"
+    assert completed[-1]["latched_pose"] is not None
+    assert fusion.global_confidence == "low"
+    assert not fusion.integrity.recovery_required
+    assert fusion.latched_global_pose is None
+
+
+def test_unconverged_recovery_keeps_warning_and_episode_open():
+    fusion = LocalizationFusion()
+    make_good(fusion)
+    for index in range(3):
+        fusion.process_gps(
+            gps(
+                1.0 + index * 0.1,
+                None,
+                None,
+                quality=0,
+                satellites=0,
+            )
+        )
+    fusion.local.covariance[:2, :2] = np.eye(2) * 100.0
+    for index in range(5):
+        fusion.process_gps(
+            gps(
+                1.4 + index * 0.1,
+                10.0,
+                0.0,
+                quality=1,
+                satellites=10,
+                hdop=1.0,
+            )
+        )
+    fusion.process_gps(
+        gps(
+            11.3,
+            10.0,
+            0.0,
+            quality=1,
+            satellites=10,
+            hdop=1.0,
+        )
+    )
+
+    assert any(
+        event["event"] == "recovery_unconverged"
+        and event["outcome"] == "unconverged"
+        for event in fusion.recovery_log
+    )
+    assert fusion.global_confidence == "low"
+    assert fusion.integrity.recovery_required
+    assert fusion.recovery_episode_started is not None
+    assert fusion.latched_global_pose is not None
 
 
 def test_gps_replay_is_causal():
