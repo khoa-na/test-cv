@@ -178,6 +178,57 @@ def geodetic_to_enu(
     return delta @ rotation.T
 
 
+def wgs84_to_slam_metric(
+    recording: str | Path,
+    latitude_deg: np.ndarray,
+    longitude_deg: np.ndarray,
+    ellipsoid_altitude_m: np.ndarray,
+) -> tuple[np.ndarray, dict]:
+    """WGS84 -> metric SLAM world bằng transform chain chính thức 4Seasons.
+
+    Công thức bám theo ``libartipy.TransformationFrame``: khi đi ngược từ
+    ECEF về SLAM, GNSS scale được đảo ở cạnh world/ENU. Kết quả SLAM chưa
+    scale sau đó được nhân scale để cùng đơn vị với ``result.txt * scale``.
+    """
+    transforms = fourseasons.load_transformations(Path(recording))
+    transform_s_as = np.asarray(transforms["transform_s_as"])
+    transform_w_gpsw = np.asarray(transforms["transform_w_gpsw"])
+    transform_e_gpsw = np.asarray(transforms["transform_e_gpsw"])
+    scale = float(transforms["gnss_scale"])
+    scale_transform = np.eye(4, dtype=np.float64)
+    scale_transform[:3, :3] *= scale
+    ecef = geodetic_to_ecef(
+        latitude_deg, longitude_deg, ellipsoid_altitude_m
+    )
+    homogeneous = np.column_stack((ecef, np.ones(len(ecef))))
+    ecef_to_unscaled_slam = (
+        np.linalg.inv(transform_s_as)
+        @ np.linalg.inv(scale_transform)
+        @ transform_w_gpsw
+        @ np.linalg.inv(transform_e_gpsw)
+    )
+    slam_metric = (
+        (ecef_to_unscaled_slam @ homogeneous.T).T[:, :3] * scale
+    )
+    transform_gps_imu = np.asarray(transforms["transform_gps_imu"])
+    transform_cam_imu = np.asarray(transforms["transform_cam_imu"])
+    metadata = {
+        "gnss_scale": scale,
+        "gps_imu_lever_arm_m": float(
+            np.linalg.norm(transform_gps_imu[:3, 3])
+        ),
+        "camera_imu_lever_arm_m": float(
+            np.linalg.norm(transform_cam_imu[:3, 3])
+        ),
+        "altitude": "GGA MSL altitude + geoid separation",
+        "convention": (
+            "WGS84->ECEF->GPS-world/ENU->world->SLAM, "
+            "matching official libartipy"
+        ),
+    }
+    return slam_metric, metadata
+
+
 def rigid_align_2d(source: np.ndarray, target: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
     """Fit rotation + translation target ~= R @ source + t, không fit scale."""
     source = np.asarray(source, dtype=np.float64)
@@ -282,10 +333,28 @@ def odometry_proxy_from_recording(
 
 
 def load_nmea_replay(
-    recording: str | Path, *, align_to_reference: bool = False
+    recording: str | Path,
+    *,
+    align_to_reference: bool = False,
+    alignment_mode: str | None = None,
+    time_offset_s: float = 0.0,
 ) -> GPSReplay:
-    """Load GGA và tùy chọn rigid-align ENU vào reference frame cho benchmark."""
+    """Load GGA trong raw ENU, rigid-fit offline, hoặc transform chain.
+
+    ``time_offset_s`` là calibration clock: timestamp dùng bởi fusion bằng
+    timestamp GGA cộng offset. Giá trị 0 giữ nguyên replay cũ.
+    """
     rec = Path(recording)
+    if alignment_mode is None:
+        alignment_mode = (
+            "reference_rigid" if align_to_reference else "raw_enu"
+        )
+    elif align_to_reference:
+        raise ValueError(
+            "Chỉ dùng một trong align_to_reference hoặc alignment_mode"
+        )
+    if alignment_mode not in {"raw_enu", "reference_rigid", "transform_chain"}:
+        raise ValueError(f"alignment_mode không hỗ trợ: {alignment_mode}")
     frame_epoch = float(fourseasons.load_times(rec)[0, 1])
     rows = [row for row in fourseasons.load_nmea_gga(rec) if row["utc"] is not None]
     valid = [row for row in rows if row["lat"] is not None and row["lon"] is not None]
@@ -297,13 +366,32 @@ def load_nmea_replay(
     enu = geodetic_to_enu(
         latitudes, longitudes, datum_row["lat"], datum_row["lon"]
     )[:, :2]
+    chain_metadata = None
+    if alignment_mode == "transform_chain":
+        altitudes = np.array(
+            [
+                (
+                    row["ellipsoid_altitude_m"]
+                    if row["ellipsoid_altitude_m"] is not None
+                    else 0.0
+                )
+                for row in valid
+            ],
+            dtype=np.float64,
+        )
+        chain_xyz, chain_metadata = wgs84_to_slam_metric(
+            rec, latitudes, longitudes, altitudes
+        )
+        source_positions = chain_xyz[:, :2]
+    else:
+        source_positions = enu
     valid_index = {id(row): index for index, row in enumerate(valid)}
 
     rotation = np.eye(2)
     translation = np.zeros(2)
-    alignment = "raw_enu"
+    alignment = alignment_mode
     alignment_error = None
-    if align_to_reference:
+    if alignment_mode == "reference_rigid":
         ref_timestamps, ref_xy, _ = load_reference_trajectory(rec)
         fit_rows = [
             row
@@ -321,7 +409,9 @@ def load_nmea_replay(
                 for row in fit_rows
             ]
         )
-        fit_source = np.array([enu[valid_index[id(row)]] for row in fit_rows])
+        fit_source = np.array(
+            [source_positions[valid_index[id(row)]] for row in fit_rows]
+        )
         fit_target = np.column_stack(
             (
                 np.interp(fit_timestamps, ref_timestamps, ref_xy[:, 0]),
@@ -344,11 +434,14 @@ def load_nmea_replay(
     for row in rows:
         position = None
         if row["lat"] is not None and row["lon"] is not None:
-            raw = enu[valid_index[id(row)]]
+            raw = source_positions[valid_index[id(row)]]
             position = rotation @ raw + translation
         measurements.append(
             GPSMeasurement(
-                timestamp=_epoch_from_seconds_of_day(row["utc"], frame_epoch),
+                timestamp=(
+                    _epoch_from_seconds_of_day(row["utc"], frame_epoch)
+                    + time_offset_s
+                ),
                 x=None if position is None else float(position[0]),
                 y=None if position is None else float(position[1]),
                 fix_quality=row["fix_quality"],
@@ -367,6 +460,8 @@ def load_nmea_replay(
             "rotation": rotation.tolist(),
             "translation": translation.tolist(),
             "alignment_error": alignment_error,
+            "time_offset_s": float(time_offset_s),
+            "transform_chain": chain_metadata,
         },
     )
 

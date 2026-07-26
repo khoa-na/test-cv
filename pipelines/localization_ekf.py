@@ -635,21 +635,43 @@ class LocalizationFusion:
 
     def process_odometry(self, measurement: OdometryMeasurement) -> np.ndarray:
         self.local.step(measurement)
+        return self._finish_time_step(measurement.timestamp, measurement.dt)
+
+    def predict_only(
+        self,
+        timestamp: float,
+        dt: float,
+        translation_process_std: float,
+        rotation_process_std: float,
+    ) -> np.ndarray:
+        """Tiến EKF khi không có odometry update.
+
+        ``*_process_std`` chỉ inflate process noise của predict; chúng không
+        phải measurement std và phương thức này không tạo measurement giả.
+        """
+        self.local.predict(
+            dt,
+            translation_process_std,
+            rotation_process_std,
+        )
+        return self._finish_time_step(timestamp, dt)
+
+    def _finish_time_step(self, timestamp: float, dt: float) -> np.ndarray:
         self.map_covariance += (
             np.eye(2)
             * self.config.map_process_variance_per_second
-            * measurement.dt
+            * dt
         )
-        self._advance_global_correction(measurement.dt)
-        self._apply_transition(self.integrity.tick(measurement.timestamp))
+        self._advance_global_correction(dt)
+        self._apply_transition(self.integrity.tick(timestamp))
         if self.integrity.recovery_required:
-            self._start_recovery_episode(measurement.timestamp)
-        self._check_recovery_timeout(measurement.timestamp)
-        self._maybe_complete_recovery(measurement.timestamp)
+            self._start_recovery_episode(timestamp)
+        self._check_recovery_timeout(timestamp)
+        self._maybe_complete_recovery(timestamp)
         pose = self.global_pose
         self.pose_log.append(
             {
-                "timestamp": measurement.timestamp,
+                "timestamp": timestamp,
                 "local": self.local_pose.tolist(),
                 "global": pose.tolist(),
                 "state": self.integrity.state.value,

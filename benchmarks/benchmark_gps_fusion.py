@@ -21,7 +21,10 @@ from data_tools.gps_sources import (
     simulate_gps,
     wrap_angle,
 )
+from data_tools.imu_yaw import load_imu_yaw_integrator
+from data_tools.stereo_odometry import run_stereo_odometry
 from pipelines.localization_ekf import GPSState, LocalizationFusion
+from pipelines.stereo_vo import StereoVOConfig
 
 
 STATE_COLORS = {
@@ -422,24 +425,125 @@ def evaluate_run(
 
 
 def run_fusion(
-    recording: Path, replay: GPSReplay, *, seed: int
+    recording: Path,
+    replay: GPSReplay,
+    *,
+    seed: int,
+    odom_source: str = "proxy",
+    calibration_dir: Path | None = None,
+    max_vo_frames: int | None = None,
+    yaw_source: str = "visual",
 ) -> tuple[dict, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     timestamps, reference, _ = load_reference_trajectory(recording)
-    odometry = odometry_proxy_from_recording(recording, seed=seed)
+    if odom_source == "proxy":
+        odometry_events = [
+            (
+                measurement.timestamp,
+                measurement,
+                reference[index],
+            )
+            for index, measurement in enumerate(
+                odometry_proxy_from_recording(recording, seed=seed),
+                start=1,
+            )
+        ]
+        odometry_metadata = {
+            "source": "reference_pose_proxy",
+            "dropout_frames": 0,
+        }
+    elif odom_source == "vo":
+        if calibration_dir is None:
+            raise ValueError("calibration_dir bắt buộc khi --odom vo")
+        vo_config = StereoVOConfig()
+        frames = run_stereo_odometry(
+            recording,
+            calibration_dir,
+            config=vo_config,
+            max_frames=max_vo_frames,
+            timestamp_min=float(timestamps[0]),
+            timestamp_max=float(timestamps[-1]),
+            yaw_source=yaw_source,
+        )
+        frame_timestamps = np.array(
+            [frame.timestamp for frame in frames],
+            dtype=np.float64,
+        )
+        interpolated_reference = np.column_stack(
+            (
+                np.interp(frame_timestamps, timestamps, reference[:, 0]),
+                np.interp(frame_timestamps, timestamps, reference[:, 1]),
+            )
+        )
+        odometry_events = [
+            (
+                frame.timestamp,
+                frame.measurement,
+                interpolated_reference[index],
+            )
+            for index, frame in enumerate(frames[1:], start=1)
+        ]
+        odometry_metadata = {
+            "source": "stereo_vo",
+            "frames": len(frames),
+            "valid_updates": sum(
+                frame.measurement is not None for frame in frames[1:]
+            ),
+            "dropout_frames": sum(
+                frame.measurement is None for frame in frames[1:]
+            ),
+            "yaw_source_requested": yaw_source,
+            "imu_yaw_updates": sum(
+                frame.measurement is not None
+                and frame.measurement.source == "stereo_vo_imu_yaw"
+                for frame in frames[1:]
+            ),
+            "imu_yaw_calibration": (
+                load_imu_yaw_integrator(
+                    recording,
+                    frames[0].timestamp,
+                ).metadata()
+                if yaw_source == "imu"
+                else None
+            ),
+            "processing_fps": (
+                len(frames)
+                / sum(frame.processing_seconds for frame in frames)
+            ),
+        }
+    else:
+        raise ValueError(f"Odometry source không hỗ trợ: {odom_source}")
+
     replay.seek(float(timestamps[0]))
     fusion = LocalizationFusion()
     output_timestamps = []
     predicted = []
     local = []
     aligned_reference = []
-    for index, measurement in enumerate(odometry, start=1):
-        for gps_measurement in replay.pop_until(measurement.timestamp):
+    previous_timestamp = float(odometry_events[0][0])
+    for event_index, (timestamp, measurement, reference_position) in enumerate(
+        odometry_events
+    ):
+        for gps_measurement in replay.pop_until(timestamp):
             fusion.process_gps(gps_measurement)
-        fusion.process_odometry(measurement)
-        output_timestamps.append(measurement.timestamp)
+        if measurement is None:
+            dt = (
+                1.0 / 30.0
+                if event_index == 0
+                else float(timestamp - previous_timestamp)
+            )
+            fusion.predict_only(
+                timestamp,
+                dt,
+                translation_process_std=0.05,
+                rotation_process_std=np.deg2rad(1.0),
+            )
+        else:
+            fusion.process_odometry(measurement)
+        previous_timestamp = float(timestamp)
+        output_timestamps.append(timestamp)
         predicted.append(fusion.global_pose)
         local.append(fusion.local_pose)
-        aligned_reference.append(reference[index])
+        aligned_reference.append(reference_position)
     arrays = (
         np.asarray(output_timestamps),
         np.asarray(predicted),
@@ -449,6 +553,7 @@ def run_fusion(
     report = evaluate_run(fusion, replay, *arrays)
     report["recording"] = recording.name
     report["gps_source"] = replay.metadata
+    report["odometry"] = odometry_metadata
     report["recovery_events"] = [
         {
             **event,
@@ -462,7 +567,12 @@ def run_fusion(
         for event in fusion.recovery_log
     ]
     report["reference_usage"] = (
-        "Offline only: odometry proxy, simulated GPS, ENU rigid alignment and evaluation"
+        "Offline only: simulated GPS, ENU rigid alignment and evaluation"
+        + (
+            "; reference pose also creates proxy odometry"
+            if odom_source == "proxy"
+            else "; reference pose never enters stereo VO inference"
+        )
     )
     return report, *arrays
 
@@ -525,15 +635,27 @@ def benchmark_case(
     output: Path,
     name: str,
     seed: int,
+    *,
+    odom_source: str = "proxy",
+    calibration_dir: Path | None = None,
+    max_vo_frames: int | None = None,
+    yaw_source: str = "visual",
 ) -> dict:
-    report, _, predicted, _, reference = run_fusion(recording, replay, seed=seed)
+    report, output_timestamps, predicted, _, reference = run_fusion(
+        recording,
+        replay,
+        seed=seed,
+        odom_source=odom_source,
+        calibration_dir=calibration_dir,
+        max_vo_frames=max_vo_frames,
+        yaw_source=yaw_source,
+    )
     # State được tái dựng từ transition để không giữ object fusion trong API.
     states = []
     current = GPSState.LOST.value
     transitions = iter(report["transitions"])
     transition = next(transitions, None)
-    timestamps, _, _ = load_reference_trajectory(recording)
-    for timestamp in timestamps[1:]:
+    for timestamp in output_timestamps:
         while transition is not None and transition["timestamp"] <= timestamp:
             current = transition["current"]
             transition = next(transitions, None)
@@ -551,16 +673,38 @@ def run(args: argparse.Namespace) -> dict:
         if not recording.is_dir():
             raise FileNotFoundError(recording)
 
-    real_replay = load_nmea_replay(garage_2, align_to_reference=True)
+    real_replay = load_nmea_replay(
+        garage_2,
+        alignment_mode=args.gps_alignment,
+        time_offset_s=args.gps_time_offset_s,
+    )
     garage_timestamps, garage_xy, _ = load_reference_trajectory(garage_3)
     neighborhood_timestamps, neighborhood_xy, _ = load_reference_trajectory(
         neighborhood
     )
-    cases = {
-        "garage_2_real_nmea": benchmark_case(
-            garage_2, real_replay, args.output, "garage_2_real_nmea", args.seed
-        ),
-        "garage_3_simulated": benchmark_case(
+    selected_cases = set(
+        args.case
+        or (
+            "garage_2_real_nmea",
+            "garage_3_simulated",
+            "neighborhood_simulated",
+        )
+    )
+    cases = {}
+    if "garage_2_real_nmea" in selected_cases:
+        cases["garage_2_real_nmea"] = benchmark_case(
+            garage_2,
+            real_replay,
+            args.output,
+            "garage_2_real_nmea",
+            args.seed,
+            odom_source=args.odom,
+            calibration_dir=root / "calibration",
+            max_vo_frames=args.max_vo_frames,
+            yaw_source=args.yaw_source,
+        )
+    if "garage_3_simulated" in selected_cases:
+        cases["garage_3_simulated"] = benchmark_case(
             garage_3,
             simulate_gps(
                 garage_timestamps,
@@ -571,8 +715,13 @@ def run(args: argparse.Namespace) -> dict:
             args.output,
             "garage_3_simulated",
             args.seed,
-        ),
-        "neighborhood_simulated": benchmark_case(
+            odom_source=args.odom,
+            calibration_dir=root / "calibration",
+            max_vo_frames=args.max_vo_frames,
+            yaw_source=args.yaw_source,
+        )
+    if "neighborhood_simulated" in selected_cases:
+        cases["neighborhood_simulated"] = benchmark_case(
             neighborhood,
             simulate_gps(
                 neighborhood_timestamps,
@@ -583,10 +732,16 @@ def run(args: argparse.Namespace) -> dict:
             args.output,
             "neighborhood_simulated",
             args.seed,
-        ),
-    }
+            odom_source=args.odom,
+            calibration_dir=root / "calibration",
+            max_vo_frames=args.max_vo_frames,
+            yaw_source=args.yaw_source,
+        )
     report = {
-        "method": "local odometry EKF + GPS integrity + smoothed map->odom",
+        "method": (
+            f"local {args.odom} odometry EKF + GPS integrity "
+            "+ smoothed map->odom"
+        ),
         "kpi": {
             "handover_target_seconds": 2.0,
             "relock_target_error_m": 5.0,
@@ -595,9 +750,21 @@ def run(args: argparse.Namespace) -> dict:
         "cases": cases,
         "limitations": [
             "4Seasons reference pose combines stereo VIO and RTK-GNSS.",
-            "NMEA-to-reference rigid alignment is offline evaluation setup, not online localization.",
+            (
+                "NMEA-to-reference rigid alignment is offline evaluation setup, "
+                "not online localization."
+                if args.gps_alignment == "reference_rigid"
+                else (
+                    "NMEA uses the official 4Seasons WGS84/ECEF transform chain; "
+                    "clock offset was selected on a separate calibration split."
+                )
+            ),
             "Simulated GPS validates software transitions and does not replace real receiver evidence.",
-            "Odometry is a noisy reference-pose proxy until stereo VO replaces the same API in Step 2.",
+            (
+                "Odometry is a noisy reference-pose proxy."
+                if args.odom == "proxy"
+                else "Stereo VO uses ORB stereo depth + temporal PnP and may drop low-feature frames."
+            ),
         ],
     }
     args.output.mkdir(parents=True, exist_ok=True)
@@ -621,6 +788,48 @@ def parse_args() -> argparse.Namespace:
         default=Path("artifacts/gps-fusion"),
     )
     parser.add_argument("--seed", type=int, default=7)
+    parser.add_argument(
+        "--odom",
+        choices=("proxy", "vo"),
+        default="proxy",
+        help="Nguồn odometry; proxy giữ khả năng tái lập benchmark Bước 1.",
+    )
+    parser.add_argument(
+        "--max-vo-frames",
+        type=int,
+        help="Giới hạn frame cho smoke test; bỏ trống khi benchmark chính thức.",
+    )
+    parser.add_argument(
+        "--yaw-source",
+        choices=("visual", "imu"),
+        default="imu",
+        help="IMU chỉ được dùng nếu stationary bias gate 2 giây đầu pass.",
+    )
+    parser.add_argument(
+        "--gps-alignment",
+        choices=("reference_rigid", "transform_chain"),
+        default="reference_rigid",
+        help=(
+            "Alignment NMEA thật; transform_chain tránh fit reference pose "
+            "trong replay."
+        ),
+    )
+    parser.add_argument(
+        "--gps-time-offset-s",
+        type=float,
+        default=0.0,
+        help="Clock offset đã chọn trên calibration split, cộng vào GGA timestamp.",
+    )
+    parser.add_argument(
+        "--case",
+        choices=(
+            "garage_2_real_nmea",
+            "garage_3_simulated",
+            "neighborhood_simulated",
+        ),
+        action="append",
+        help="Chạy subset case; mặc định chạy cả ba.",
+    )
     return parser.parse_args()
 
 

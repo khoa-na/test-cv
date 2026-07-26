@@ -21,6 +21,59 @@ from pathlib import Path
 import numpy as np
 
 
+def _quaternion_transform(values: list[float]) -> np.ndarray:
+    """Tạo SE(3) từ ``tx,ty,tz,qx,qy,qz,qw`` của 4Seasons."""
+    translation = np.asarray(values[:3], dtype=np.float64)
+    x, y, z, w = np.asarray(values[3:7], dtype=np.float64)
+    norm = float(np.linalg.norm([x, y, z, w]))
+    if norm == 0:
+        raise ValueError("Quaternion transform không được bằng 0")
+    x, y, z, w = np.asarray([x, y, z, w]) / norm
+    rotation = np.array(
+        [
+            [1 - 2 * (y * y + z * z), 2 * (x * y - z * w), 2 * (x * z + y * w)],
+            [2 * (x * y + z * w), 1 - 2 * (x * x + z * z), 2 * (y * z - x * w)],
+            [2 * (x * z - y * w), 2 * (y * z + x * w), 1 - 2 * (x * x + y * y)],
+        ],
+        dtype=np.float64,
+    )
+    transform = np.eye(4, dtype=np.float64)
+    transform[:3, :3] = rotation
+    transform[:3, 3] = translation
+    return transform
+
+
+def load_transformations(rec: Path) -> dict[str, np.ndarray | float]:
+    """Đọc transform chain theo đúng convention của ``libartipy`` chính thức.
+
+    Các ma trận lưu điểm theo chiều:
+    ``SLAM -> world``, ``GPS-world -> world``, ``IMU -> GPS`` và
+    ``GPS-world/ENU -> ECEF``. ``TS_cam_imu`` là ``IMU -> camera``.
+    """
+    lines = [
+        line.strip()
+        for line in (rec / "Transformations.txt").read_text().splitlines()
+        if line.strip() and not line.lstrip().startswith("#")
+    ]
+    if len(lines) < 6:
+        raise ValueError("Transformations.txt thiếu transform hoặc GNSS scale")
+    names = (
+        "transform_s_as",
+        "transform_cam_imu",
+        "transform_w_gpsw",
+        "transform_gps_imu",
+        "transform_e_gpsw",
+    )
+    output: dict[str, np.ndarray | float] = {}
+    for name, line in zip(names, lines[:5]):
+        values = [float(value) for value in line.split(",")]
+        if len(values) < 7:
+            raise ValueError(f"{name} không đủ 7 giá trị")
+        output[name] = _quaternion_transform(values)
+    output["gnss_scale"] = float(lines[5].replace(",", ""))
+    return output
+
+
 def load_times(rec: Path) -> np.ndarray:
     """[N,2]: frame_id(ns), timestamp(s)."""
     raw = np.loadtxt(rec / "times.txt", usecols=(0, 1))
@@ -43,7 +96,7 @@ def load_imu(rec: Path) -> np.ndarray:
 
 
 def load_nmea_gga(rec: Path) -> list[dict]:
-    """GGA thật từ receiver: utc(s trong ngày), lat, lon, fix_quality, satellites, hdop.
+    """GGA thật: UTC, WGS84, fix quality, satellites, HDOP và altitude.
 
     Message không có fix (quality 0) vẫn được trả về — đó chính là tín hiệu
     mất GPS mà GPS integrity monitor cần thấy.
@@ -66,14 +119,26 @@ def load_nmea_gga(rec: Path) -> list[dict]:
             lon = int(p[4][:3]) + float(p[4][3:]) / 60
             if p[5] == "W":
                 lon = -lon
-        out.append({
-            "utc": utc,
-            "lat": lat,
-            "lon": lon,
-            "fix_quality": int(p[6]),
-            "satellites": int(p[7]) if p[7] else 0,
-            "hdop": float(p[8]) if p[8] else None,
-        })
+        altitude_msl = float(p[9]) if len(p) > 9 and p[9] else None
+        geoid_separation = float(p[11]) if len(p) > 11 and p[11] else None
+        ellipsoid_altitude = (
+            altitude_msl + geoid_separation
+            if altitude_msl is not None and geoid_separation is not None
+            else altitude_msl
+        )
+        out.append(
+            {
+                "utc": utc,
+                "lat": lat,
+                "lon": lon,
+                "altitude_msl_m": altitude_msl,
+                "geoid_separation_m": geoid_separation,
+                "ellipsoid_altitude_m": ellipsoid_altitude,
+                "fix_quality": int(p[6]),
+                "satellites": int(p[7]) if p[7] else 0,
+                "hdop": float(p[8]) if p[8] else None,
+            }
+        )
     return out
 
 

@@ -35,6 +35,32 @@ def test_nmea_has_real_gps_loss():
     quals = {g["fix_quality"] for g in gga}
     assert 0 in quals, "garage phải có message mất fix"
     assert any(q >= 4 for q in quals), "ngoài trời phải có RTK fix"
+    positioned = next(row for row in gga if row["fix_quality"] == 4)
+    assert positioned["altitude_msl_m"] is not None
+    assert positioned["geoid_separation_m"] is not None
+    assert positioned["ellipsoid_altitude_m"] == pytest.approx(
+        positioned["altitude_msl_m"] + positioned["geoid_separation_m"]
+    )
+
+
+def test_transformations_match_dataset_convention():
+    transforms = fs.load_transformations(REC)
+    assert transforms["gnss_scale"] == pytest.approx(1.042780)
+    for name in (
+        "transform_s_as",
+        "transform_cam_imu",
+        "transform_w_gpsw",
+        "transform_gps_imu",
+        "transform_e_gpsw",
+    ):
+        transform = transforms[name]
+        assert transform.shape == (4, 4)
+        assert np.allclose(
+            transform[:3, :3] @ transform[:3, :3].T, np.eye(3), atol=1e-6
+        )
+    assert np.linalg.norm(
+        transforms["transform_gps_imu"][:3, 3]
+    ) == pytest.approx(0.0)
 
 
 def test_calibration():
