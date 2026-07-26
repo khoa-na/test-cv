@@ -97,6 +97,51 @@ def detect(timestamps: np.ndarray, heading: np.ndarray) -> list[dict]:
     return events
 
 
+def swept_at_detection(
+    timestamps: np.ndarray,
+    heading: np.ndarray,
+    truths: list[dict],
+    detections: list[dict],
+) -> dict:
+    """Khúc quay đó đã tự quay được bao nhiêu độ lúc detector bắn.
+
+    Cửa sổ trượt 8 s dài hơn khoảng cách giữa các khúc quay liên tiếp trong
+    garage (~9 s, mỗi khúc đã chiếm 6-7 s). Các khúc lại cùng chiều, nên cửa sổ
+    cộng dồn góc qua hai khúc và detector có thể bắn trước khi khúc hiện tại đủ
+    150 độ. Không có số này thì latency âm trông như độ nhạy, trong khi một phần
+    là do cửa sổ không tách được hai khúc liền nhau.
+    """
+    unwrapped = unwrap_heading(heading)
+    swept = []
+    for truth in truths:
+        event = next(
+            (
+                item
+                for item in detections
+                if truth["start"] <= item["timestamp"] <= truth["end"] + MATCH_TOLERANCE_S
+            ),
+            None,
+        )
+        if event is None:
+            continue
+        start_angle = np.interp(truth["start"], timestamps, unwrapped)
+        detect_angle = np.interp(event["timestamp"], timestamps, unwrapped)
+        swept.append(abs(float(np.rad2deg(detect_angle - start_angle))))
+    if not swept:
+        return {"samples": 0}
+    swept_array = np.asarray(swept)
+    return {
+        "samples": len(swept),
+        "median_deg": float(np.median(swept_array)),
+        "min_deg": float(swept_array.min()),
+        "below_threshold_count": int((swept_array < 150.0 - 1.0).sum()),
+        "note": (
+            "Dưới 150 độ nghĩa là detector bắn nhờ góc cộng dồn từ khúc quay "
+            "trước trong cùng cửa sổ, không phải nhờ khúc hiện tại."
+        ),
+    }
+
+
 def match(truths: list[dict], detections: list[dict]) -> dict:
     matched_truth: dict[int, int] = {}
     labels = []
@@ -122,10 +167,16 @@ def match(truths: list[dict], detections: list[dict]) -> dict:
     false_positives = sum(label != "true_positive" for label in labels)
     false_negatives = len(truths) - true_positives
 
-    latencies = [
-        detections[matched_truth[truth_index]]["timestamp"]
-        - truths[truth_index]["start"]
-        for truth_index in matched_truth
+    # KPI B3 của đề là latency, nên mốc quy chiếu quyết định con số. Mốc đúng là
+    # lúc khúc quay KẾT THÚC: đó là thời điểm sớm nhất mà "đã xảy ra U-turn" là
+    # mệnh đề đúng. Đo từ lúc bắt đầu quay thì đang phạt hệ vì xe quay lâu.
+    since_start = [
+        detections[matched_truth[index]]["timestamp"] - truths[index]["start"]
+        for index in matched_truth
+    ]
+    since_completion = [
+        detections[matched_truth[index]]["timestamp"] - truths[index]["end"]
+        for index in matched_truth
     ]
 
     return {
@@ -139,8 +190,26 @@ def match(truths: list[dict], detections: list[dict]) -> dict:
         ),
         "recall": true_positives / len(truths) if truths else float("nan"),
         "detection_latency_s": {
-            "median": float(np.median(latencies)) if latencies else None,
-            "max": float(np.max(latencies)) if latencies else None,
+            "definition": (
+                "KPI B3: thời điểm phát hiện trừ thời điểm khúc quay kết thúc. "
+                "Âm nghĩa là hệ báo trước khi xe quay xong."
+            ),
+            "target_s": 2.0,
+            "excellent_s": 1.0,
+            "median": float(np.median(since_completion)) if since_completion else None,
+            "p95": float(np.percentile(since_completion, 95)) if since_completion else None,
+            "max": float(np.max(since_completion)) if since_completion else None,
+            "within_target": (
+                bool(np.max(since_completion) <= 2.0) if since_completion else None
+            ),
+            "within_excellent": (
+                bool(np.max(since_completion) <= 1.0) if since_completion else None
+            ),
+        },
+        "latency_from_turn_start_s": {
+            "definition": "Phụ: đo từ lúc bắt đầu quay, phụ thuộc độ dài khúc quay.",
+            "median": float(np.median(since_start)) if since_start else None,
+            "max": float(np.max(since_start)) if since_start else None,
         },
         "missed_turns": [
             truths[index]
@@ -174,7 +243,16 @@ def evaluate(
         yaw_source="imu",
     )
 
-    system = match(truths, detect(timestamps, predicted[:, 2]))
+    system_detections = detect(timestamps, predicted[:, 2])
+    system = match(truths, system_detections)
+    system["swept_at_detection"] = swept_at_detection(
+        reference_timestamps, reference_heading, truths, system_detections
+    )
+    # Khoảng cách giữa các khúc quay so với cửa sổ 8 s: nguồn gốc của hiện tượng.
+    gaps = [
+        later["start"] - earlier["end"]
+        for earlier, later in zip(truths, truths[1:])
+    ]
     # Kênh phụ: heading local frame, không chịu xoay từ map->odom correction.
     local_only = match(truths, detect(timestamps, local[:, 2]))
     # Trần lý thuyết: detector chạy trực tiếp trên reference heading.
@@ -184,6 +262,13 @@ def evaluate(
 
     return {
         "recording": recording.name,
+        "turn_spacing_s": {
+            "window_seconds": 8.0,
+            "median_gap": float(np.median(gaps)) if gaps else None,
+            "min_gap": float(np.min(gaps)) if gaps else None,
+            "gaps_shorter_than_window": int(sum(gap < 8.0 for gap in gaps)),
+            "turns": len(truths),
+        },
         "ground_truth": {
             "source": "reference pose (evaluation only)",
             "uses_ground_truth": True,
@@ -222,17 +307,22 @@ def main() -> None:
             name, recording, calibration, args.max_vo_frames
         )
         summary = cases[name]["system_global_heading"]
+        latency = summary["detection_latency_s"]
         print(
             f"{name}: GT {summary['ground_truth_turns']}  "
             f"TP {summary['true_positives']}  "
             f"FP {summary['false_positives']}  "
             f"FN {summary['false_negatives']}  "
             f"precision {summary['precision']:.3f}  "
-            f"recall {summary['recall']:.3f}"
+            f"recall {summary['recall']:.3f}  "
+            f"latency median {latency['median']:+.2f}s max {latency['max']:+.2f}s"
         )
 
     report = {
         "kpi": {
+            "metric": "detection latency vs turn completion",
+            "target_s": 2.0,
+            "excellent_s": 1.0,
             "threshold_degrees": 150.0,
             "window_seconds": 8.0,
             "note": (
