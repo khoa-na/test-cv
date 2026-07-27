@@ -51,6 +51,12 @@ def load_camera_imu_rotation(recording: str | Path) -> np.ndarray:
 class IMUYawConfig:
     bias_calibration_seconds: float = 2.0
     stationary_gyro_p95_rad_s: float = 0.02
+    # "recording_start": hiệu chỉnh trên bias_calibration_seconds đầu tiên.
+    # "quietest_window": quét cả recording, lấy cửa sổ có p95 gyro nhỏ nhất.
+    # Recording không bao giờ dừng hẳn (garage_3: 0/172 cửa sổ đạt ngưỡng) thì
+    # cửa sổ đầu bắt trúng lúc xe đang quay và bias ra sai vài lần.
+    bias_calibration_mode: str = "recording_start"
+    bias_search_step_seconds: float = 1.0
 
 
 class IMUYawIntegrator:
@@ -78,6 +84,17 @@ class IMUYawIntegrator:
             rotation_camera_imu,
             dtype=np.float64,
         ).T
+        if self.config.bias_calibration_mode not in {
+            "recording_start",
+            "quietest_window",
+        }:
+            raise ValueError(
+                f"bias_calibration_mode không hỗ trợ: "
+                f"{self.config.bias_calibration_mode}"
+            )
+        if self.config.bias_calibration_mode == "quietest_window":
+            calibration_start = self._quietest_window_start(gyro_camera)
+        self.calibration_start = calibration_start
         calibration = (
             (self.timestamps >= calibration_start)
             & (
@@ -112,6 +129,25 @@ class IMUYawIntegrator:
             )
         )
 
+    def _quietest_window_start(self, gyro_camera: np.ndarray) -> float:
+        norm = np.linalg.norm(gyro_camera, axis=1)
+        window = self.config.bias_calibration_seconds
+        best_start, best_score = None, np.inf
+        for start in np.arange(
+            self.timestamps[0],
+            self.timestamps[-1] - window,
+            self.config.bias_search_step_seconds,
+        ):
+            mask = (self.timestamps >= start) & (self.timestamps <= start + window)
+            if mask.sum() < 10:
+                continue
+            score = float(np.percentile(norm[mask], 95))
+            if score < best_score:
+                best_start, best_score = float(start), score
+        if best_start is None:
+            raise ValueError("Không dựng được cửa sổ hiệu chỉnh nào")
+        return best_start
+
     def delta_heading(self, start: float, end: float) -> float | None:
         if (
             not self.stationary_calibration_passed
@@ -138,6 +174,8 @@ class IMUYawIntegrator:
             ),
             "bias_camera_y_rad_s": self.bias_camera_y_rad_s,
             "calibration_seconds": self.config.bias_calibration_seconds,
+            "calibration_mode": self.config.bias_calibration_mode,
+            "calibration_start": self.calibration_start,
         }
 
 

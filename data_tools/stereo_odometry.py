@@ -11,7 +11,7 @@ import cv2
 
 from data_tools.fourseasons import load_calibration
 from data_tools.gps_sources import OdometryMeasurement
-from data_tools.imu_yaw import load_imu_yaw_integrator
+from data_tools.imu_yaw import IMUYawConfig, load_imu_yaw_integrator
 from pipelines.stereo_vo import StereoVO, StereoVOConfig
 
 
@@ -74,6 +74,7 @@ def run_stereo_odometry(
     timestamp_min: float | None = None,
     timestamp_max: float | None = None,
     yaw_source: str = "visual",
+    imu_config: IMUYawConfig | None = None,
 ) -> list[StereoOdometryFrame]:
     recording = Path(recording)
     frames = stereo_frames(recording)
@@ -94,7 +95,7 @@ def run_stereo_odometry(
     if yaw_source not in {"visual", "imu"}:
         raise ValueError(f"yaw_source không hỗ trợ: {yaw_source}")
     imu_yaw = (
-        load_imu_yaw_integrator(recording, frames[0].timestamp)
+        load_imu_yaw_integrator(recording, frames[0].timestamp, imu_config)
         if yaw_source == "imu"
         else None
     )
