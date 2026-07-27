@@ -5,10 +5,10 @@
 Trong ba ngày, tôi ưu tiên hai vertical slice có thể chạy và kiểm chứng trên
 CPU thay vì cố triển khai đủ mọi nhánh của đề:
 
-- **Phần A — phát hiện và đo ổ gà.** Detector segmentation ONNX đạt **89,8%
-  box mAP@0.5 in-domain** và 34,0 FPS. Trên bộ dữ liệu độc lập chưa từng dùng
-  khi phát triển, box mAP@0.5 còn **49,9%**; vì vậy 89,8% chỉ chứng minh khả
-  năng trong miền Pothole-600, không chứng minh khả năng tổng quát hóa. Pipeline
+- **Phần A — phát hiện và đo ổ gà.** Detector segmentation đạt **86,2% box
+  mAP@0.5 in-domain** và 34,0 FPS. Trên bộ dữ liệu độc lập chưa từng dùng khi
+  phát triển, box mAP@0.5 còn **49,9%**; vì vậy 86,2% chỉ chứng minh khả năng
+  trong miền Pothole-600, không chứng minh khả năng tổng quát hóa. Pipeline
   stereo đạt median depth error 4,97%, median area error 11,61% và 17,45 FPS
   trên proxy held-out 19 cặp ảnh.
 - **Phần B — localization khi GPS suy giảm.** Theo metric trên 4Seasons replay,
@@ -35,10 +35,10 @@ người đã có code và dataset; không gồm thời gian chờ thu dữ li�
 
 | KPI | Trạng thái sau time-box | Bằng chứng chính | Ước lượng để đóng |
 |---|---|---|---:|
-| A1 — Detection mAP | **Đạt in-domain** | 89,8% trên Pothole-600 test; 49,9% trên bộ độc lập | 3–5 ngày để nâng cross-domain |
+| A1 — Detection mAP | **Đạt in-domain** | 86,2% trên Pothole-600 test; 49,9% trên bộ độc lập | 3–5 ngày để nâng cross-domain |
 | A2 — Depth & area | **Đạt trên proxy** | Held-out 19 pair: median 4,97% depth, 11,61% area; chỉ 3 hố vật lý | 3–5 ngày mở rộng calibrated test |
 | A3 — End-to-end FPS | **Đạt trên proxy** | Median 17,45 FPS; 26/27 pair ≥15 FPS, min 14,66 FPS | 0,5 ngày chốt run cuối |
-| A4 — Failure analysis | **Một phần** | Có ablation và hai failure geometry; chưa lưu detector FN/FP đại diện | 0,5 ngày |
+| A4 — Failure analysis | **Đạt** | Hai failure geometry phân tích sâu, cộng FN/FP/mask-boundary xếp hạng theo IoU trên toàn split | Đã đóng |
 | A5 — Đêm/mưa/nắng | **Chưa làm** | Không có condition-stratified test hoặc footage TP.HCM | 2–3 ngày + thu dữ liệu |
 | B1 — VO drift / 500 m | **Đạt trên replay** | Median 2,40%; 12/13 cửa sổ ≤5% | 1–2 ngày truy failure 6,01% |
 | B2 — Landmark re-ID | **Chưa đạt** | R@1 0,708 so với ngưỡng 0,85 | 2–4 ngày, phụ thuộc map drift |
@@ -88,9 +88,11 @@ artifact cuối lưu đồng thời accuracy, coverage và latency.
   chứng receiver thật. B7 dùng throughput = số frame / tổng thời gian và gồm
   landmark ở nhịp keyframe.
 
-Mọi metric headline có JSON/CSV do script sinh, trừ summary detector cuối hiện
-vẫn truy vết qua `BENCHMARK.md` và các curve đã lưu. Video và ảnh minh họa
-không tham gia tính KPI.
+Mọi metric headline đều có JSON do script sinh, gồm cả detector: receipt A1 ở
+`artifacts/verify-final/a1/benchmark.json` ghi model SHA, split, phiên bản
+Ultralytics/ONNX Runtime/torch, cấu hình chạy và metric. Việc dựng receipt này
+đã làm lộ một sai lệch so với bản nháp trước — xem mục detector. Video và ảnh
+minh họa không tham gia tính KPI.
 
 ## System Decision Frame
 
@@ -141,16 +143,36 @@ sha256: 3ab52bdc4b41cc59b4b845b090bcddc2d927870ce272fdcff2dbb473b3a598c5
 
 | Metric | Pothole-600 test | Bộ độc lập |
 |---|---:|---:|
-| Box precision | 87,9% | 62,1% |
-| Box recall | 81,4% | 50,1% |
-| Box mAP@0.5 | **89,8%** | **49,9%** |
-| Box mAP@0.5:0.95 | 56,3% | 26,3% |
-| Mask mAP@0.5 | **87,1%** | **45,4%** |
-| Mask mAP@0.5:0.95 | 52,5% | 21,2% |
+| Box precision | 92,5% | 62,1% |
+| Box recall | 78,6% | 50,1% |
+| Box mAP@0.5 | **86,2%** | **49,9%** |
+| Box mAP@0.5:0.95 | 53,4% | 26,3% |
+| Mask mAP@0.5 | **84,6%** | **45,4%** |
+| Mask mAP@0.5:0.95 | 50,8% | 21,2% |
 
 KPI A1 đạt trong miền Pothole-600 nhưng trượt mạnh khi đổi miền. Trên bộ độc
 lập, recall thấp hơn precision: model bỏ sót nhiều hơn báo nhầm. Đây là rủi ro
 deployment lớn hơn chênh lệch vài điểm giữa các checkpoint in-domain.
+
+**Vì sao con số này thấp hơn 89,8% từng được báo.** Bản nháp trước của report
+trích 89,8% box và 87,1% mask, lấy từ dòng "ONNX merged" trong `BENCHMARK.md`.
+Lần chạy đó chỉ để lại PNG — không có file nào ghi model SHA, split, phiên bản
+thư viện hay cấu hình. Khi dựng receipt máy đọc được
+(`artifacts/verify-final/a1/benchmark.json`), checkpoint đo lại ra **86,2%**.
+
+Kiểm tra tiếp cho thấy con số cũ không tái lập được bằng bất kỳ đường nào còn
+chạy được. Gọi thẳng `YOLO.val()` lên `models/pothole_yolo26n_seg.onnx` trả về
+**toàn số 0** và báo `DetMetrics` thay vì `SegMetrics`, vì đó là raw head
+export (`end2end=False`) mà phần decode nằm ngoài ONNX graph, trong
+`pothole_pipeline`. Nói cách khác, đường đo sinh ra 89,8% không còn tồn tại
+dưới dạng script chạy được.
+
+Chính `BENCHMARK.md` cũng ủng hộ số thấp hơn: dòng "PyTorch baseline,
+end2end=False" ghi 86,9%, sát với 86,2% đo được ở đây.
+
+Report dùng **86,2%** vì đó là con số duy nhất bảo vệ được. KPI không đổi hạng —
+86,2% vẫn vượt ngưỡng đạt 80% và ngưỡng xuất sắc 85%. Thứ đổi là con số ấy giờ
+có receipt đi kèm.
 
 Production recipe cao hơn baseline Pothole-600-only 4,3 điểm phần trăm box
 mAP@0.5 và 5,9 điểm mask mAP@0.5. Tuy nhiên đây không phải ablation chỉ thay
@@ -213,9 +235,22 @@ từng làm median đẹp hơn nhưng kéo xấu p95 và tỷ lệ trong ±15%, 
 Hướng sửa rẻ nhất là đo area từ giao giữa semantic mask và stereo residual,
 sau đó chấm trên nhiều hố vật lý hơn.
 
-Cross-domain recall 50,1% cho thấy còn detector false negative, nhưng artifact
-hiện chưa lưu ranked FN/FP image. Vì vậy A4 được ghi là một phần; report không
-dùng ảnh thành công để giả làm failure case.
+### Case C — detector false negative và false positive
+
+Hai ca trên là lỗi hình học. Lỗi của chính detector được lấy bằng cách xếp hạng
+IoU trên **toàn bộ** 180 ảnh test thay vì lấy ba batch đầu — ba batch đầu tình
+cờ đều là ca thành công, và chọn từ đó rồi gọi là failure analysis thì không
+trung thực.
+
+Trên Pothole-600 test: **30 ảnh** chứa ít nhất một false negative và **36 ảnh**
+chứa ít nhất một false positive, ở ngưỡng confidence 0,25 và IoU khớp 0,5. Mẫu
+đại diện của mỗi loại, cộng ca có biên mask khớp tệ nhất, lưu ở
+`artifacts/verify-final/a1/failure_samples/`.
+
+Tỷ lệ này khớp với recall box 78,6% in-domain và tụt còn 50,1% cross-domain:
+kiểu lỗi trội của model là **bỏ sót**, không phải báo nhầm. Với cảnh báo lái
+xe, bỏ sót là kiểu lỗi nguy hiểm hơn — nó không làm phiền người dùng nên cũng
+không tự lộ ra khi chạy thật.
 
 ## Phần B — GPS-Degraded Localization
 
@@ -465,7 +500,7 @@ liên tục và không chọn clip theo kết quả.
 
 1. Mở rộng calibrated stereo test vượt ba hố vật lý và thêm opening-mask GT.
 2. Fine-tune/evaluate detector trên dữ liệu mặt đường Việt Nam để xử lý khoảng
-   cách 89,8% in-domain và 49,9% cross-domain.
+   cách 86,2% in-domain và 49,9% cross-domain.
 3. Thu hoặc dùng dataset có ego-lane GT cho B4 và có condition labels cho A5.
 4. Chạy field test timestamp, vibration, GPS multipath và ROS 2 runtime trên
    phần cứng đích.
