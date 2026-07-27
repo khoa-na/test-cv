@@ -50,6 +50,9 @@ official test split nên so trực tiếp được với baseline chỉ-Pothole-
 
 ## Cài đặt
 
+Cần **Python ≥ 3.10** (code dùng cú pháp `X | None`). Phát triển và đo trên
+3.14.4, Linux x86-64.
+
 ```bash
 python3 -m venv .venv
 .venv/bin/pip install -r requirements.txt
@@ -494,3 +497,18 @@ rồi gọi bridge. Nhờ vậy kiểm chứng được mà không cần cài RO
 
 Cả ba đều gắn banner nguồn trên khung hình. Không video nào là footage tự quay
 tại TP.HCM, và report không trình bày chúng như vậy.
+
+---
+
+## Giấy phép
+
+Mã nguồn trong repo này theo **MIT** — xem [LICENSE](LICENSE).
+
+Dataset không được redistribute ở đây; mỗi bộ giữ giấy phép riêng, liệt kê ở
+[mục Dữ liệu](#dữ-liệu) và trong LICENSE. Một số hình bằng chứng dưới
+`artifacts/` dẫn xuất từ dataset gốc nên chịu điều khoản của bộ đó chứ không
+phải MIT — đáng chú ý là `artifacts/vo-drift-final/office_loop_1.png` vẽ từ
+4Seasons (CC BY-NC-SA 4.0, phi thương mại).
+
+Ba video demo phát hành riêng dưới CC BY-NC-SA 4.0 trên
+[Hugging Face](https://huggingface.co/datasets/khoa-na/pothole-gps-localization-demos).
