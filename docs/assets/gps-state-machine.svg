@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 680" role="img" aria-labelledby="title desc">
+  <title id="title">GPS integrity state machine</title>
+  <desc id="desc">Transitions between GOOD, DEGRADED, LOST and RECOVERING with quality, timeout, NIS and consensus gates.</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#334155"/>
+    </marker>
+    <style>
+      .state { stroke-width:3; rx:18; }
+      .good { fill:#dcfce7; stroke:#15803d; }
+      .degraded { fill:#fef3c7; stroke:#a16207; }
+      .lost { fill:#fee2e2; stroke:#b91c1c; }
+      .recovering { fill:#e0f2fe; stroke:#0369a1; }
+      .line { stroke:#334155; stroke-width:2.4; fill:none; marker-end:url(#arrow); }
+      .dash { stroke-dasharray:7 6; }
+      .state-label { font-family:"DejaVu Sans",sans-serif; font-size:25px; font-weight:700; fill:#0f172a; text-anchor:middle; dominant-baseline:middle; }
+      .edge-label { font-family:"DejaVu Sans",sans-serif; font-size:17px; fill:#334155; text-anchor:middle; }
+    </style>
+  </defs>
+
+  <circle cx="70" cy="105" r="12" fill="#0f172a"/>
+  <rect class="state good" x="175" y="60" width="210" height="90"/>
+  <text class="state-label" x="280" y="105">GOOD</text>
+  <rect class="state degraded" x="500" y="60" width="230" height="90"/>
+  <text class="state-label" x="615" y="105">DEGRADED</text>
+  <rect class="state lost" x="500" y="465" width="230" height="90"/>
+  <text class="state-label" x="615" y="510">LOST</text>
+  <rect class="state recovering" x="825" y="250" width="255" height="90"/>
+  <text class="state-label" x="952" y="295">RECOVERING</text>
+
+  <path class="line" d="M82 105 L175 105"/>
+
+  <path class="line" d="M385 88 L500 88"/>
+  <text class="edge-label" x="442" y="45">HDOP &gt; 5, satellites &lt; 4,</text>
+  <text class="edge-label" x="442" y="66">or NIS reject x3</text>
+
+  <path class="line" d="M500 130 C450 180 430 190 385 132"/>
+  <text class="edge-label" x="430" y="205">5 accepted fixes</text>
+
+  <path class="line" d="M615 150 L615 465"/>
+  <text class="edge-label" x="745" y="395">unusable 1.5 s</text>
+  <text class="edge-label" x="745" y="417">or quality-0 x3</text>
+
+  <path class="line" d="M730 105 C935 110 995 150 970 250"/>
+  <text class="edge-label" x="900" y="90">good signal, normal NIS rejects</text>
+
+  <path class="line" d="M730 500 C830 475 890 415 930 340"/>
+  <text class="edge-label" x="885" y="475">valid fix returns</text>
+
+  <path class="line" d="M825 280 C760 235 710 190 670 150"/>
+  <text class="edge-label" x="785" y="222">3 fixes agree within 4 m</text>
+
+  <path class="line dash" d="M960 340 C960 490 870 555 730 535"/>
+  <text class="edge-label" x="975" y="455">no convergence in 10 s</text>
+
+  <path class="line dash" d="M280 150 C270 440 380 500 500 510"/>
+  <text class="edge-label" x="285" y="355">no receiver message for 1.5 s</text>
+</svg>

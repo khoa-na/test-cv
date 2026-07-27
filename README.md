@@ -1,8 +1,9 @@
 # Pothole depth/area estimation + GPS-degraded localization
 
-> **📄 Báo cáo kỹ thuật: [`REPORT.md`](REPORT.md)** — quyết định thiết kế, bảng
-> KPI đầy đủ, failure analysis và các thí nghiệm phản chứng. Đọc file đó trước
-> nếu bạn đang chấm bài; README này là hướng dẫn tái lập.
+> **📄 Báo cáo kỹ thuật:** [`REPORT.pdf`](output/pdf/REPORT.pdf) để nộp và
+> [`REPORT.md`](REPORT.md) để review source — quyết định thiết kế, bảng KPI,
+> failure analysis và các thí nghiệm phản chứng. Đọc report trước nếu bạn đang
+> chấm bài; README này là hướng dẫn tái lập.
 
 Hai phần dùng chung một camera stereo và một ngân sách CPU:
 
@@ -12,10 +13,11 @@ Hai phần dùng chung một camera stereo và một ngân sách CPU:
 - **Phần B** — giữ pose liên tục khi GPS suy giảm, bằng stereo VO, IMU,
   landmark database và EKF hai frame.
 
-Tóm tắt nghiệm thu: Phần A đạt A1–A3 (86,2% box mAP@0.5 in-domain, **49,9%**
-trên một bộ dữ liệu độc lập). Phần B đạt 5 trên 8 KPI — trượt landmark re-ID,
-GPS re-lock và lane position. Cả ba trường hợp trượt đều có chẩn đoán nguyên
-nhân trong `REPORT.md`.
+Tóm tắt nghiệm thu: A1 đạt in-domain (86,2% box mAP@0.5; **49,9%** trên bộ
+độc lập). A2/A3 đạt headline median trên proxy, nhưng area chỉ đạt ngưỡng ở
+17/19 mẫu và tốc độ ở 26/27 pair. Phần B đạt B5/B6/B7 trong phạm vi replay;
+B1 đạt 12/13 cửa sổ, B3 chỉ đạt garage proxy, còn B2/B4/B8 chưa đạt. Tất cả
+failure và phạm vi claim được phân tích trong `REPORT.md`.
 
 ## Model đã chốt
 
@@ -58,9 +60,24 @@ python3 -m venv .venv
 .venv/bin/pip install -r requirements.txt
 ```
 
-Bản torch CUDA trong `requirements.txt` chỉ cần khi train lại. Mọi số
-deployment trong báo cáo đo bằng ONNX Runtime CPU — xem phần đầu file đó nếu
-muốn cài bản CPU nhẹ hơn.
+`requirements.txt` mặc định cài PyTorch CPU. Chỉ khi train trên NVIDIA CUDA
+13.0 mới dùng:
+
+```bash
+.venv/bin/pip install -r requirements-train-cuda.txt
+```
+
+Mọi số deployment trong báo cáo đo bằng ONNX Runtime CPU.
+
+`output/pdf/REPORT.pdf` render từ `REPORT.md` bằng:
+
+```bash
+.venv/bin/pip install -r requirements-report.txt
+.venv/bin/python tools/render_report.py
+```
+
+WeasyPrint cần thư viện hệ thống Pango/Cairo (trên Debian/Ubuntu:
+`libpango-1.0-0 libpangocairo-1.0-0`).
 
 ## Chạy test
 
@@ -68,7 +85,9 @@ muốn cài bản CPU nhẹ hơn.
 .venv/bin/python -m pytest -q
 ```
 
-113 test, không cần dataset và không cần GPU.
+117 test, không cần dataset và không cần GPU. Nếu gặp lỗi capture
+temporary-file của pytest trên WSL, thêm `-s`; flag đó không thay đổi test
+logic.
 
 ## Dữ liệu
 
@@ -138,7 +157,9 @@ YOLO_CONFIG_DIR="$PWD/.cache/ultralytics" .venv/bin/yolo export \
 
 ## Giới hạn hiện tại
 
-- Model có một class `pothole`; severity sẽ được suy ra từ depth và area.
+- Model có một class `pothole`; pipeline stereo suy ra
+  `minor/moderate/severe` từ metric depth và area. Đây là heuristic triage,
+  nên output giữ `severity_calibrated=false` cho tới khi có field calibration.
 - Monocular depth chỉ cho relative depth nếu chưa hiệu chuẩn camera/ground plane
   và không đạt KPI A2, nên nhánh stereo được chọn cho phép đo metric.
 - Stereo benchmark chỉ có 3 ổ gà vật lý; `metric_scale` bị under-determined bởi
@@ -481,7 +502,10 @@ PYTHONPATH=. .venv/bin/python data_tools/audit_gyro_calibration.py
 ## Lớp ROS 2
 
 `FusionBridge` là Python thuần, không import `rclpy`; lớp node chỉ bóc message
-rồi gọi bridge. Nhờ vậy kiểm chứng được mà không cần cài ROS:
+rồi gọi bridge. GPS nhận raw NMEA GGA qua `/gps/gga` (`std_msgs/String`) để
+giữ đúng `fix_quality`, số vệ tinh và HDOP; `sensor_msgs/NavSatFix` một mình
+không chứa đủ metadata cho integrity gate. Nhờ vậy bridge kiểm chứng được mà
+không cần cài ROS:
 
 ```bash
 .venv/bin/python ros2/localization_node.py --self-check

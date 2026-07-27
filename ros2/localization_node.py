@@ -14,7 +14,7 @@ Chạy được không cần ROS 2:
     .venv/bin/python -m ros2.localization_node --self-check
 
 Topic khi chạy dưới ROS 2:
-    sub  /gps/fix              sensor_msgs/NavSatFix
+    sub  /gps/gga              std_msgs/String          (raw NMEA GGA)
     sub  /odom/visual          nav_msgs/Odometry        (stereo VO)
     pub  /localization/odometry  nav_msgs/Odometry      (frame map)
     pub  /localization/pose      geometry_msgs/PoseStamped
@@ -42,6 +42,60 @@ from pipelines.localization_ekf import LocalizationFusion
 NAVSAT_TO_GGA = {-1: 0, 0: 1, 1: 2, 2: 4}
 
 
+def _nmea_coordinate(value: str, hemisphere: str, degree_digits: int) -> float:
+    if not value:
+        return float("nan")
+    degrees = int(value[:degree_digits])
+    minutes = float(value[degree_digits:])
+    coordinate = degrees + minutes / 60.0
+    if hemisphere in {"S", "W"}:
+        coordinate = -coordinate
+    elif hemisphere not in {"N", "E"}:
+        raise ValueError(f"NMEA hemisphere không hợp lệ: {hemisphere!r}")
+    return coordinate
+
+
+def parse_gga_sentence(sentence: str) -> dict:
+    """Parse raw NMEA GGA, gồm đúng metadata mà integrity monitor cần."""
+    raw = sentence.strip()
+    if not raw.startswith("$"):
+        raise ValueError("NMEA GGA phải bắt đầu bằng '$'")
+
+    payload, separator, checksum = raw[1:].partition("*")
+    if separator:
+        if len(checksum) < 2:
+            raise ValueError("NMEA checksum bị thiếu")
+        calculated = 0
+        for character in payload:
+            calculated ^= ord(character)
+        try:
+            expected = int(checksum[:2], 16)
+        except ValueError as error:
+            raise ValueError("NMEA checksum không phải hexadecimal") from error
+        if calculated != expected:
+            raise ValueError(
+                f"NMEA checksum sai: expected {expected:02X}, got {calculated:02X}"
+            )
+
+    fields = payload.split(",")
+    if len(fields) < 10 or not fields[0].endswith("GGA"):
+        raise ValueError("Không phải câu NMEA GGA hợp lệ")
+
+    quality = int(fields[6] or 0)
+    satellites = int(fields[7] or 0)
+    hdop = float(fields[8]) if fields[8] else None
+    altitude = float(fields[9]) if fields[9] else float("nan")
+    return {
+        "utc": fields[1] or None,
+        "latitude": _nmea_coordinate(fields[2], fields[3], 2),
+        "longitude": _nmea_coordinate(fields[4], fields[5], 3),
+        "fix_quality": quality,
+        "satellites": satellites,
+        "hdop": hdop,
+        "altitude": altitude,
+    }
+
+
 class FusionBridge:
     """Lõi không phụ thuộc ROS. Datum chốt ở fix hợp lệ đầu tiên."""
 
@@ -61,8 +115,14 @@ class FusionBridge:
         *,
         satellites: int = 0,
         hdop: float | None = None,
+        gga_quality: int | None = None,
+        source: str = "navsatfix",
     ) -> None:
-        quality = NAVSAT_TO_GGA.get(int(status), 0)
+        quality = (
+            int(gga_quality)
+            if gga_quality is not None
+            else NAVSAT_TO_GGA.get(int(status), 0)
+        )
         position = None
         finite = all(math.isfinite(value) for value in (latitude, longitude, altitude))
         if quality > 0 and finite:
@@ -85,8 +145,23 @@ class FusionBridge:
                 fix_quality=quality,
                 satellites=int(satellites),
                 hdop=hdop,
-                source="navsatfix",
+                source=source,
             )
+        )
+
+    def on_gga(self, timestamp: float, sentence: str) -> None:
+        """Nhận GGA thật; không thay metadata integrity bằng giá trị mặc định."""
+        fix = parse_gga_sentence(sentence)
+        self.on_gps(
+            timestamp,
+            fix["latitude"],
+            fix["longitude"],
+            fix["altitude"],
+            -1,
+            satellites=fix["satellites"],
+            hdop=fix["hdop"],
+            gga_quality=fix["fix_quality"],
+            source="nmea_gga",
         )
 
     def on_odometry(
@@ -191,7 +266,6 @@ class LocalizationNode:  # pragma: no cover - cần ROS 2 runtime
         from geometry_msgs.msg import PoseStamped, TransformStamped
         from nav_msgs.msg import Odometry
         from rclpy.node import Node
-        from sensor_msgs.msg import NavSatFix
         from std_msgs.msg import String
         from tf2_ros import TransformBroadcaster
 
@@ -221,7 +295,7 @@ class LocalizationNode:  # pragma: no cover - cần ROS 2 runtime
         self.status_publisher = self.node.create_publisher(
             String, "/localization/status", 10
         )
-        self.node.create_subscription(NavSatFix, "/gps/fix", self.on_fix, 10)
+        self.node.create_subscription(String, "/gps/gga", self.on_gga, 10)
         self.node.create_subscription(
             Odometry, "/odom/visual", self.on_visual_odometry, 10
         )
@@ -231,15 +305,12 @@ class LocalizationNode:  # pragma: no cover - cần ROS 2 runtime
     def _stamp_seconds(header) -> float:
         return header.stamp.sec + header.stamp.nanosec * 1e-9
 
-    def on_fix(self, message) -> None:
-        self.bridge.on_gps(
-            self._stamp_seconds(message.header),
-            message.latitude,
-            message.longitude,
-            message.altitude,
-            message.status.status,
-            hdop=None,
-        )
+    def on_gga(self, message) -> None:
+        timestamp = self.node.get_clock().now().nanoseconds * 1e-9
+        try:
+            self.bridge.on_gga(timestamp, message.data)
+        except ValueError as error:
+            self.node.get_logger().warning(f"Bỏ qua GGA không hợp lệ: {error}")
 
     def on_visual_odometry(self, message) -> None:
         stamp = self._stamp_seconds(message.header)

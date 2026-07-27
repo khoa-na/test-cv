@@ -1,6 +1,6 @@
 """Module A trên một bộ dữ liệu độc lập hoàn toàn.
 
-Mọi con số Module A hiện tại (box mAP@0.5 89,8%, mask 87,1%) đo trên val split
+Mốc in-domain hiện tại (box mAP@0.5 86,2%, mask 84,6%) đo trên test split
 của chính họ dữ liệu đã train: Pothole-600 + PothRGBD. Bộ này thì model chưa
 thấy một frame nào — Mendeley 5bwfg4v4cd (CC BY 4.0, Indonesia), 123 clip test,
 mỗi clip 48 frame 1080x1080 kèm một clip mask làm ground truth từng frame.
@@ -9,7 +9,7 @@ Camera đặt cách mặt đường ~130 cm nhìn xuống, gần miền PothRGBD
 phép thử chuyển miền chứ không phải thử một bài toán khác.
 
 mAP tính bằng chính `YOLO.val()` với imgsz=512 như lúc train, nên số so trực
-tiếp được với 89,8%/87,1%. Không có ngưỡng nào chỉnh theo kết quả.
+tiếp được với receipt 86,2%/84,6%. Không có ngưỡng nào chỉnh theo kết quả.
 
 Cảnh báo về ground truth: mask được phát hành dưới dạng mp4 nén mất mát, nên
 biên mask có nhiễu nén. Script nhị phân hoá ở >127 và ghi lại tỉ lệ pixel rơi
@@ -30,8 +30,13 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 ARCHIVE = Path(".cache/data/pothole-video-id/pothole_video.zip")
 EXTRACT_ROOT = Path(".cache/data/pothole-video-id")
-# Số đang báo cáo, đo trên val cùng họ dữ liệu train.
-IN_DOMAIN = {"box_map50": 0.898, "box_map": 0.563, "mask_map50": 0.871, "mask_map": 0.525}
+# Receipt đang báo cáo tại artifacts/verify-final/a1/benchmark.json.
+IN_DOMAIN = {
+    "box_map50": 0.8620183855615893,
+    "box_map": 0.5341035526766775,
+    "mask_map50": 0.8463070271153181,
+    "mask_map": 0.5079244636304266,
+}
 MIN_POLYGON_POINTS = 6
 MIN_INSTANCE_PIXELS = 200
 

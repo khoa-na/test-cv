@@ -30,16 +30,16 @@
     "mask_recall": 0.4751588495855201
   },
   "in_domain_reference": {
-    "box_map50": 0.898,
-    "box_map": 0.563,
-    "mask_map50": 0.871,
-    "mask_map": 0.525
+    "box_map50": 0.8620183855615893,
+    "box_map": 0.5341035526766775,
+    "mask_map50": 0.8463070271153181,
+    "mask_map": 0.5079244636304266
   },
   "retention": {
-    "box_map50": 0.5556766665363065,
-    "box_map": 0.46707977472616574,
-    "mask_map50": 0.5214534531332393,
-    "mask_map": 0.4032713949151725
+    "box_map50": 0.5788712339638967,
+    "box_map": 0.4923500543161882,
+    "mask_map50": 0.5366680685934608,
+    "mask_map": 0.41682867727456885
   },
   "limitations": [
     "Ground truth phát hành dưới dạng mp4 nén mất mát; biên mask có nhiễu nén. Tỉ lệ pixel xám 64..192 ghi trong dataset_build.",

@@ -1,33 +1,6 @@
-# Mọi số deployment trong REPORT.md đo bằng ONNX Runtime trên CPU. Bản torch
-# CUDA dưới đây chỉ cần khi train lại detector hoặc depth regressor; không
-# benchmark nào trong report yêu cầu GPU. Nếu chỉ chạy inference và test, thay
-# hai dòng torch bằng bản CPU và bỏ dòng --extra-index-url.
---extra-index-url https://download.pytorch.org/whl/cu130
-torch==2.13.0+cu130
-torchvision==0.28.0+cu130
+# Môi trường mặc định để chạy inference, benchmark nhẹ và test trên CPU.
+--extra-index-url https://download.pytorch.org/whl/cpu
+torch==2.13.0
+torchvision==0.28.0
 
-numpy==2.4.4
-opencv-python==5.0.0.93
-PyYAML==6.0.3
-matplotlib==3.11.1
-
-# Train, val và export detector
-ultralytics==8.4.105
-
-# Export ONNX (onnxslim phục vụ simplify=True) và inference CPU.
-#
-# Phải là bản CPU `onnxruntime`, KHÔNG phải `onnxruntime-gpu`: wheel GPU liên
-# kết động libcudart, nên trên máy không cài CUDA runtime hệ thống thì
-# `import onnxruntime` chết ngay lúc import. Nếu môi trường lỡ có cả hai, gỡ
-# `onnxruntime-gpu` đi.
-onnx==1.22.0
-onnxscript==0.7.1
-onnxslim==0.1.94
-onnxruntime==1.28.0
-
-pytest==9.1.1
-
-# ROS 2 (rclpy, sensor_msgs, nav_msgs, tf2_ros) cố ý không nằm ở đây.
-# `ros2/localization_node.py` tách FusionBridge thuần Python khỏi lớp rclpy và
-# chỉ import rclpy bên trong hàm, nên `--self-check` cùng toàn bộ test chạy
-# được mà không cần cài ROS.
+-r requirements-base.txt

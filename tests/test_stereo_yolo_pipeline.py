@@ -8,6 +8,7 @@ from pipelines.stereo_yolo_pipeline import (
     mask_bbox,
     road_surface_area_mm2,
     select_area_mm2,
+    severity_from_metric_geometry,
 )
 
 
@@ -72,6 +73,19 @@ class StereoYOLOPipelineTest(unittest.TestCase):
         self.assertEqual(
             select_area_mm2(100, True, 1.5),
             (150, "stereo_residual", True),
+        )
+
+    def test_metric_severity_uses_depth_and_area(self):
+        self.assertEqual(severity_from_metric_geometry(15.0, 20_000.0), "minor")
+        self.assertEqual(
+            severity_from_metric_geometry(30.0, 20_000.0), "moderate"
+        )
+        self.assertEqual(
+            severity_from_metric_geometry(15.0, 50_000.0), "moderate"
+        )
+        self.assertEqual(severity_from_metric_geometry(55.0, 20_000.0), "severe")
+        self.assertEqual(
+            severity_from_metric_geometry(15.0, 120_000.0), "severe"
         )
 
 

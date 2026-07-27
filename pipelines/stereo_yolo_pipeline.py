@@ -64,6 +64,15 @@ def select_area_mm2(
     return raw_area_mm2 * yolo_scale, "yolo_mask", yolo_scale != 1.0
 
 
+def severity_from_metric_geometry(depth_mm: float, area_mm2: float) -> str:
+    """Heuristic triage; chưa phải ngưỡng an toàn đã field-calibrate."""
+    if depth_mm >= 50.0 or area_mm2 >= 100_000.0:
+        return "severe"
+    if depth_mm >= 25.0 or area_mm2 >= 40_000.0:
+        return "moderate"
+    return "minor"
+
+
 def road_surface_area_mm2(
     mask: np.ndarray,
     road_disparity: np.ndarray,
@@ -222,11 +231,17 @@ class StereoYOLOPipeline:
                         self.area_scale,
                         self.yolo_area_scale,
                     )
+                    depth_mm = geometry["depth_mm_p90"]
                     measurement = {
-                        "depth_mm": geometry["depth_mm_p90"],
+                        "depth_mm": depth_mm,
                         "raw_area_mm2": raw_area_mm2,
                         "area_mm2": area_mm2,
                         "area_cm2": area_mm2 / 100,
+                        "severity": severity_from_metric_geometry(
+                            depth_mm, area_mm2
+                        ),
+                        "severity_basis": "heuristic_depth_area",
+                        "severity_calibrated": False,
                         "area_source": area_source,
                         "valid_depth_pixels": geometry["valid_depth_pixels"],
                         "residual_coverage": intersection
@@ -259,7 +274,11 @@ class StereoYOLOPipeline:
                 cv2.rectangle(annotated, (x1, y1), (x2, y2), color, 2)
                 label = f"{score:.2f}"
                 if "depth_mm" in measurement:
-                    label += f" {measurement['depth_mm']:.1f}mm {measurement['area_cm2']:.1f}cm2"
+                    label += (
+                        f" {measurement['depth_mm']:.1f}mm"
+                        f" {measurement['area_cm2']:.1f}cm2"
+                        f" {measurement['severity']}"
+                    )
                 cv2.putText(
                     annotated,
                     label,

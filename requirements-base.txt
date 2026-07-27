@@ -1,0 +1,19 @@
+numpy==2.4.4
+opencv-python==5.0.0.93
+PyYAML==6.0.3
+matplotlib==3.11.1
+
+# Train, val và export detector.
+ultralytics==8.4.105
+
+# Export ONNX (onnxslim phục vụ simplify=True) và inference CPU.
+# Không cài onnxruntime-gpu: deployment trong report dùng CPUExecutionProvider.
+onnx==1.22.0
+onnxscript==0.7.1
+onnxslim==0.1.94
+onnxruntime==1.28.0
+
+pytest==9.1.1
+
+# ROS 2 (rclpy, std_msgs, nav_msgs, geometry_msgs, tf2_ros) do ROS distro quản
+# lý, không cài qua pip. FusionBridge và toàn bộ test không cần ROS runtime.
