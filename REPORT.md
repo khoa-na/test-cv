@@ -483,8 +483,10 @@ throughput, tầng landmark nên được đẩy sang luồng riêng.
 
 ## Demo Protocol
 
-Ba video **nộp kèm ngoài repo** vì tổng dung lượng 210 MB. Script render nằm
-trong `demo/`, chạy lại được từ dataset.
+Ba video tổng 203 MB, quá nặng cho Git nên host tại
+**https://huggingface.co/datasets/khoa-na/pothole-gps-localization-demos**
+(CC BY-NC-SA 4.0, theo ràng buộc ShareAlike của 4Seasons). Script render nằm
+trong `demo/`, chạy lại được từ dataset gốc.
 
 | Video | Kích thước | Nội dung | KPI minh họa | Nguồn |
 |---|---|---|---|---|
