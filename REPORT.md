@@ -31,24 +31,25 @@ map consistency và covariance sau outage, không phải đổi EKF theo cảm t
 
 ## Scope & Trade-off
 
-Bảng dưới là snapshot của artifact hiện có. Ước lượng còn lại dành cho một
-người đã có code và dataset; không gồm thời gian chờ thu dữ liệu hoặc phần cứng.
+Bảng dưới là snapshot của artifact hiện có. Cột cuối ghi điều kiện tiên quyết
+kèm ngày công **sau khi** điều kiện đó có; hàng nào điều kiện chưa có thì con số
+ngày một mình không có nghĩa.
 
-| KPI | Trạng thái sau time-box | Bằng chứng chính | Ước lượng để đóng |
-|---|---|---|---:|
-| A1 — Detection mAP | **Đạt in-domain** | 86,2% trên Pothole-600 test; 49,9% trên bộ độc lập | 3–5 ngày để nâng cross-domain |
-| A2 — Depth & area | **Đạt median proxy; chưa đạt mọi mẫu** | Median 4,97% depth, 11,61% area; area pass 17/19; chỉ 3 hố vật lý | 3–5 ngày mở rộng calibrated test |
-| A3 — End-to-end FPS | **Đạt median proxy; 26/27 pair pass** | Median 17,45 FPS; min 14,66 FPS | 0,5 ngày chốt run cuối |
+| KPI | Trạng thái sau time-box | Bằng chứng chính | Cần gì để đóng |
+|---|---|---|---|
+| A1 — Detection mAP | **Đạt in-domain** | 86,2% trên Pothole-600 test; 49,9% trên bộ độc lập | Dữ liệu mặt đường VN có nhãn; 3–5 ngày fine-tune + đo lại cross-domain |
+| A2 — Depth & area | **Đạt median proxy; chưa đạt mọi mẫu** | Median 4,97% depth, 11,61% area; area pass 17/19; chỉ 3 hố vật lý | Thêm hố vật lý có số đo tay và opening-mask GT; 3–5 ngày đo + phân tích |
+| A3 — End-to-end FPS | **Đạt median proxy; 26/27 pair pass** | Median 17,45 FPS; min 14,66 FPS | Không cần gì mới; 0,5 ngày gộp artifact A2/A3 thành một receipt |
 | A4 — Failure analysis | **Đạt** | Hai failure geometry phân tích sâu, cộng FN/FP/mask-boundary xếp hạng theo IoU trên toàn split | Đã đóng |
-| A5 — Đêm/mưa/nắng | **Chưa làm** | Không có condition-stratified test hoặc footage TP.HCM | 2–3 ngày + thu dữ liệu |
-| B1 — VO drift / 500 m | **12/13 pass; chưa đạt strict** | Median 2,40%; một cửa sổ 6,01% | 1–2 ngày truy failure 6,01% |
-| B2 — Landmark re-ID | **Chưa đạt** | R@1 0,708 so với ngưỡng 0,85 | 2–4 ngày, phụ thuộc map drift |
-| B3 — U-turn latency | **Đạt metric proxy** | Precision 1,000; recall 0,917/0,900; latency âm, nhưng có tích lũy góc từ cua trước | 1–2 ngày với U-turn đường phố |
-| B4 — Lane position | **Không có code** | 4Seasons không có nhãn làn; 3/4 sequence không có vạch phù hợp | 1–3 ngày sau khi có dữ liệu |
-| B5 — Garage localization | **Đạt demo + quantitative proxy** | Median trong hầm 14,66 → 8,62 m khi bật landmark | 2–4 ngày để giảm absolute error |
-| B6 — GPS handover | **Đạt trên replay** | 13/13 sự kiện phát hiện trong cùng chu kỳ NMEA | 0,5 ngày field validation |
-| B7 — System FPS | **Đạt trên pipeline đã triển khai** | 44,3 FPS gồm VO, fusion, U-turn và landmark; chưa có lane | 0,5 ngày đo lại khi thêm module |
-| B8 — GPS re-lock | **Chưa đạt** | 17–26 m sau 2 s; không cấu hình nào ổn định dưới 5 m trong 10 s | 2–4 ngày sửa recovery policy |
+| A5 — Đêm/mưa/nắng | **Chưa làm** | Không có condition-stratified test hoặc footage TP.HCM | Footage có nhãn điều kiện (đêm/mưa/nắng); 2–3 ngày dựng stratified test |
+| B1 — VO drift / 500 m | **12/13 pass; chưa đạt strict** | Median 2,40%; một cửa sổ 6,01% | Không cần dữ liệu mới; 1–2 ngày per-frame diagnostics trên cửa sổ 6,01% |
+| B2 — Landmark re-ID | **Chưa đạt** | R@1 0,708 so với ngưỡng 0,85 | Trước hết phải chẩn đoán ra nguồn map drift; nếu nằm ở registration thì 2–4 ngày sửa + đo lại |
+| B3 — U-turn latency | **Đạt metric proxy** | Precision 1,000; recall 0,917/0,900; latency âm, nhưng có tích lũy góc từ cua trước | Footage U-turn đường phố có mốc thời gian GT; 1–2 ngày đo lại |
+| B4 — Lane position | **Không có code** | 4Seasons không có nhãn làn; 3/4 sequence không có vạch phù hợp | Dataset có ego-lane GT khớp sensor suite; 1–3 ngày code + đo |
+| B5 — Garage localization | **Đạt demo + quantitative proxy** | Median trong hầm 14,66 → 8,62 m khi bật landmark | Map consistency (kéo theo từ B2); 2–4 ngày dựng lại database + đo |
+| B6 — GPS handover | **Đạt trên replay** | 13/13 sự kiện phát hiện trong cùng chu kỳ NMEA | Receiver thật trên xe; 0,5 ngày field validation |
+| B7 — System FPS | **Đạt trên pipeline đã triển khai** | 44,3 FPS gồm VO, fusion, U-turn và landmark; chưa có lane | Lane module tồn tại trước (B4); 0,5 ngày đo lại toàn hệ |
+| B8 — GPS re-lock | **Chưa đạt** | 17–26 m sau 2 s; không cấu hình nào ổn định dưới 5 m trong 10 s | Covariance nở đúng trong outage dài + held-out NMEA đo false re-lock; 2–4 ngày. Riêng 4,47 s receiver reacquisition chỉ giải được bằng phần cứng/A-GNSS |
 
 Việc hoãn A5 và B4 là quyết định dữ liệu, không phải quyết định thuật toán.
 Không có ground truth phù hợp thì một con số tự gán nhãn sẽ làm report trông
