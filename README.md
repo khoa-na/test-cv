@@ -67,6 +67,41 @@ muốn cài bản CPU nhẹ hơn.
 
 113 test, không cần dataset và không cần GPU.
 
+## Dữ liệu
+
+Không dataset nào nằm trong repo. Tất cả tải về `.cache/data/`, đã gitignore.
+Chỉ cần bộ tương ứng với phần muốn tái lập — không cần tải hết 24 GB.
+
+| Bộ | Dùng cho | Dung lượng | Giấy phép | Nguồn |
+|---|---|---:|---|---|
+| Pothole-600 | Train và test detector (A1) | 218 MB | nghiên cứu | [sites.google.com/view/pothole-600](https://sites.google.com/view/pothole-600/dataset) |
+| PothRGBD | Bổ sung mask, train depth regressor | 668 MB | công khai | `PUBLIC POTHOLE DATASET` (RGB-D) |
+| Fan stereo pothole | Depth và area so ground truth (A2/A3) | 878 MB | **MIT** | [github.com/ruirangerfan/stereo_pothole_datasets](https://github.com/ruirangerfan/stereo_pothole_datasets) |
+| Mendeley pothole video | Test cross-domain (49,9% mAP) | 1,9 GB | **CC BY 4.0** | [data.mendeley.com/datasets/5bwfg4v4cd](https://data.mendeley.com/datasets/5bwfg4v4cd/2) |
+| 4Seasons | Toàn bộ Phần B | 19 GB | **CC BY-NC-SA 4.0** | [cvg.cit.tum.de/data/datasets/4seasons-dataset](https://cvg.cit.tum.de/data/datasets/4seasons-dataset) |
+
+4Seasons bắt đăng ký trước khi tải vì GDPR, và phi thương mại. Lệnh tải bốn
+recording cụ thể nằm ở [mục Phần B](#tải-dataset).
+
+Bộ Mendeley tải trực tiếp không cần đăng nhập:
+
+```bash
+mkdir -p .cache/data/pothole-video-id && cd .cache/data/pothole-video-id
+URL=$(curl -s "https://data.mendeley.com/public-api/datasets/5bwfg4v4cd/files?folder_id=root&version=2" \
+      | python3 -c "import json,sys; print(json.load(sys.stdin)[0]['content_details']['download_url'])")
+curl -L "$URL" -o pothole_video.zip && unzip -q pothole_video.zip
+```
+
+## Video demo
+
+Ba video 203 MB, quá nặng cho Git nên host riêng:
+
+**https://huggingface.co/datasets/khoa-na/pothole-gps-localization-demos**
+
+Cả ba render từ dataset công khai và gắn banner nguồn trên khung hình. **Không
+video nào là footage tự quay tại TP.HCM.** Script render nằm ở `demo/`, chạy
+lại được từ dataset gốc.
+
 ## Train lại
 
 Tải và giải nén Pothole-600 vào `.cache/data/pothole600`, sau đó:
