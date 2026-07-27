@@ -82,12 +82,12 @@ WeasyPrint cần thư viện hệ thống Pango/Cairo (trên Debian/Ubuntu:
 ## Chạy test
 
 ```bash
-.venv/bin/python -m pytest -q
+.venv/bin/python -m pytest -q -s
 ```
 
-117 test, không cần dataset và không cần GPU. Nếu gặp lỗi capture
-temporary-file của pytest trên WSL, thêm `-s`; flag đó không thay đổi test
-logic.
+117 test, không cần dataset và không cần GPU. Flag `-s` tránh lỗi capture
+temporary-file của pytest đã quan sát trên WSL/Python 3.14; nó không thay đổi
+test logic.
 
 ## Dữ liệu
 
@@ -118,7 +118,7 @@ curl -L "$URL" -o pothole_video.zip && unzip -q pothole_video.zip
 
 Ba video 203 MB, quá nặng cho Git nên host riêng:
 
-**https://huggingface.co/datasets/khoa-na/pothole-gps-localization-demos**
+[Hugging Face — pothole-gps-localization-demos](https://huggingface.co/datasets/khoa-na/pothole-gps-localization-demos)
 
 Cả ba render từ dataset công khai và gắn banner nguồn trên khung hình. **Không
 video nào là footage tự quay tại TP.HCM.** Script render nằm ở `demo/`, chạy
@@ -158,8 +158,10 @@ YOLO_CONFIG_DIR="$PWD/.cache/ultralytics" .venv/bin/yolo export \
 ## Giới hạn hiện tại
 
 - Model có một class `pothole`; pipeline stereo suy ra
-  `minor/moderate/severe` từ metric depth và area. Đây là heuristic triage,
-  nên output giữ `severity_calibrated=false` cho tới khi có field calibration.
+  `minor/moderate/severe` từ metric depth và area: `severe` nếu depth ≥50 mm
+  hoặc area ≥100.000 mm²; `moderate` nếu depth ≥25 mm hoặc area ≥40.000 mm²;
+  còn lại là `minor`. Đây là heuristic triage, nên output giữ
+  `severity_calibrated=false` cho tới khi có field calibration.
 - Monocular depth chỉ cho relative depth nếu chưa hiệu chuẩn camera/ground plane
   và không đạt KPI A2, nên nhánh stereo được chọn cho phép đo metric.
 - Stereo benchmark chỉ có 3 ổ gà vật lý; `metric_scale` bị under-determined bởi

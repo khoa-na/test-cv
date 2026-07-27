@@ -12,7 +12,7 @@ from weasyprint import HTML
 CSS = """
 @page {
   size: A4;
-  margin: 15mm 14mm 17mm;
+  margin: 14mm 14mm 15mm;
   @bottom-center {
     content: counter(page) " / " counter(pages);
     color: #64748b;
@@ -20,7 +20,7 @@ CSS = """
   }
 }
 html { font-family: "DejaVu Sans", sans-serif; color: #172033; }
-body { font-size: 9pt; line-height: 1.34; }
+body { font-size: 9pt; line-height: 1.32; }
 h1 {
   font-size: 22pt; line-height: 1.15; color: #0f172a;
   border-bottom: 3px solid #2563eb; padding-bottom: 7mm; margin: 0 0 9mm;
@@ -29,11 +29,13 @@ h2 {
   font-size: 15pt; color: #0f3d70; border-bottom: 1px solid #cbd5e1;
   padding-bottom: 2mm; margin: 7mm 0 3mm;
 }
-h3 { font-size: 11.5pt; color: #1e3a5f; margin: 5mm 0 2mm; }
+h3 { font-size: 11.5pt; color: #1e3a5f; margin: 4.5mm 0 2mm; }
 h4 { font-size: 10pt; color: #334155; margin: 4mm 0 1.5mm; }
 p { margin: 0 0 2.4mm; orphans: 3; widows: 3; }
 ul, ol { margin: 1.5mm 0 3mm 5mm; padding-left: 4mm; }
 li { margin-bottom: 1mm; }
+body > ol:last-child { font-size: 7.2pt; line-height: 1.17; margin-bottom: 0; }
+body > ol:last-child li { margin-bottom: 0.35mm; }
 strong { color: #0f172a; }
 a { color: #155eaa; text-decoration: none; overflow-wrap: anywhere; }
 code {
@@ -69,6 +71,8 @@ blockquote {
   margin: 3mm 0; padding: 2mm 4mm; border-left: 3px solid #3b82f6;
   background: #eff6ff; color: #334155;
 }
+.keep-with-next { break-after: avoid; }
+.keep-with-next + p { break-inside: avoid; }
 """
 
 

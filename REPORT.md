@@ -37,9 +37,9 @@ ngày một mình không có nghĩa.
 
 | KPI | Trạng thái sau time-box | Bằng chứng chính | Cần gì để đóng |
 |---|---|---|---|
-| A1 — Detection mAP | **Đạt in-domain** | 86,2% trên Pothole-600 test; 49,9% trên bộ độc lập | Dữ liệu mặt đường VN có nhãn; 3–5 ngày fine-tune + đo lại cross-domain |
+| A1 — Detection mAP | **Đạt in-domain** | 86,2% trên Pothole-600 test; 49,9% trên bộ độc lập | KPI in-domain đã đóng; dữ liệu mặt đường VN có nhãn + 3–5 ngày fine-tune để đóng rủi ro generalization |
 | A2 — Depth & area | **Đạt median proxy; chưa đạt mọi mẫu** | Median 4,97% depth, 11,61% area; area pass 17/19; chỉ 3 hố vật lý | Thêm hố vật lý có số đo tay và opening-mask GT; 3–5 ngày đo + phân tích |
-| A3 — End-to-end FPS | **Đạt median proxy; 26/27 pair pass** | Median 17,45 FPS; min 14,66 FPS | Không cần gì mới; 0,5 ngày gộp artifact A2/A3 thành một receipt |
+| A3 — End-to-end FPS | **Đạt median proxy; 26/27 pair pass** | Median 17,45 FPS; min 14,66 FPS | Không cần dữ liệu mới; 0,5 ngày bổ sung receipt A2/A3 với coverage, p50/p95 latency, config và model SHA |
 | A4 — Failure analysis | **Đạt** | Hai failure geometry phân tích sâu, cộng FN/FP/mask-boundary xếp hạng theo IoU trên toàn split | Đã đóng |
 | A5 — Đêm/mưa/nắng | **Chưa làm** | Không có condition-stratified test hoặc footage TP.HCM | Footage có nhãn điều kiện (đêm/mưa/nắng); 2–3 ngày dựng stratified test |
 | B1 — VO drift / 500 m | **12/13 pass; chưa đạt strict** | Median 2,40%; một cửa sổ 6,01% | Không cần dữ liệu mới; 1–2 ngày per-frame diagnostics trên cửa sổ 6,01% |
@@ -98,14 +98,14 @@ minh họa không tham gia tính KPI.
 
 | Bằng chứng | Artifact |
 |---|---|
-| A1 in-domain / cross-domain | [`verify-final/a1/benchmark.json`](artifacts/verify-final/a1/benchmark.json) / [`cross-dataset-pothole/benchmark.json`](artifacts/cross-dataset-pothole/benchmark.json) |
-| A2/A3 depth, area, latency | [`a3-grid/final-s03125-d112/benchmark.json`](artifacts/a3-grid/final-s03125-d112/benchmark.json) và [`rows.csv`](artifacts/a3-grid/final-s03125-d112/rows.csv) |
-| B1 VO drift | [`vo-drift-final/benchmark.json`](artifacts/vo-drift-final/benchmark.json) |
-| B2 landmark re-ID | [`landmark-reid/benchmark.json`](artifacts/landmark-reid/benchmark.json) |
-| B3 U-turn | [`uturn-b3/benchmark.json`](artifacts/uturn-b3/benchmark.json) |
-| B5/B8 garage + consensus | [`garage-localization/benchmark.json`](artifacts/garage-localization/benchmark.json) / [`garage-localization-sweep/benchmark.json`](artifacts/garage-localization-sweep/benchmark.json) |
-| B6/B8 NMEA handover/re-lock | [`gps-fusion-round5-vo/benchmark.json`](artifacts/gps-fusion-round5-vo/benchmark.json) |
-| B7 throughput | [`system-fps-b7/benchmark.json`](artifacts/system-fps-b7/benchmark.json) |
+| A1 in-domain / cross-domain | [`verify-final/a1/benchmark.json`](https://github.com/khoa-na/pothole-gps-localization/blob/main/artifacts/verify-final/a1/benchmark.json) / [`cross-dataset-pothole/benchmark.json`](https://github.com/khoa-na/pothole-gps-localization/blob/main/artifacts/cross-dataset-pothole/benchmark.json) |
+| A2/A3 depth, area, latency | [`a3-grid/final-s03125-d112/benchmark.json`](https://github.com/khoa-na/pothole-gps-localization/blob/main/artifacts/a3-grid/final-s03125-d112/benchmark.json) và [`rows.csv`](https://github.com/khoa-na/pothole-gps-localization/blob/main/artifacts/a3-grid/final-s03125-d112/rows.csv) |
+| B1 VO drift | [`vo-drift-final/benchmark.json`](https://github.com/khoa-na/pothole-gps-localization/blob/main/artifacts/vo-drift-final/benchmark.json) |
+| B2 landmark re-ID | [`landmark-reid/benchmark.json`](https://github.com/khoa-na/pothole-gps-localization/blob/main/artifacts/landmark-reid/benchmark.json) |
+| B3 U-turn | [`uturn-b3/benchmark.json`](https://github.com/khoa-na/pothole-gps-localization/blob/main/artifacts/uturn-b3/benchmark.json) |
+| B5/B8 garage + consensus | [`garage-localization/benchmark.json`](https://github.com/khoa-na/pothole-gps-localization/blob/main/artifacts/garage-localization/benchmark.json) / [`garage-localization-sweep/benchmark.json`](https://github.com/khoa-na/pothole-gps-localization/blob/main/artifacts/garage-localization-sweep/benchmark.json) |
+| B6/B8 NMEA handover/re-lock | [`gps-fusion-round5-vo/benchmark.json`](https://github.com/khoa-na/pothole-gps-localization/blob/main/artifacts/gps-fusion-round5-vo/benchmark.json) |
+| B7 throughput | [`system-fps-b7/benchmark.json`](https://github.com/khoa-na/pothole-gps-localization/blob/main/artifacts/system-fps-b7/benchmark.json) |
 
 ## System Decision Frame
 
@@ -125,9 +125,10 @@ Pipeline production dùng **YOLO26n-seg → ONNX raw head → StereoSGBM →
 road-disparity plane → mask–geometry fusion**.
 
 Output stereo gồm bounding box, depth, area và severity
-`minor/moderate/severe`. Severity dùng heuristic depth/area và luôn ghi
-`severity_calibrated=false`; report không xem nó là nhãn an toàn đã được
-field-calibrate.
+`minor/moderate/severe`. Heuristic hiện gán `severe` khi depth ≥50 mm hoặc area
+≥100.000 mm²; `moderate` khi depth ≥25 mm hoặc area ≥40.000 mm²; còn lại là
+`minor`. Output luôn ghi `severity_calibrated=false`; các ngưỡng này chỉ phục
+vụ triage trong demo, không phải nhãn an toàn đã được field-calibrate.
 
 Segmentation được chọn thay box-only vì area phụ thuộc trực tiếp vào biên mask.
 Stereo được chọn thay monocular vì Phần A cần metric depth; Depth Anything V2
@@ -292,24 +293,20 @@ Thiết kế này giải thích B6: handover không khởi tạo lại bộ lọ
 6. Khi fix trở lại, hệ vào RECOVERING; correction chỉ được nhận sau consensus,
    rồi áp vào `map→odom`.
 
-### Về gợi ý ghost projection của đề
+<h3 class="keep-with-next">Về gợi ý ghost projection của đề</h3>
 
-Ghost projection — EKF dự đoán pose, chiếu landmark từ database lên ảnh, detect
-bằng YOLO rồi lấy reprojection error làm EKF update — chính là measurement
-model của Qu et al. (IV 2015) với biển báo geo-referenced. Hệ hiện tại giữ đúng
-vai trò đó cho landmark nhưng thay bước đối sánh: PnP trên điểm 3D stereo của
-keyframe thay vì reprojection error của semantic bounding box, vì hầm xe trong
-dữ liệu không có biển báo geo-referenced để detect, và một bbox 2D cho một
-update yếu hơn hàng chục điểm 3D đã verify hình học. Đối sánh mức semantic vẫn
-là hướng đúng khi có database biển báo — điểm vào của nó là
-`update_position()`, cùng cổng landmark hiện tại, nên thêm sau không phải sửa
-filter.
+Ghost projection — EKF dự đoán pose, chiếu landmark từ database lên ảnh rồi
+dùng reprojection error để update — tương đương measurement model của Qu et al.
+(IV 2015). Hệ hiện tại giữ cùng vai trò correction nhưng dùng PnP trên các điểm
+3D stereo đã verify, vì dataset hầm không có biển báo geo-referenced và một
+bbox 2D cho update yếu hơn một tập điểm 3D. Khi có database biển báo, semantic
+matching có thể nối vào `update_position()` mà không phải sửa filter.
 
 ### Kết quả B1–B8
 
 | KPI | Kết quả | Kết luận đúng phạm vi |
 |---|---|---|
-| B1 — VO drift | Median 2,40%; 12/13 cửa sổ ≤5% | Đạt replay; một failure 6,01% |
+| B1 — VO drift | Median 2,40%; 12/13 cửa sổ ≤5% | Chưa đạt strict; một cửa sổ failure 6,01% |
 | B2 — Landmark re-ID | R@1 0,708; R@5 0,811; precision 0,966 | Chưa đạt recall 0,85 |
 | B3 — U-turn | Precision 1,000; recall 0,917/0,900; median −2,18/−2,61 s | Pass metric garage proxy; chưa chứng minh U-turn đường phố |
 | B4 — Lane | Không có code hoặc labeled test | Chưa làm |
@@ -495,7 +492,7 @@ throughput, tầng landmark nên được đẩy sang luồng riêng.
 ## Demo Protocol
 
 Ba video tổng 203 MB, quá nặng cho Git nên host tại
-**https://huggingface.co/datasets/khoa-na/pothole-gps-localization-demos**
+[Hugging Face — pothole-gps-localization-demos](https://huggingface.co/datasets/khoa-na/pothole-gps-localization-demos)
 (CC BY-NC-SA 4.0, theo ràng buộc ShareAlike của 4Seasons). Script render nằm
 trong `demo/`, chạy lại được từ dataset gốc.
 
