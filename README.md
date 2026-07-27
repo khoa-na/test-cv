@@ -55,6 +55,18 @@ python3 -m venv .venv
 .venv/bin/pip install -r requirements.txt
 ```
 
+Bản torch CUDA trong `requirements.txt` chỉ cần khi train lại. Mọi số
+deployment trong báo cáo đo bằng ONNX Runtime CPU — xem phần đầu file đó nếu
+muốn cài bản CPU nhẹ hơn.
+
+## Chạy test
+
+```bash
+.venv/bin/python -m pytest -q
+```
+
+113 test, không cần dataset và không cần GPU.
+
 ## Train lại
 
 Tải và giải nén Pothole-600 vào `.cache/data/pothole600`, sau đó:
@@ -347,3 +359,103 @@ còn tốt hơn): 56,2 ms / 17,8 FPS, 100% pair ≥15 FPS. Số này đo trướ
 `INTER_LINEAR` nên còn dư địa ~2 ms — cần một lần đo chốt trên máy rảnh.
 Phân tích sàn sai số và các hướng tối ưu đã thử và loại nằm ở
 [BENCHMARK.md](BENCHMARK.md).
+
+---
+
+# Phần B — Localization khi GPS suy giảm
+
+Toàn bộ Phần B chạy trên 4Seasons replay: stereo VO, IMU yaw, NMEA thật, EKF
+hai frame và landmark database. Kết quả và phân tích nằm ở
+[REPORT.md](REPORT.md); mục này chỉ là hướng dẫn tái lập.
+
+## Tải dataset
+
+Bốn recording từ [4Seasons](https://www.4seasons-dataset.com/), giải nén vào
+`.cache/data/4seasons/`:
+
+```bash
+mkdir -p .cache/data/4seasons && cd .cache/data/4seasons
+BASE=https://vision.cs.tum.edu/webshare/g/4seasons-dataset
+for rec in recording_2020-03-24_17-36-22 recording_2020-12-22_11-54-24 \
+           recording_2021-02-25_13-39-06 recording_2021-05-10_19-15-19; do
+  for part in imu_gnss reference_poses stereo_images_undistorted; do
+    curl -sSL --retry 3 -C - -O "$BASE/dataset/$rec/${rec}_${part}.zip"
+  done
+done
+curl -sSL -O "$BASE/calibration/calibration.zip"
+for z in *.zip; do unzip -q -o "$z"; done
+```
+
+Tên gọi trong report: `office_loop_1`, `neighborhood_4`, `garage_2`,
+`garage_3` — theo đúng thứ tự trên. Reference trajectory chỉ dùng để chấm
+offline, không bao giờ đi vào VO, EKF hay landmark association.
+
+## Chạy benchmark
+
+Tổng khoảng 34 phút tuần tự trên i5-13400F. B7 phải chạy riêng lúc máy rảnh:
+script tự ghi load average và cảnh báo nếu vượt 1,0.
+
+```bash
+# B1 — VO drift trên cửa sổ 500 m (4 sequence, ~11 phút)
+PYTHONPATH=. .venv/bin/python benchmarks/benchmark_vo_drift.py \
+  --no-render --output artifacts/vo-drift-final
+
+# B2 — Landmark re-identification, cả hai chiều (~6,5 phút)
+.venv/bin/python benchmarks/benchmark_landmark_reid.py --reverse
+
+# B3 — U-turn detection latency (~3 phút)
+.venv/bin/python benchmarks/benchmark_uturn.py
+
+# B5 + B8 — Localization trong hầm, ablation A/B/C và re-lock (~8 phút)
+.venv/bin/python benchmarks/benchmark_garage_localization.py
+
+# B6 + B8 — GPS handover và re-lock trên NMEA thật (~2 phút)
+PYTHONPATH=. .venv/bin/python benchmarks/benchmark_gps_fusion.py
+
+# B7 — End-to-end throughput, chạy khi máy rảnh (~3 phút)
+.venv/bin/python benchmarks/benchmark_system_fps.py
+```
+
+Hai cờ chẩn đoán, **không thuộc cấu hình nộp bài**, dùng để dựng các phản chứng
+trong report:
+
+```bash
+# Ép mở cổng hiệu chỉnh gyro tĩnh
+PYTHONPATH=. .venv/bin/python benchmarks/benchmark_vo_drift.py \
+  --sequence garage_3 --gyro-gate-override 0.10 --no-render \
+  --output artifacts/vo-drift-gyro-counterfactual
+
+# Quét ngưỡng consensus của recovery policy
+.venv/bin/python benchmarks/benchmark_garage_localization.py \
+  --consensus-sweep --output artifacts/garage-localization-sweep
+```
+
+## Audit dữ liệu
+
+```bash
+# Có cửa sổ đứng yên nào để hiệu chỉnh bias gyro không
+PYTHONPATH=. .venv/bin/python data_tools/audit_gyro_calibration.py
+
+# Chất lượng frame nhãn dùng để chấm B2
+.venv/bin/python -m data_tools.audit_label_frame
+```
+
+## Lớp ROS 2
+
+`FusionBridge` là Python thuần, không import `rclpy`; lớp node chỉ bóc message
+rồi gọi bridge. Nhờ vậy kiểm chứng được mà không cần cài ROS:
+
+```bash
+.venv/bin/python ros2/localization_node.py --self-check
+```
+
+## Video demo
+
+```bash
+.venv/bin/python demo/render_part_a.py        # stereo depth/area so GT
+.venv/bin/python demo/render_pothole_video.py # video liên tục, bộ độc lập
+.venv/bin/python demo/render_part_b.py        # quỹ đạo + trạng thái GPS
+```
+
+Cả ba đều gắn banner nguồn trên khung hình. Không video nào là footage tự quay
+tại TP.HCM, và report không trình bày chúng như vậy.
