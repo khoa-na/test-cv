@@ -1,4 +1,4 @@
-"""Regression datum chung (STEP3 mục 2, test 9).
+"""Regression datum chung cho map frame.
 
 Bước 3 cần hai recording sống trong cùng một ENU. Đường cũ (``datum=None``)
 phải giữ nguyên từng bit, nếu không mọi số vòng 3–5 mất hiệu lực.

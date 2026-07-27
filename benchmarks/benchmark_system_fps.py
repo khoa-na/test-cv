@@ -184,7 +184,7 @@ def measure(
             "queries": landmark_queries,
             "query_rate_per_frame": landmark_queries / max(len(frames), 1),
             # Amortized: chi phí landmark trải trên MỌI frame, vì FPS end-to-end
-            # là đại lượng theo frame. ms/query là số phụ, STEP3 muc 7 cấm dùng
+            # là đại lượng theo frame. ms/query là số phụ, quy ước đo cấm dùng
             # nó thay cho FPS.
             "amortized_ms_per_frame": float(np.mean(landmark_ms)) if landmark_ms else 0.0,
             "ms_per_query": percentiles(query_ms) if query_ms else None,

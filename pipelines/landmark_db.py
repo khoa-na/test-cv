@@ -1,6 +1,6 @@
 """Landmark database + association cho Bước 3 (B2, B5).
 
-Kiến trúc bốn tầng, thứ tự cố định (STEP3 mục 4):
+Kiến trúc bốn tầng, thứ tự cố định:
 
 1. spatial prior nhân quả từ pose fusion — không bao giờ từ reference,
 2. global descriptor top-K,

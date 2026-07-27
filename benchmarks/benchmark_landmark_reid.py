@@ -1,13 +1,13 @@
 """B2 — landmark re-identification giữa hai lần đi qua cùng bãi đỗ.
 
-DB dựng từ ``garage_3``, query bằng ``garage_2``. Chiều này chốt ở STEP3 mục 0
+DB dựng từ ``garage_3``, query bằng ``garage_2``. Chiều này chốt trước khi đo
 theo chất lượng NMEA, trước khi thấy bất kỳ số recall nào.
 
 Ranh giới dữ liệu:
   - Vị trí DB entry và prior khi query đều là pose NHÂN QUẢ do hệ tự ước lượng
     (VO + NMEA thật + EKF). Reference pose không bao giờ đi vào đường suy luận.
   - Reference pose chỉ dùng để gán nhãn positive và để đo sai số. Toàn bộ nhãn
-    đi qua một phép fit duy nhất của STEP3 mục 2 (rigid 3D Kabsch, datum chung).
+    đi qua một phép fit duy nhất (rigid 3D Kabsch, datum chung).
 
 Định nghĩa positive (chốt trước, không đổi sau khi thấy recall):
     ‖xy_q - xy_d‖ <= 5.0 m  AND  |z_q - z_d| <= 2.0 m  AND  |dheading| <= 45 deg
@@ -458,13 +458,13 @@ def main() -> None:
     report = {
         "kpi": {"retrieval_recall_target": 0.85},
         "direction_decision": (
-            "DB=garage_3, query=garage_2 chốt ở STEP3 mục 0 theo chất lượng NMEA, "
+            "DB=garage_3, query=garage_2 chốt trước khi đo theo chất lượng NMEA, "
             "trước mọi số recall."
         ),
         "headline_regime": "full_pipeline",
         "pairs": results,
         "disclosure": [
-            "Dev probe ở STEP3 mục 0 đã chạy trên toàn tuyến garage — cùng loại "
+            "Dev probe trước khi chốt đã chạy trên toàn tuyến garage — cùng loại "
             "contamination với dev segment 1800 frame của Bước 2.",
             "Vị trí DB và prior đều là pose nhân quả của hệ; reference pose chỉ "
             "gán nhãn và chấm điểm.",
