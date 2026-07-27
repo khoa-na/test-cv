@@ -1,4 +1,4 @@
-"""Test landmark DB + association (STEP3 mục 8)."""
+"""Test landmark DB + association."""
 
 from __future__ import annotations
 

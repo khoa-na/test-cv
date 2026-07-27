@@ -1,5 +1,24 @@
 # Detection benchmark
 
+> **Đính chính 2026-07-27 — số detection dưới đây đã bị thay thế.**
+>
+> Bảng "Final ONNX" ghi box mAP@0.5 **89,8%** và mask **87,1%**. Lần chạy sinh
+> ra hai con số đó chỉ để lại PNG, không có file nào ghi model SHA, split hay
+> phiên bản thư viện, nên không tự truy vết được.
+>
+> Khi dựng receipt máy đọc được (`benchmarks/benchmark_a1_receipt.py`),
+> checkpoint đo lại ra **86,2% box** và **84,6% mask**. Gọi `YOLO.val()` thẳng
+> lên `models/pothole_yolo26n_seg.onnx` thì trả về toàn số 0 và báo
+> `DetMetrics` thay vì `SegMetrics`, vì đó là raw head export có phần decode
+> nằm ngoài graph — nghĩa là **đường đo sinh ra 89,8% không còn tồn tại dưới
+> dạng script chạy được**. Dòng "PyTorch baseline, `end2end=False`" ở mục Đối
+> chứng ghi 86,9%, sát với số đo lại.
+>
+> Số hiện hành: **86,2% / 84,6%**, receipt ở
+> `artifacts/verify-final/a1/benchmark.json`, giải thích đầy đủ ở
+> [`REPORT.md`](REPORT.md) mục *Detector*. Các con số cũ được giữ nguyên bên
+> dưới vì report trích dẫn chúng; **không dùng chúng làm số nghiệm thu**.
+
 Ngày chạy: 2026-07-26 (detection và stereo), 2026-07-25 (depth monocular)
 
 CPU: Intel Core i5-13400F

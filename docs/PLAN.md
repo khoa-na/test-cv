@@ -1,6 +1,11 @@
 # Kế hoạch Phần B — GPS + Visual Fallback
 
-Trạng thái: Phần A xong (xem [README](README.md), [BENCHMARK.md](BENCHMARK.md)).
+> **Tài liệu lịch sử.** Đây là bản kế hoạch viết *trước* khi chạy benchmark, giữ
+> lại để thấy quá trình. Mọi con số và kết luận trong file này đã bị
+> [`REPORT.md`](../REPORT.md) thay thế — trong đó có một giả thuyết về cổng hiệu
+> chỉnh gyro sau này bị thực nghiệm bác bỏ. Đọc `REPORT.md` để lấy kết quả cuối.
+
+Trạng thái: Phần A xong (xem [README](../README.md), [BENCHMARK.md](../BENCHMARK.md)).
 Phần B chiếm 55% tổng điểm. Không còn thời gian tự thu data — dùng dataset open.
 Đánh giá paper nền tại [PAPERS.md](PAPERS.md).
 
@@ -129,8 +134,8 @@ Checklist gốc (đã chạy):
 
 **ĐÃ IMPLEMENT 2026-07-26:** stereo ORB + symmetric PnP, optional IMU-yaw có
 low-angular-rate bias gate, benchmark relative-pose 500 m và fusion
-`--odom vo`. Full B1 đạt 11/12 cửa sổ; xem `STEP2.md` và
-`artifacts/vo-drift-imu/`.
+`--odom vo`. Kết quả cuối là 12/13 cửa sổ trên `artifacts/vo-drift-final/`; con
+số 11/12 ở bản kế hoạch này lấy từ một lần chạy chưa đủ sequence.
 
 - ORB detect/match trái-phải tại frame `t` → epipolar/disparity gate →
   triangulate → temporal match sang left `t+1` → `solvePnPRansac` + refine.

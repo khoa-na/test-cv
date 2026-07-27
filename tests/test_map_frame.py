@@ -1,4 +1,4 @@
-"""Test common map frame của Bước 3 (STEP3 mục 2, test 9–10)."""
+"""Test common map frame dùng chung cho landmark database và EKF."""
 
 from __future__ import annotations
 

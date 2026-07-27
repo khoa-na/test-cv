@@ -1,6 +1,6 @@
 """Gate #1 của Bước 3: kiểm cặp traversal garage trước khi code landmark DB.
 
-Trả lời hai câu hỏi mà STEP3 để mở:
+Trả lời hai câu hỏi mà thiết kế landmark database để mở:
 
 1. Chênh lệch độ cao giữa hai recording là sai số đăng ký hay hai traversal
    thật sự chạy khác tầng? Script dựng **common map frame** của mục 2
