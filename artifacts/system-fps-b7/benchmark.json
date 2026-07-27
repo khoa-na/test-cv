@@ -1,0 +1,239 @@
+{
+  "kpi": {
+    "target_fps": 15.0,
+    "good_fps": 20.0
+  },
+  "headline_metric": "fps.throughput = frame / tổng thời gian, gồm cả tầng landmark. Median che chi phí landmark vì landmark chỉ chạy ở nhịp keyframe.",
+  "sequence": "garage_2",
+  "recording": "recording_2021-02-25_13-39-06",
+  "environment": {
+    "platform": "Linux-6.18.33.1-microsoft-standard-WSL2-x86_64-with-glibc2.43",
+    "processor": "",
+    "cpu_count": 16,
+    "opencv": "5.0.0",
+    "load_average_before": [
+      0.6748046875,
+      3.3076171875,
+      2.97900390625
+    ],
+    "load_average_after": [
+      4.4208984375,
+      3.6953125,
+      3.12841796875
+    ]
+  },
+  "runs": [
+    {
+      "threads": 1,
+      "frames": 600,
+      "vo_dropouts": 1,
+      "landmark": {
+        "enabled": true,
+        "database_keyframes": 334,
+        "queries": 48,
+        "query_rate_per_frame": 0.08,
+        "amortized_ms_per_frame": 4.811656449940831,
+        "ms_per_query": {
+          "median_ms": 59.92098600108875,
+          "p95_ms": 82.6697298023646,
+          "max_ms": 87.98072199715534
+        }
+      },
+      "stage_latency": {
+        "image_read": {
+          "median_ms": 4.286433999368455,
+          "p95_ms": 5.141943699345574,
+          "max_ms": 8.247621000919025
+        },
+        "stereo_vo": {
+          "median_ms": 28.364872498059412,
+          "p95_ms": 44.09439014780219,
+          "max_ms": 62.55427800351754
+        },
+        "fusion_and_events": {
+          "median_ms": 0.14255900168791413,
+          "p95_ms": 0.26330290020268876,
+          "max_ms": 13.343376995180734
+        },
+        "landmark": {
+          "median_ms": 0.006091002433095127,
+          "p95_ms": 54.02880339897819,
+          "max_ms": 87.98072199715534
+        },
+        "total_with_read": {
+          "median_ms": 33.73909650326823,
+          "p95_ms": 84.58024184874375,
+          "max_ms": 126.08131299930392
+        }
+      },
+      "fps": {
+        "throughput": 30.021846801839725,
+        "pipeline_median": 34.328864690667125,
+        "pipeline_p95": 12.443023876442519,
+        "with_disk_read_median": 29.63920506594278
+      }
+    },
+    {
+      "threads": 2,
+      "frames": 600,
+      "vo_dropouts": 1,
+      "landmark": {
+        "enabled": true,
+        "database_keyframes": 334,
+        "queries": 48,
+        "query_rate_per_frame": 0.08,
+        "amortized_ms_per_frame": 4.065902684985001,
+        "ms_per_query": {
+          "median_ms": 48.9080000006652,
+          "p95_ms": 65.06264335039305,
+          "max_ms": 67.6243410052848
+        }
+      },
+      "stage_latency": {
+        "image_read": {
+          "median_ms": 4.331924999860348,
+          "p95_ms": 5.090013200970134,
+          "max_ms": 6.625794994761236
+        },
+        "stereo_vo": {
+          "median_ms": 21.584014997642953,
+          "p95_ms": 41.310504149078035,
+          "max_ms": 61.68301100115059
+        },
+        "fusion_and_events": {
+          "median_ms": 0.14468150038737804,
+          "p95_ms": 0.2671856491360813,
+          "max_ms": 6.140386998595204
+        },
+        "landmark": {
+          "median_ms": 0.006220499926712364,
+          "p95_ms": 46.53890295339806,
+          "max_ms": 67.6243410052848
+        },
+        "total_with_read": {
+          "median_ms": 26.65393750066869,
+          "p95_ms": 71.52608769902142,
+          "max_ms": 102.88876900449395
+        }
+      },
+      "fps": {
+        "throughput": 37.45513808732636,
+        "pipeline_median": 44.84856791255081,
+        "pipeline_p95": 15.060232606566862,
+        "with_disk_read_median": 37.51790893840402
+      }
+    },
+    {
+      "threads": 4,
+      "frames": 600,
+      "vo_dropouts": 1,
+      "landmark": {
+        "enabled": true,
+        "database_keyframes": 334,
+        "queries": 48,
+        "query_rate_per_frame": 0.08,
+        "amortized_ms_per_frame": 3.8617140448089535,
+        "ms_per_query": {
+          "median_ms": 47.17620349765639,
+          "p95_ms": 62.676551550248405,
+          "max_ms": 71.00046599953203
+        }
+      },
+      "stage_latency": {
+        "image_read": {
+          "median_ms": 4.3573615002969746,
+          "p95_ms": 5.107328245867393,
+          "max_ms": 5.740558997786138
+        },
+        "stereo_vo": {
+          "median_ms": 18.532431000494398,
+          "p95_ms": 36.65451690030746,
+          "max_ms": 58.44600200362038
+        },
+        "fusion_and_events": {
+          "median_ms": 0.143062999995891,
+          "p95_ms": 0.2764106044196523,
+          "max_ms": 12.196880001283716
+        },
+        "landmark": {
+          "median_ms": 0.006250000296859071,
+          "p95_ms": 43.5568824941583,
+          "max_ms": 71.00046599953203
+        },
+        "total_with_read": {
+          "median_ms": 23.618561997864163,
+          "p95_ms": 66.18360969769121,
+          "max_ms": 97.31628600275144
+        }
+      },
+      "fps": {
+        "throughput": 41.98547056981701,
+        "pipeline_median": 52.1781535321357,
+        "pipeline_p95": 16.050367581537863,
+        "with_disk_read_median": 42.33958020350394
+      }
+    },
+    {
+      "threads": 8,
+      "frames": 600,
+      "vo_dropouts": 1,
+      "landmark": {
+        "enabled": true,
+        "database_keyframes": 334,
+        "queries": 48,
+        "query_rate_per_frame": 0.08,
+        "amortized_ms_per_frame": 3.414555368484192,
+        "ms_per_query": {
+          "median_ms": 43.107462999614654,
+          "p95_ms": 51.82088630317594,
+          "max_ms": 53.401805002067704
+        }
+      },
+      "stage_latency": {
+        "image_read": {
+          "median_ms": 4.431739500432741,
+          "p95_ms": 5.21001269480621,
+          "max_ms": 6.69959100196138
+        },
+        "stereo_vo": {
+          "median_ms": 17.876672496640822,
+          "p95_ms": 33.88797314655676,
+          "max_ms": 47.5659019939485
+        },
+        "fusion_and_events": {
+          "median_ms": 0.14460599777521566,
+          "p95_ms": 0.27977065255981864,
+          "max_ms": 6.789291997847613
+        },
+        "landmark": {
+          "median_ms": 0.00640399957774207,
+          "p95_ms": 39.7196854533831,
+          "max_ms": 53.401805002067704
+        },
+        "total_with_read": {
+          "median_ms": 23.022198998660315,
+          "p95_ms": 62.165193397595424,
+          "max_ms": 79.24707799975295
+        }
+      },
+      "fps": {
+        "throughput": 44.31164204299326,
+        "pipeline_median": 54.14905930952032,
+        "pipeline_p95": 17.39071856893669,
+        "with_disk_read_median": 43.43633725250099
+      }
+    }
+  ],
+  "headline": {
+    "threads": 8,
+    "throughput_fps": 44.31164204299326,
+    "landmark_included": true,
+    "passes_target": true,
+    "reaches_good": true
+  },
+  "notes": [
+    "FPS chính không tính thời gian đọc PNG từ đĩa; hệ thật nhận frame từ camera driver. Cột with_disk_read_median cho biết chi phí đó.",
+    "Phần A đo riêng ở benchmark_stereo_yolo (median 17,8 FPS CPU).",
+    "Vòng đo gồm stereo VO, EKF + integrity, U-turn detector và landmark query ở nhịp keyframe."
+  ]
+}

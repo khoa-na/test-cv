@@ -1,0 +1,498 @@
+{
+  "kpi": {
+    "retrieval_recall_target": 0.85
+  },
+  "direction_decision": "DB=garage_3, query=garage_2 chốt ở STEP3 mục 0 theo chất lượng NMEA, trước mọi số recall.",
+  "headline_regime": "full_pipeline",
+  "pairs": {
+    "forward": {
+      "database_recording": "recording_2021-05-10_19-15-19",
+      "query_recording": "recording_2021-02-25_13-39-06",
+      "database": {
+        "keyframes": 334,
+        "spacing_median_m": 2.0550271425978734,
+        "vo_dropouts": 52,
+        "metadata": {
+          "mapping_recording": "recording_2021-05-10_19-15-19",
+          "datum": [
+            48.196277385,
+            11.62036672,
+            541.674
+          ],
+          "pose_source": "causal fusion (stereo VO + real NMEA + EKF)",
+          "point_frame": "cam0_optical",
+          "pose_frame": "base_link_se2",
+          "keyframe_count": 334,
+          "keyframe_spacing_median_m": 2.0550271425978734,
+          "keyframe_rule": "distance>=2m hoặc rotation>=15deg (query dùng chung)",
+          "descriptor": "thumbnail 64x32 patch-normalized L2",
+          "n_obs_semantics": "MVP chưa gộp track: t_first=t_last, n_obs=1"
+        }
+      },
+      "query": {
+        "frames": 5488,
+        "keyframes": 393,
+        "vo_dropouts": 3
+      },
+      "label_frame": {
+        "database_fit": {
+          "direction": "reference_xyz -> common_enu",
+          "fit": "rigid_3d_kabsch_no_scale",
+          "datum": {
+            "latitude": 48.196277385,
+            "longitude": 11.62036672,
+            "altitude_m": 541.674
+          },
+          "split": "chronological",
+          "calibration_fraction": 0.6,
+          "calibration_samples": 383,
+          "holdout_samples": 256,
+          "calibration_residual": {
+            "count": 383,
+            "median_m": 1.6307160880009608,
+            "p95_m": 2.9146659173675182,
+            "rmse_m": 1.9284875292495511
+          },
+          "holdout_residual": {
+            "count": 256,
+            "median_m": 4.899598803951309,
+            "p95_m": 11.94629228204245,
+            "rmse_m": 7.39279928029045
+          },
+          "rotation": [
+            [
+              -0.2734116758750134,
+              0.9587990587669608,
+              0.0771389681212204
+            ],
+            [
+              -0.9618953031087142,
+              -0.2723750083564046,
+              -0.023859603522331196
+            ],
+            [
+              -0.0018658383131421085,
+              -0.0807231053072087,
+              0.9967348187541913
+            ]
+          ],
+          "translation": [
+            -1040.270526513031,
+            238.1529219377397,
+            5.078717237215982
+          ],
+          "reference_usage": "evaluation only"
+        },
+        "query_fit": {
+          "direction": "reference_xyz -> common_enu",
+          "fit": "rigid_3d_kabsch_no_scale",
+          "datum": {
+            "latitude": 48.196277385,
+            "longitude": 11.62036672,
+            "altitude_m": 541.674
+          },
+          "split": "chronological",
+          "calibration_fraction": 0.6,
+          "calibration_samples": 454,
+          "holdout_samples": 304,
+          "calibration_residual": {
+            "count": 454,
+            "median_m": 0.8328980245763198,
+            "p95_m": 1.6624491868941607,
+            "rmse_m": 1.013803845874257
+          },
+          "holdout_residual": {
+            "count": 304,
+            "median_m": 1.4775319737762942,
+            "p95_m": 9.415441568413938,
+            "rmse_m": 3.8243355811544735
+          },
+          "rotation": [
+            [
+              -0.33120160927276604,
+              0.9435556418108066,
+              0.0028713798298324947
+            ],
+            [
+              -0.9434953767160248,
+              -0.3312130068357622,
+              0.010696645189066236
+            ],
+            [
+              0.011043918263798578,
+              0.0008336125061959626,
+              0.9999386665988933
+            ]
+          ],
+          "translation": [
+            -1029.1811556273965,
+            236.81212949734834,
+            4.884890608094731
+          ],
+          "reference_usage": "evaluation only"
+        }
+      },
+      "positive_definition": {
+        "xy_m": 5.0,
+        "dz_m": 2.0,
+        "heading_deg": 45.0,
+        "uses_ground_truth": true
+      },
+      "coverage_sensitivity": {
+        "coverage_at_3m": 0.9592875318066157,
+        "coverage_at_10m": 0.9949109414758269
+      },
+      "regimes": [
+        {
+          "regime": "full_pipeline",
+          "uses_spatial_prior": true,
+          "queries": 393,
+          "eligible_queries": 387,
+          "coverage": 0.9847328244274809,
+          "retrieval_recall_at_1": 0.7080103359173127,
+          "retrieval_recall_at_5": 0.8113695090439277,
+          "verified_recall_at_1": 0.2222222222222222,
+          "verified_accepts": 89,
+          "verified_precision": 0.9662921348314607,
+          "incorrect_accept_rate": 0.0337078651685393,
+          "association_error_m": {
+            "definition": "‖label(db entry) - label(query)‖, cả hai trong frame nhãn",
+            "median": 1.283344151163365,
+            "p95": 4.266132916056372
+          },
+          "db_frame_offset_m": {
+            "definition": "‖pose hệ của db entry - label(db entry)‖; sai số global của EKF lúc dựng map, không phải sai số association",
+            "median": 12.69642533046572,
+            "p95": 36.375259027198794
+          },
+          "landmark_nis": {
+            "gate": 5.991,
+            "median": 0.2002263889761355,
+            "p95": 5.443950618871413,
+            "reject_rate": 0.033707865168539325,
+            "histogram": [
+              70,
+              9,
+              7,
+              0,
+              0,
+              0,
+              1,
+              0,
+              0,
+              1,
+              0,
+              0,
+              0,
+              0,
+              1
+            ]
+          },
+          "full_database_reacquisitions": 241,
+          "query_latency_ms": {
+            "median": 40.112249000230804,
+            "p95": 85.90516479744107
+          }
+        },
+        {
+          "regime": "prior_free",
+          "uses_spatial_prior": false,
+          "queries": 393,
+          "eligible_queries": 387,
+          "coverage": 0.9847328244274809,
+          "retrieval_recall_at_1": 0.7131782945736435,
+          "retrieval_recall_at_5": 0.8113695090439277,
+          "verified_recall_at_1": 0.22739018087855298,
+          "verified_accepts": 91,
+          "verified_precision": 0.967032967032967,
+          "incorrect_accept_rate": 0.03296703296703296,
+          "association_error_m": {
+            "definition": "‖label(db entry) - label(query)‖, cả hai trong frame nhãn",
+            "median": 1.2703476899190727,
+            "p95": 4.225632149946703
+          },
+          "db_frame_offset_m": {
+            "definition": "‖pose hệ của db entry - label(db entry)‖; sai số global của EKF lúc dựng map, không phải sai số association",
+            "median": 13.577250496741813,
+            "p95": 36.80720301478661
+          },
+          "landmark_nis": {
+            "gate": 5.991,
+            "median": 0.2041436469729724,
+            "p95": 9.347071868043443,
+            "reject_rate": 0.054945054945054944,
+            "histogram": [
+              70,
+              9,
+              7,
+              0,
+              0,
+              0,
+              1,
+              0,
+              1,
+              2,
+              0,
+              0,
+              0,
+              0,
+              1
+            ]
+          },
+          "full_database_reacquisitions": 0,
+          "query_latency_ms": {
+            "median": 38.3034820042667,
+            "p95": 76.34803540131543
+          }
+        }
+      ]
+    },
+    "reverse_sanity_check": {
+      "database_recording": "recording_2021-02-25_13-39-06",
+      "query_recording": "recording_2021-05-10_19-15-19",
+      "database": {
+        "keyframes": 393,
+        "spacing_median_m": 2.062425953672626,
+        "vo_dropouts": 3,
+        "metadata": {
+          "mapping_recording": "recording_2021-02-25_13-39-06",
+          "datum": [
+            48.19529599166667,
+            11.623416473333334,
+            540.8661
+          ],
+          "pose_source": "causal fusion (stereo VO + real NMEA + EKF)",
+          "point_frame": "cam0_optical",
+          "pose_frame": "base_link_se2",
+          "keyframe_count": 393,
+          "keyframe_spacing_median_m": 2.062425953672626,
+          "keyframe_rule": "distance>=2m hoặc rotation>=15deg (query dùng chung)",
+          "descriptor": "thumbnail 64x32 patch-normalized L2",
+          "n_obs_semantics": "MVP chưa gộp track: t_first=t_last, n_obs=1"
+        }
+      },
+      "query": {
+        "frames": 5257,
+        "keyframes": 335,
+        "vo_dropouts": 52
+      },
+      "label_frame": {
+        "database_fit": {
+          "direction": "reference_xyz -> common_enu",
+          "fit": "rigid_3d_kabsch_no_scale",
+          "datum": {
+            "latitude": 48.19529599166667,
+            "longitude": 11.623416473333334,
+            "altitude_m": 540.8661
+          },
+          "split": "chronological",
+          "calibration_fraction": 0.6,
+          "calibration_samples": 454,
+          "holdout_samples": 304,
+          "calibration_residual": {
+            "count": 454,
+            "median_m": 0.8328980245762037,
+            "p95_m": 1.6624491868942533,
+            "rmse_m": 1.0138038458742573
+          },
+          "holdout_residual": {
+            "count": 304,
+            "median_m": 1.4775319737768813,
+            "p95_m": 9.41544156841373,
+            "rmse_m": 3.824335581154494
+          },
+          "rotation": [
+            [
+              -0.33123943672576417,
+              0.9435424690045855,
+              0.0028363254978076994
+            ],
+            [
+              -0.9434820454222154,
+              -0.33125043013880007,
+              0.010713659448244083
+            ],
+            [
+              0.011048326729032873,
+              0.0008727643387531985,
+              0.9999385844935169
+            ]
+          ],
+          "translation": [
+            -1255.9154442365077,
+            345.9920023140113,
+            5.647260254772281
+          ],
+          "reference_usage": "evaluation only"
+        },
+        "query_fit": {
+          "direction": "reference_xyz -> common_enu",
+          "fit": "rigid_3d_kabsch_no_scale",
+          "datum": {
+            "latitude": 48.19529599166667,
+            "longitude": 11.623416473333334,
+            "altitude_m": 540.8661
+          },
+          "split": "chronological",
+          "calibration_fraction": 0.6,
+          "calibration_samples": 383,
+          "holdout_samples": 256,
+          "calibration_residual": {
+            "count": 383,
+            "median_m": 1.6307160880010285,
+            "p95_m": 2.914665917367684,
+            "rmse_m": 1.9284875292495303
+          },
+          "holdout_residual": {
+            "count": 256,
+            "median_m": 4.8995988039514655,
+            "p95_m": 11.946292282042503,
+            "rmse_m": 7.392799280290512
+          },
+          "rotation": [
+            [
+              -0.2734497754332868,
+              0.9587911142251484,
+              0.07710265623428887
+            ],
+            [
+              -0.9618844858899425,
+              -0.27241443353977185,
+              -0.0238455908596747
+            ],
+            [
+              -0.0018590642072288425,
+              -0.08068442031832004,
+              0.9967379636585386
+            ]
+          ],
+          "translation": [
+            -1267.004768783528,
+            347.3332380713276,
+            5.840670450175223
+          ],
+          "reference_usage": "evaluation only"
+        }
+      },
+      "positive_definition": {
+        "xy_m": 5.0,
+        "dz_m": 2.0,
+        "heading_deg": 45.0,
+        "uses_ground_truth": true
+      },
+      "coverage_sensitivity": {
+        "coverage_at_3m": 0.9582089552238806,
+        "coverage_at_10m": 0.9850746268656716
+      },
+      "regimes": [
+        {
+          "regime": "full_pipeline",
+          "uses_spatial_prior": true,
+          "queries": 335,
+          "eligible_queries": 327,
+          "coverage": 0.9761194029850746,
+          "retrieval_recall_at_1": 0.709480122324159,
+          "retrieval_recall_at_5": 0.7767584097859327,
+          "verified_recall_at_1": 0.24464831804281345,
+          "verified_accepts": 81,
+          "verified_precision": 0.9876543209876543,
+          "incorrect_accept_rate": 0.012345679012345734,
+          "association_error_m": {
+            "definition": "‖label(db entry) - label(query)‖, cả hai trong frame nhãn",
+            "median": 1.2231648564676103,
+            "p95": 3.5189339066389125
+          },
+          "db_frame_offset_m": {
+            "definition": "‖pose hệ của db entry - label(db entry)‖; sai số global của EKF lúc dựng map, không phải sai số association",
+            "median": 10.695546571514333,
+            "p95": 21.6371189754085
+          },
+          "landmark_nis": {
+            "gate": 5.991,
+            "median": 0.1463263904011902,
+            "p95": 5.186719926697754,
+            "reject_rate": 0.037037037037037035,
+            "histogram": [
+              64,
+              7,
+              7,
+              1,
+              1,
+              0,
+              0,
+              0,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          "full_database_reacquisitions": 197,
+          "query_latency_ms": {
+            "median": 36.5447590011172,
+            "p95": 86.09038960057661
+          }
+        },
+        {
+          "regime": "prior_free",
+          "uses_spatial_prior": false,
+          "queries": 335,
+          "eligible_queries": 327,
+          "coverage": 0.9761194029850746,
+          "retrieval_recall_at_1": 0.72782874617737,
+          "retrieval_recall_at_5": 0.7951070336391437,
+          "verified_recall_at_1": 0.25076452599388377,
+          "verified_accepts": 83,
+          "verified_precision": 0.9879518072289156,
+          "incorrect_accept_rate": 0.012048192771084376,
+          "association_error_m": {
+            "definition": "‖label(db entry) - label(query)‖, cả hai trong frame nhãn",
+            "median": 1.2156976847263017,
+            "p95": 3.5173397574541663
+          },
+          "db_frame_offset_m": {
+            "definition": "‖pose hệ của db entry - label(db entry)‖; sai số global của EKF lúc dựng map, không phải sai số association",
+            "median": 10.731186788119778,
+            "p95": 21.81979486040952
+          },
+          "landmark_nis": {
+            "gate": 5.991,
+            "median": 0.1586463336961486,
+            "p95": 6.102695331906275,
+            "reject_rate": 0.060240963855421686,
+            "histogram": [
+              64,
+              7,
+              7,
+              1,
+              1,
+              0,
+              0,
+              0,
+              1,
+              2,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          "full_database_reacquisitions": 0,
+          "query_latency_ms": {
+            "median": 36.129428997810464,
+            "p95": 81.25067290166044
+          }
+        }
+      ]
+    }
+  },
+  "disclosure": [
+    "Dev probe ở STEP3 mục 0 đã chạy trên toàn tuyến garage — cùng loại contamination với dev segment 1800 frame của Bước 2.",
+    "Vị trí DB và prior đều là pose nhân quả của hệ; reference pose chỉ gán nhãn và chấm điểm.",
+    "Tầng landmark chưa nằm trong vòng đo FPS của B7."
+  ]
+}

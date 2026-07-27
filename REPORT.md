@@ -243,9 +243,15 @@ cờ đều là ca thành công, và chọn từ đó rồi gọi là failure an
 trung thực.
 
 Trên Pothole-600 test: **30 ảnh** chứa ít nhất một false negative và **36 ảnh**
-chứa ít nhất một false positive, ở ngưỡng confidence 0,25 và IoU khớp 0,5. Mẫu
-đại diện của mỗi loại, cộng ca có biên mask khớp tệ nhất, lưu ở
-`artifacts/verify-final/a1/failure_samples/`.
+chứa ít nhất một false positive, ở ngưỡng confidence 0,25 và IoU khớp 0,5.
+
+| False negative | False positive | Biên mask tệ nhất |
+|---|---|---|
+| ![FN](artifacts/verify-final/a1/failure_samples/false_negative_0111.jpg) | ![FP](artifacts/verify-final/a1/failure_samples/false_positive_0050.jpg) | ![boundary](artifacts/verify-final/a1/failure_samples/mask_boundary_0144.jpg) |
+| `0111.png` — GT có ổ gà, detector không báo | `0050.png` — detector báo, GT không có | `0144.png` — khớp đúng ca nhưng biên lệch |
+
+Cả ba do `benchmarks/benchmark_a1_receipt.py` chọn tự động bằng thứ hạng IoU,
+không phải tôi nhặt tay.
 
 Tỷ lệ này khớp với recall box 78,6% in-domain và tụt còn 50,1% cross-domain:
 kiểu lỗi trội của model là **bỏ sót**, không phải báo nhầm. Với cảnh báo lái
@@ -470,11 +476,14 @@ throughput, tầng landmark nên được đẩy sang luồng riêng.
 
 ## Demo Protocol
 
-| Video | Nội dung | KPI minh họa | Nguồn |
-|---|---|---|---|
-| `artifacts/demo/part_a.mp4` | 27 stereo pair, depth/area cạnh GT, đánh dấu calibration/held-out | A2/A3 | Fan stereo pothole |
-| `artifacts/demo/part_a_video.mp4` | 20 clip liên tục lấy theo thứ tự, prediction chồng GT | A1/A4 cross-domain | Mendeley `5bwfg4v4cd` |
-| `artifacts/demo/part_b.mp4` | Camera + top-view trajectory + GPS state + U-turn event | B1/B3/B6 | 4Seasons `garage_2` |
+Ba video **nộp kèm ngoài repo** vì tổng dung lượng 210 MB. Script render nằm
+trong `demo/`, chạy lại được từ dataset.
+
+| Video | Kích thước | Nội dung | KPI minh họa | Nguồn |
+|---|---|---|---|---|
+| `part_a.mp4` | 1280×802, 64,8 s | 27 stereo pair, depth/area cạnh GT, đánh dấu calibration/held-out | A2/A3 | Fan stereo pothole |
+| `part_a_video.mp4` | 720×858, 40,0 s | 20 clip liên tục lấy theo thứ tự, prediction chồng GT | A1/A4 cross-domain | Mendeley `5bwfg4v4cd` |
+| `part_b.mp4` | 1200×542, 182,9 s | Camera + top-view trajectory + GPS state + U-turn event | B1/B3/B6 | 4Seasons `garage_2` |
 
 Các video đều render từ dataset công khai và có banner nguồn. Không video nào
 được trình bày như footage tự quay tại TP.HCM. `part_a.mp4` lặp ảnh tĩnh vì bộ

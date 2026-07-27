@@ -1,0 +1,72 @@
+{
+  "question": "Bias gyro hiệu chỉnh trên 2 s đầu recording. Có cửa sổ nào yên hơn ở chỗ khác không, và bias thật là bao nhiêu?",
+  "caveat": "production_window neo theo lưới bước step_seconds tính từ reference start, còn IMUYawIntegrator neo đúng timestamp stereo frame đầu, nên p95 lệch vài phần nghìn (garage_3: 0.0451 ở đây vs 0.0439 trong vo-drift-final). Không đổi kết luận vì cả hai đều nằm cùng phía ngưỡng 0.02.",
+  "window_seconds": 2.0,
+  "step_seconds": 1.0,
+  "sequences": {
+    "office_loop_1": {
+      "recording": "recording_2020-03-24_17-36-22",
+      "windows_scanned": 500,
+      "windows_passing_gate": 64,
+      "gate_rad_s": 0.02,
+      "production_window": {
+        "offset_from_reference_start_s": -0.017632722854614258,
+        "gyro_norm_p95_rad_s": 0.006262863402629822,
+        "bias_camera_y_rad_s": 0.002631820984331631
+      },
+      "quietest_window": {
+        "offset_from_reference_start_s": 94.98236727714539,
+        "gyro_norm_p95_rad_s": 0.0052724288520567065,
+        "bias_camera_y_rad_s": 0.0026286205933522414
+      }
+    },
+    "neighborhood_4": {
+      "recording": "recording_2020-12-22_11-54-24",
+      "windows_scanned": 322,
+      "windows_passing_gate": 3,
+      "gate_rad_s": 0.02,
+      "production_window": {
+        "offset_from_reference_start_s": -0.006130218505859375,
+        "gyro_norm_p95_rad_s": 0.014764945470405622,
+        "bias_camera_y_rad_s": 0.0035089252582963188
+      },
+      "quietest_window": {
+        "offset_from_reference_start_s": 0.9938697814941406,
+        "gyro_norm_p95_rad_s": 0.009969068880336824,
+        "bias_camera_y_rad_s": 0.0034873131407503304
+      }
+    },
+    "garage_2": {
+      "recording": "recording_2021-02-25_13-39-06",
+      "windows_scanned": 181,
+      "windows_passing_gate": 2,
+      "gate_rad_s": 0.02,
+      "production_window": {
+        "offset_from_reference_start_s": -0.0506289005279541,
+        "gyro_norm_p95_rad_s": 0.018369204947903107,
+        "bias_camera_y_rad_s": 0.004113291224849224
+      },
+      "quietest_window": {
+        "offset_from_reference_start_s": 0.9493710994720459,
+        "gyro_norm_p95_rad_s": 0.018362896444408035,
+        "bias_camera_y_rad_s": 0.002686694180180774
+      }
+    },
+    "garage_3": {
+      "recording": "recording_2021-05-10_19-15-19",
+      "windows_scanned": 172,
+      "windows_passing_gate": 0,
+      "gate_rad_s": 0.02,
+      "production_window": {
+        "offset_from_reference_start_s": -0.04562783241271973,
+        "gyro_norm_p95_rad_s": 0.045063024962739326,
+        "bias_camera_y_rad_s": 0.020464475729246215
+      },
+      "quietest_window": {
+        "offset_from_reference_start_s": 170.95437216758728,
+        "gyro_norm_p95_rad_s": 0.020135420674562313,
+        "bias_camera_y_rad_s": 0.003452546289063366
+      }
+    }
+  }
+}

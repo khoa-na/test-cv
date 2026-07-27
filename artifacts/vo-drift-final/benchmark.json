@@ -1,0 +1,295 @@
+{
+  "method": "ORB stereo depth + temporal PnP; yaw_source=imu",
+  "config": {
+    "nfeatures": 1200,
+    "grid_columns": 4,
+    "grid_rows": 2,
+    "stereo_ratio": 0.75,
+    "temporal_ratio": 0.8,
+    "epipolar_tolerance_px": 1.0,
+    "min_depth_m": 1.0,
+    "max_depth_m": 60.0,
+    "min_pnp_points": 15,
+    "pnp_reprojection_error_px": 2.0,
+    "pnp_iterations": 100,
+    "pnp_confidence": 0.999,
+    "temporal_min_radius_px": 40.0,
+    "temporal_max_radius_px": 240.0,
+    "temporal_radius_margin_px": 20.0,
+    "forward_backward_interval": 1,
+    "use_symmetric_yaw": true,
+    "forward_backward_translation_m": 0.25,
+    "forward_backward_rotation_rad": 0.05235987755982989,
+    "inconsistent_std_inflation": 3.0,
+    "translation_std_base_m": 0.08,
+    "rotation_std_base_rad": 0.017453292519943295,
+    "reprojection_reference_px": 1.0,
+    "min_quality": 0.05,
+    "min_translation_std_m": 0.002,
+    "max_translation_std_m": 0.5,
+    "min_rotation_std_rad": 0.0008726646259971648,
+    "max_rotation_std_rad": 0.17453292519943295,
+    "rng_seed": 7
+  },
+  "metric": "Relative start-to-end SE(2) error per non-overlapping 500 m reference-path window; no scale fit",
+  "reference_usage": "Offline evaluator only; never passed to StereoVO",
+  "summary_all_sequences": {
+    "total_windows": 13,
+    "passed_windows": 12,
+    "failed_windows": 1,
+    "pass_rate_le_5_percent": 0.9230769230769231,
+    "all_windows_pass": false,
+    "failures": [
+      {
+        "sequence": "office_loop_1",
+        "window_index": 2,
+        "translation_drift_ratio": 0.060100266556235044,
+        "translation_error_m": 30.05209185480576,
+        "path_length_m": 500.0325884858831
+      }
+    ]
+  },
+  "cases": {
+    "office_loop_1": {
+      "recording": "recording_2020-03-24_17-36-22",
+      "frames": 15173,
+      "duration_seconds": 501.271199464798,
+      "reference_path_length_m": 3776.3309474053094,
+      "vo_path_length_m": 3626.9754242922218,
+      "path_length_ratio": 0.9604495672669503,
+      "valid_updates": 15079,
+      "imu_yaw_updates": 15079,
+      "imu_yaw_calibration": {
+        "low_angular_rate_gate_passed": true,
+        "gyro_norm_p95_rad_s": 0.006262236341755237,
+        "gyro_norm_p95_threshold_rad_s": 0.02,
+        "bias_camera_y_rad_s": 0.002631820984331631,
+        "calibration_seconds": 2.0
+      },
+      "dropout_rate": 0.0061297126285262404,
+      "valid_update_distance_ratio": 0.9605251336293833,
+      "reference_distance_not_covered_by_updates_m": 26.832128249474863,
+      "processing_fps": 44.639152561923815,
+      "cumulative_translation_error_m": 153.59055107099016,
+      "windows": [
+        {
+          "start_index": 0,
+          "end_index": 3975,
+          "path_length_m": 500.13205980754816,
+          "translation_error_m": 21.01661471950234,
+          "translation_drift_ratio": 0.04202213057005299,
+          "rotation_error_deg": 2.1958974399484203,
+          "rotation_drift_deg_per_100m": 0.4390635227010654
+        },
+        {
+          "start_index": 3975,
+          "end_index": 5399,
+          "path_length_m": 500.0325884858831,
+          "translation_error_m": 30.05209185480576,
+          "translation_drift_ratio": 0.060100266556235044,
+          "rotation_error_deg": 0.5461098398711619,
+          "rotation_drift_deg_per_100m": 0.10921484968105828
+        },
+        {
+          "start_index": 5399,
+          "end_index": 6984,
+          "path_length_m": 500.22216552648626,
+          "translation_error_m": 8.360641718347683,
+          "translation_drift_ratio": 0.016713856951037078,
+          "rotation_error_deg": 2.296897562290343,
+          "rotation_drift_deg_per_100m": 0.4591754865306393
+        },
+        {
+          "start_index": 6984,
+          "end_index": 8514,
+          "path_length_m": 500.1447448456938,
+          "translation_error_m": 12.0019825892601,
+          "translation_drift_ratio": 0.023997018289101463,
+          "rotation_error_deg": 2.4092456504519246,
+          "rotation_drift_deg_per_100m": 0.4817096801037532
+        },
+        {
+          "start_index": 8514,
+          "end_index": 10337,
+          "path_length_m": 500.0010328808355,
+          "translation_error_m": 4.091708983150244,
+          "translation_drift_ratio": 0.008183401061344237,
+          "rotation_error_deg": 2.5583197040470633,
+          "rotation_drift_deg_per_100m": 0.5116628838358388
+        },
+        {
+          "start_index": 10337,
+          "end_index": 11666,
+          "path_length_m": 500.32428490235407,
+          "translation_error_m": 14.437089513597693,
+          "translation_drift_ratio": 0.02885546424438564,
+          "rotation_error_deg": 1.8174524455600785,
+          "rotation_drift_deg_per_100m": 0.36325489295703123
+        },
+        {
+          "start_index": 11666,
+          "end_index": 13301,
+          "path_length_m": 500.04980829972374,
+          "translation_error_m": 22.188347137386465,
+          "translation_drift_ratio": 0.04437227405972135,
+          "rotation_error_deg": 1.0376831418164143,
+          "rotation_drift_deg_per_100m": 0.20751595632938225
+        }
+      ],
+      "summary_500m": {
+        "count": 7,
+        "median_translation_drift_ratio": 0.02885546424438564,
+        "p95_translation_drift_ratio": 0.05538186880728092,
+        "pass_rate_le_5_percent": 0.8571428571428571,
+        "max_rotation_drift_deg_per_100m": 0.5116628838358388
+      }
+    },
+    "neighborhood_4": {
+      "recording": "recording_2020-12-22_11-54-24",
+      "frames": 9771,
+      "duration_seconds": 322.90576791763306,
+      "reference_path_length_m": 2194.5157009165987,
+      "vo_path_length_m": 2226.0853274392734,
+      "path_length_ratio": 1.0143856917995568,
+      "valid_updates": 9511,
+      "imu_yaw_updates": 9511,
+      "imu_yaw_calibration": {
+        "low_angular_rate_gate_passed": true,
+        "gyro_norm_p95_rad_s": 0.014764945470405622,
+        "gyro_norm_p95_threshold_rad_s": 0.02,
+        "bias_camera_y_rad_s": 0.003508544780466565,
+        "calibration_seconds": 2.0
+      },
+      "dropout_rate": 0.026509723643807548,
+      "valid_update_distance_ratio": 1.0132817273961916,
+      "reference_distance_not_covered_by_updates_m": 40.591531520297394,
+      "processing_fps": 62.959278554397514,
+      "cumulative_translation_error_m": 117.95732523522511,
+      "windows": [
+        {
+          "start_index": 0,
+          "end_index": 2102,
+          "path_length_m": 500.1527026850269,
+          "translation_error_m": 6.373181600600857,
+          "translation_drift_ratio": 0.012742471581952828,
+          "rotation_error_deg": 1.6888816815489252,
+          "rotation_drift_deg_per_100m": 0.3376732090984031
+        },
+        {
+          "start_index": 2102,
+          "end_index": 4352,
+          "path_length_m": 500.08787451201505,
+          "translation_error_m": 8.385161044214215,
+          "translation_drift_ratio": 0.0167673752385947,
+          "rotation_error_deg": 1.9249275845378082,
+          "rotation_drift_deg_per_100m": 0.38491786796793453
+        },
+        {
+          "start_index": 4352,
+          "end_index": 6830,
+          "path_length_m": 500.11147108380453,
+          "translation_error_m": 13.523390446110461,
+          "translation_drift_ratio": 0.02704075236827416,
+          "rotation_error_deg": 8.88676814018791,
+          "rotation_drift_deg_per_100m": 1.7769574692876298
+        },
+        {
+          "start_index": 6830,
+          "end_index": 8988,
+          "path_length_m": 500.23848587642124,
+          "translation_error_m": 23.16997053660663,
+          "translation_drift_ratio": 0.046317848767698636,
+          "rotation_error_deg": 6.081965510733,
+          "rotation_drift_deg_per_100m": 1.2158131935965213
+        }
+      ],
+      "summary_500m": {
+        "count": 4,
+        "median_translation_drift_ratio": 0.02190406380343443,
+        "p95_translation_drift_ratio": 0.04342628430778496,
+        "pass_rate_le_5_percent": 1.0,
+        "max_rotation_drift_deg_per_100m": 1.7769574692876298
+      }
+    },
+    "garage_2": {
+      "recording": "recording_2021-02-25_13-39-06",
+      "frames": 5487,
+      "duration_seconds": 182.32542848587036,
+      "reference_path_length_m": 850.9650093947733,
+      "vo_path_length_m": 812.1990894866441,
+      "path_length_ratio": 0.9544447545079433,
+      "valid_updates": 5484,
+      "imu_yaw_updates": 5484,
+      "imu_yaw_calibration": {
+        "low_angular_rate_gate_passed": true,
+        "gyro_norm_p95_rad_s": 0.018665991181193588,
+        "gyro_norm_p95_threshold_rad_s": 0.02,
+        "bias_camera_y_rad_s": 0.004289945833625147,
+        "calibration_seconds": 2.0
+      },
+      "dropout_rate": 0.00036456434560705464,
+      "valid_update_distance_ratio": 0.9544015388298352,
+      "reference_distance_not_covered_by_updates_m": 0.5896330155227361,
+      "processing_fps": 55.25292544407975,
+      "cumulative_translation_error_m": 18.64088736316927,
+      "windows": [
+        {
+          "start_index": 0,
+          "end_index": 3234,
+          "path_length_m": 500.00688280829877,
+          "translation_error_m": 8.797596205696815,
+          "translation_drift_ratio": 0.01759495020605504,
+          "rotation_error_deg": 2.6648942734661274,
+          "rotation_drift_deg_per_100m": 0.5329715180116511
+        }
+      ],
+      "summary_500m": {
+        "count": 1,
+        "median_translation_drift_ratio": 0.01759495020605504,
+        "p95_translation_drift_ratio": 0.01759495020605504,
+        "pass_rate_le_5_percent": 1.0,
+        "max_rotation_drift_deg_per_100m": 0.5329715180116511
+      }
+    },
+    "garage_3": {
+      "recording": "recording_2021-05-10_19-15-19",
+      "frames": 5253,
+      "duration_seconds": 173.54741144180298,
+      "reference_path_length_m": 775.8224398302267,
+      "vo_path_length_m": 724.7694494199593,
+      "path_length_ratio": 0.9341950067576812,
+      "valid_updates": 5201,
+      "imu_yaw_updates": 0,
+      "imu_yaw_calibration": {
+        "low_angular_rate_gate_passed": false,
+        "gyro_norm_p95_rad_s": 0.04390616323909566,
+        "gyro_norm_p95_threshold_rad_s": 0.02,
+        "bias_camera_y_rad_s": 0.02051484470443854,
+        "calibration_seconds": 2.0
+      },
+      "dropout_rate": 0.009710586443259728,
+      "valid_update_distance_ratio": 0.9337793837082049,
+      "reference_distance_not_covered_by_updates_m": 8.945143507197372,
+      "processing_fps": 61.32623050129401,
+      "cumulative_translation_error_m": 47.884849752798786,
+      "windows": [
+        {
+          "start_index": 0,
+          "end_index": 3253,
+          "path_length_m": 500.0860438111947,
+          "translation_error_m": 8.696164282459074,
+          "translation_drift_ratio": 0.017389336075418,
+          "rotation_error_deg": 12.111436197604238,
+          "rotation_drift_deg_per_100m": 2.4218704655906893
+        }
+      ],
+      "summary_500m": {
+        "count": 1,
+        "median_translation_drift_ratio": 0.017389336075418,
+        "p95_translation_drift_ratio": 0.017389336075418,
+        "pass_rate_le_5_percent": 1.0,
+        "max_rotation_drift_deg_per_100m": 2.4218704655906893
+      }
+    }
+  }
+}
