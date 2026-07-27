@@ -226,3 +226,7 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Ghi chú nội bộ trong lúc làm bài, không thuộc bài nộp
+BENCH_STATUS.md
+luu-y-viet-report-bai-test.md
