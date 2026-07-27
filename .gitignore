@@ -245,6 +245,7 @@ artifacts/a3-grid/final-s03125-d112/*
 !artifacts/a3-grid/final-s03125-d112/failures/**
 !artifacts/vo-drift-final/
 !artifacts/vo-drift-final/benchmark.json
+!artifacts/vo-drift-final/office_loop_1.png
 !artifacts/landmark-reid/
 !artifacts/landmark-reid/benchmark.json
 !artifacts/uturn-b3/
