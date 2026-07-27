@@ -1,0 +1,45 @@
+{
+  "method": "YOLO26n-seg ONNX + StereoSGBM road-disparity fusion",
+  "calibration_group": "model1",
+  "test_groups": [
+    "model2",
+    "model3"
+  ],
+  "metric_scale": 0.8334711918061039,
+  "area_scale": 1.3755604448201877,
+  "area_ground_truth_definition": "Median robust XY convex-hull area across each model's laser scans",
+  "strong_alignment_definition": "raw YOLO detection-residual IoU >= 0.1; weak alignment uses residual localization fallback",
+  "pairs": 27,
+  "detection_coverage": 1.0,
+  "fusion_coverage": 1.0,
+  "strong_alignment_coverage": 0.6666666666666666,
+  "fallback_rate": 0.3333333333333333,
+  "held_out": {
+    "pairs": 19,
+    "fusion_coverage": 1.0,
+    "strong_alignment_coverage": 0.7368421052631579,
+    "fallback_rate": 0.2631578947368421,
+    "median_relative_error": 0.04967518864859228,
+    "mean_relative_error": 0.041397372852194254,
+    "within_15_percent_of_fused": 1.0,
+    "within_8_percent_of_fused": 1.0,
+    "area_median_relative_error": 0.11606980565007806,
+    "area_mean_relative_error": 0.11498341861846832,
+    "area_within_15_percent": 0.8947368421052632,
+    "area_within_8_percent": 0.21052631578947367,
+    "end_to_end_within_15_percent": 1.0,
+    "end_to_end_depth_area_within_15_percent": 0.8947368421052632
+  },
+  "performance": {
+    "median_latency_ms": 57.32260100194253,
+    "p95_latency_ms": 64.5432425000763,
+    "median_fps": 17.445126050126586,
+    "min_fps": 14.658970843912538,
+    "pairs_at_least_15_fps": 0.9629629629629629
+  },
+  "limitations": [
+    "Depth ground truth is the per-model laser z-extent proxy.",
+    "Area truth is a laser XY convex-hull proxy, not a manually traced opening.",
+    "Only three physical potholes are represented."
+  ]
+}

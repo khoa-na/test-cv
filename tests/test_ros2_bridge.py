@@ -5,9 +5,36 @@ import pytest
 from ros2.localization_node import (
     NAVSAT_TO_GGA,
     FusionBridge,
+    parse_gga_sentence,
     self_check,
     yaw_to_quaternion,
 )
+
+VALID_GGA = "$GPGGA,123519,4807.038,N,01131.000,E,1,08,0.9,545.4,M,46.9,M,,*47"
+
+
+def test_parse_gga_preserves_integrity_metadata_and_position():
+    fix = parse_gga_sentence(VALID_GGA)
+    assert fix["fix_quality"] == 1
+    assert fix["satellites"] == 8
+    assert fix["hdop"] == pytest.approx(0.9)
+    assert fix["latitude"] == pytest.approx(48.1173)
+    assert fix["longitude"] == pytest.approx(11.5166666667)
+    assert fix["altitude"] == pytest.approx(545.4)
+
+
+def test_bad_gga_checksum_is_rejected():
+    with pytest.raises(ValueError, match="checksum sai"):
+        parse_gga_sentence(VALID_GGA[:-2] + "00")
+
+
+def test_gga_can_recover_integrity_to_good_without_fabricated_quality():
+    bridge = FusionBridge()
+    for index in range(5):
+        bridge.on_gga(1000.0 + index * 0.1, VALID_GGA)
+    snapshot = bridge.snapshot()
+    assert snapshot["gps_state"] == "GOOD"
+    assert snapshot["datum"]["source"] == "first_valid_fix"
 
 
 def test_no_fix_status_never_produces_a_position():

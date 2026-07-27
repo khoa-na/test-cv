@@ -241,6 +241,8 @@ artifacts/*
 artifacts/a3-grid/*
 !artifacts/a3-grid/final-s03125-d112/
 artifacts/a3-grid/final-s03125-d112/*
+!artifacts/a3-grid/final-s03125-d112/benchmark.json
+!artifacts/a3-grid/final-s03125-d112/rows.csv
 !artifacts/a3-grid/final-s03125-d112/failures/
 !artifacts/a3-grid/final-s03125-d112/failures/**
 !artifacts/vo-drift-final/

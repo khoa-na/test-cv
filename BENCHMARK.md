@@ -1,69 +1,54 @@
 # Detection benchmark
 
-> **Đính chính 2026-07-27 — số detection dưới đây đã bị thay thế.**
->
-> Bảng "Final ONNX" ghi box mAP@0.5 **89,8%** và mask **87,1%**. Lần chạy sinh
-> ra hai con số đó chỉ để lại PNG, không có file nào ghi model SHA, split hay
-> phiên bản thư viện, nên không tự truy vết được.
->
-> Khi dựng receipt máy đọc được (`benchmarks/benchmark_a1_receipt.py`),
-> checkpoint đo lại ra **86,2% box** và **84,6% mask**. Gọi `YOLO.val()` thẳng
-> lên `models/pothole_yolo26n_seg.onnx` thì trả về toàn số 0 và báo
-> `DetMetrics` thay vì `SegMetrics`, vì đó là raw head export có phần decode
-> nằm ngoài graph — nghĩa là **đường đo sinh ra 89,8% không còn tồn tại dưới
-> dạng script chạy được**. Dòng "PyTorch baseline, `end2end=False`" ở mục Đối
-> chứng ghi 86,9%, sát với số đo lại.
->
-> Số hiện hành: **86,2% / 84,6%**, receipt ở
-> `artifacts/verify-final/a1/benchmark.json`, giải thích đầy đủ ở
-> [`REPORT.md`](REPORT.md) mục *Detector*. Các con số cũ được giữ nguyên bên
-> dưới vì report trích dẫn chúng; **không dùng chúng làm số nghiệm thu**.
+## Headline có receipt
+
+Số nghiệm thu hiện hành là **86,2% box mAP@0.5** và **84,6% mask mAP@0.5**.
+`benchmarks/benchmark_a1_receipt.py` lưu model SHA, split và phiên bản thư viện
+tại `artifacts/verify-final/a1/benchmark.json`.
 
 Ngày chạy: 2026-07-26 (detection và stereo), 2026-07-25 (depth monocular)
 
 CPU: Intel Core i5-13400F
 
 Dataset: Pothole-600 official testing split, 180 ảnh / 196 instances
-Input: 512x512, batch 1, ONNX Runtime CPU
+Input: 512x512, batch 1
 
-## Final ONNX (`end2end=False`)
+| Metric | Receipt hiện hành |
+|---|---:|
+| Box precision | 92,5% |
+| Box recall | 78,6% |
+| Box mAP@0.5 | **86,2%** |
+| Box mAP@0.5:0.95 | 53,4% |
+| Mask precision | 91,2% |
+| Mask recall | 77,6% |
+| Mask mAP@0.5 | **84,6%** |
+| Mask mAP@0.5:0.95 | 50,8% |
 
 Model production train trên tập gộp Pothole-600 + PothRGBD (150 epochs,
 `copy_paste=0.3`). Val vẫn chạy trên Pothole-600 official test split để so
 trực tiếp với baseline chỉ-Pothole-600.
 
-| Metric | Value |
-|---|---:|
-| Box precision | 87.9% |
-| Box recall | 81.4% |
-| Box mAP@0.5 | 89.8% |
-| Box mAP@0.5:0.95 | 56.3% |
-| Mask precision | 87.4% |
-| Mask recall | 81.5% |
-| Mask mAP@0.5 | 87.1% |
-| Mask mAP@0.5:0.95 | 52.5% |
-| Preprocess | 0.4 ms |
-| ONNX inference | 25.7 ms |
-| Postprocess | 3.3 ms |
-| Total | 29.4 ms / 34.0 FPS |
-
-SHA256:
+Model deploy là raw-head ONNX, chạy bằng ONNX Runtime CPU. Accuracy receipt
+được đo qua checkpoint PyTorch tương ứng vì `YOLO.val()` không decode đúng
+hai output raw-head của file ONNX. Latency deploy đo riêng: preprocess 0,4 ms,
+ONNX inference 25,7 ms, postprocess 3,3 ms, tổng **29,4 ms / 34,0 FPS**.
 
 ```text
-3ab52bdc4b41cc59b4b845b090bcddc2d927870ce272fdcff2dbb473b3a598c5
+ONNX SHA256 3ab52bdc4b41cc59b4b845b090bcddc2d927870ce272fdcff2dbb473b3a598c5
 ```
 
-## Đối chứng
+## Số lịch sử không dùng nghiệm thu
 
-| Configuration | Box mAP@0.5 | Mask mAP@0.5 |
+Một run cũ ghi 89,8% box và 87,1% mask nhưng chỉ để lại PNG, không có model
+SHA, split hay phiên bản thư viện. Đường chạy đó không còn tái lập được nên
+không xuất hiện trong bảng headline. Nó chỉ được giữ như lịch sử thử nghiệm.
+
+| Configuration lịch sử | Box mAP@0.5 | Mask mAP@0.5 |
 |---|---:|---:|
-| ONNX merged (production) | 89.8% | 87.1% |
-| ONNX baseline Pothole-600 | 85.5% | 81.2% |
-| PyTorch baseline, `end2end=False` | 86.9% | 81.8% |
-| ONNX baseline, end-to-end top-300 | 74.1% | 71.9% |
-
-ONNX raw head được chọn vì đạt KPI accuracy và vẫn vượt yêu cầu tốc độ của
-module detection.
+| Merged run thiếu receipt | 89,8% | 87,1% |
+| Baseline Pothole-600 | 85,5% | 81,2% |
+| PyTorch baseline, `end2end=False` | 86,9% | 81,8% |
+| ONNX end-to-end top-300 | 74,1% | 71,9% |
 
 Ứng viên thứ ba — fine-tune giai đoạn 2 trên riêng Pothole-600 từ checkpoint
 merged — đạt box mAP@0.5 cao nhất (90.2%) nhưng bị loại: mAP@0.5:0.95 thấp hơn

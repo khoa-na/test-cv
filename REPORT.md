@@ -12,10 +12,11 @@ CPU thay vì cố triển khai đủ mọi nhánh của đề:
   stereo đạt median depth error 4,97%, median area error 11,61% và 17,45 FPS
   trên proxy held-out 19 cặp ảnh.
 - **Phần B — localization khi GPS suy giảm.** Theo metric trên 4Seasons replay,
-  B1, B5, B6 và B7 đạt phạm vi thử nghiệm; B3 đạt latency trên garage proxy
-  nhưng protocol còn điểm yếu. B2 landmark re-ID, B8 GPS re-lock và B4 lane
-  position chưa đạt. Hệ thống giữ được quỹ đạo cục bộ liên tục khi GPS mất,
-  nhưng độ chính xác tuyệt đối sau re-lock còn 17–26 m so với ngưỡng 5 m.
+  B5, B6 và B7 đạt phạm vi thử nghiệm; B1 đạt 12/13 cửa sổ, còn B3 đạt latency
+  trên garage proxy nhưng protocol có điểm yếu. B2 landmark re-ID, B8 GPS
+  re-lock và B4 lane position chưa đạt. Hệ thống giữ được quỹ đạo cục bộ liên
+  tục khi GPS mất, nhưng độ chính xác tuyệt đối sau re-lock còn 17–26 m so với
+  ngưỡng 5 m.
 - **Giới hạn quyết định.** Geometry Phần A chỉ có ba ổ gà vật lý và dùng
   laser-derived proxy. Phần B là dataset replay, không phải field test trên xe
   thật. Demo minh họa hành vi; trạng thái KPI được quyết định bằng protocol,
@@ -36,15 +37,15 @@ người đã có code và dataset; không gồm thời gian chờ thu dữ li�
 | KPI | Trạng thái sau time-box | Bằng chứng chính | Ước lượng để đóng |
 |---|---|---|---:|
 | A1 — Detection mAP | **Đạt in-domain** | 86,2% trên Pothole-600 test; 49,9% trên bộ độc lập | 3–5 ngày để nâng cross-domain |
-| A2 — Depth & area | **Đạt trên proxy** | Held-out 19 pair: median 4,97% depth, 11,61% area; chỉ 3 hố vật lý | 3–5 ngày mở rộng calibrated test |
-| A3 — End-to-end FPS | **Đạt trên proxy** | Median 17,45 FPS; 26/27 pair ≥15 FPS, min 14,66 FPS | 0,5 ngày chốt run cuối |
+| A2 — Depth & area | **Đạt median proxy; chưa đạt mọi mẫu** | Median 4,97% depth, 11,61% area; area pass 17/19; chỉ 3 hố vật lý | 3–5 ngày mở rộng calibrated test |
+| A3 — End-to-end FPS | **Đạt median proxy; 26/27 pair pass** | Median 17,45 FPS; min 14,66 FPS | 0,5 ngày chốt run cuối |
 | A4 — Failure analysis | **Đạt** | Hai failure geometry phân tích sâu, cộng FN/FP/mask-boundary xếp hạng theo IoU trên toàn split | Đã đóng |
 | A5 — Đêm/mưa/nắng | **Chưa làm** | Không có condition-stratified test hoặc footage TP.HCM | 2–3 ngày + thu dữ liệu |
-| B1 — VO drift / 500 m | **Đạt trên replay** | Median 2,40%; 12/13 cửa sổ ≤5% | 1–2 ngày truy failure 6,01% |
+| B1 — VO drift / 500 m | **12/13 pass; chưa đạt strict** | Median 2,40%; một cửa sổ 6,01% | 1–2 ngày truy failure 6,01% |
 | B2 — Landmark re-ID | **Chưa đạt** | R@1 0,708 so với ngưỡng 0,85 | 2–4 ngày, phụ thuộc map drift |
 | B3 — U-turn latency | **Đạt metric proxy** | Precision 1,000; recall 0,917/0,900; latency âm, nhưng có tích lũy góc từ cua trước | 1–2 ngày với U-turn đường phố |
 | B4 — Lane position | **Không có code** | 4Seasons không có nhãn làn; 3/4 sequence không có vạch phù hợp | 1–3 ngày sau khi có dữ liệu |
-| B5 — Garage localization | **Có quantitative proxy** | Median trong hầm 14,66 → 8,62 m khi bật landmark | 2–4 ngày để giảm absolute error |
+| B5 — Garage localization | **Đạt demo + quantitative proxy** | Median trong hầm 14,66 → 8,62 m khi bật landmark | 2–4 ngày để giảm absolute error |
 | B6 — GPS handover | **Đạt trên replay** | 13/13 sự kiện phát hiện trong cùng chu kỳ NMEA | 0,5 ngày field validation |
 | B7 — System FPS | **Đạt trên pipeline đã triển khai** | 44,3 FPS gồm VO, fusion, U-turn và landmark; chưa có lane | 0,5 ngày đo lại khi thêm module |
 | B8 — GPS re-lock | **Chưa đạt** | 17–26 m sau 2 s; không cấu hình nào ổn định dưới 5 m trong 10 s | 2–4 ngày sửa recovery policy |
@@ -94,23 +95,22 @@ Ultralytics/ONNX Runtime/torch, cấu hình chạy và metric. Việc dựng rec
 đã làm lộ một sai lệch so với bản nháp trước — xem mục detector. Video và ảnh
 minh họa không tham gia tính KPI.
 
+| Bằng chứng | Artifact |
+|---|---|
+| A1 in-domain / cross-domain | [`verify-final/a1/benchmark.json`](artifacts/verify-final/a1/benchmark.json) / [`cross-dataset-pothole/benchmark.json`](artifacts/cross-dataset-pothole/benchmark.json) |
+| A2/A3 depth, area, latency | [`a3-grid/final-s03125-d112/benchmark.json`](artifacts/a3-grid/final-s03125-d112/benchmark.json) và [`rows.csv`](artifacts/a3-grid/final-s03125-d112/rows.csv) |
+| B1 VO drift | [`vo-drift-final/benchmark.json`](artifacts/vo-drift-final/benchmark.json) |
+| B2 landmark re-ID | [`landmark-reid/benchmark.json`](artifacts/landmark-reid/benchmark.json) |
+| B3 U-turn | [`uturn-b3/benchmark.json`](artifacts/uturn-b3/benchmark.json) |
+| B5/B8 garage + consensus | [`garage-localization/benchmark.json`](artifacts/garage-localization/benchmark.json) / [`garage-localization-sweep/benchmark.json`](artifacts/garage-localization-sweep/benchmark.json) |
+| B6/B8 NMEA handover/re-lock | [`gps-fusion-round5-vo/benchmark.json`](artifacts/gps-fusion-round5-vo/benchmark.json) |
+| B7 throughput | [`system-fps-b7/benchmark.json`](artifacts/system-fps-b7/benchmark.json) |
+
 ## System Decision Frame
 
 Hai phần dùng chung stereo camera và cùng tranh chấp ngân sách CPU:
 
-```mermaid
-flowchart LR
-    CAM["Stereo camera"] --> DET["Pothole segmentation"]
-    CAM --> GEO["Stereo geometry / VO"]
-    DET --> HAZ["Depth + area"]
-    GEO --> HAZ
-    DET --> LM["Landmark observations"]
-    GEO --> FUS["EKF + map-to-odom correction"]
-    GPS["GPS integrity"] --> FUS
-    IMU["IMU"] --> FUS
-    LM --> FUS
-    FUS --> POSE["Continuous pose"]
-```
+![Kiến trúc dùng chung stereo perception và localization](docs/assets/system-architecture.svg)
 
 Chiến lược là khóa các vertical slice có thể kiểm chứng và giữ interface ổn
 định. Một tối ưu cục bộ chỉ được nhận nếu không làm xấu downstream accuracy,
@@ -122,6 +122,11 @@ continuity hoặc throughput.
 
 Pipeline production dùng **YOLO26n-seg → ONNX raw head → StereoSGBM →
 road-disparity plane → mask–geometry fusion**.
+
+Output stereo gồm bounding box, depth, area và severity
+`minor/moderate/severe`. Severity dùng heuristic depth/area và luôn ghi
+`severity_calibrated=false`; report không xem nó là nhãn an toàn đã được
+field-calibrate.
 
 Segmentation được chọn thay box-only vì area phụ thuộc trực tiếp vào biên mask.
 Stereo được chọn thay monocular vì Phần A cần metric depth; Depth Anything V2
@@ -273,18 +278,7 @@ Hệ thống dùng **EKF hai frame**:
 Thiết kế này giải thích B6: handover không khởi tạo lại bộ lọc mà chỉ thay đổi
 độ tin cậy của một nhánh correction đã tách sẵn.
 
-```mermaid
-stateDiagram-v2
-    [*] --> GOOD
-    GOOD --> DEGRADED: HDOP > 5, satellites < 4, or NIS reject ×3
-    GOOD --> LOST: no receiver message for 1.5 s
-    DEGRADED --> GOOD: 5 accepted fixes
-    DEGRADED --> RECOVERING: good signal but normal NIS keeps rejecting
-    DEGRADED --> LOST: unusable for 1.5 s or quality-0 ×3
-    LOST --> RECOVERING: valid fix returns
-    RECOVERING --> GOOD: 3 fixes agree within 4 m
-    RECOVERING --> LOST: no convergence in 10 s
-```
+![GPS integrity state machine](docs/assets/gps-state-machine.svg)
 
 ### Trình tự khi mất GPS
 
@@ -469,6 +463,9 @@ throughput, tầng landmark nên được đẩy sang luồng riêng.
   nếu database được dựng từ global pose bị drift.
 - **Low light và lane:** chưa có test condition-stratified hoặc lane GT, nên
   không có cơ sở claim S1/B4.
+- **ROS 2:** `FusionBridge` có unit test và node nhận raw GGA để giữ HDOP/số
+  vệ tinh, nhưng chưa chạy trên một ROS distro hay receiver thật. Đây là
+  integration prototype, không phải runtime đã nghiệm thu trên xe.
 
 ### Decision record Phần B
 
