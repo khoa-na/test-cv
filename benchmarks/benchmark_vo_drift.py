@@ -12,7 +12,7 @@ import cv2
 import numpy as np
 
 from data_tools.gps_sources import load_reference_trajectory, wrap_angle
-from data_tools.imu_yaw import load_imu_yaw_integrator
+from data_tools.imu_yaw import IMUYawConfig, load_imu_yaw_integrator
 from data_tools.stereo_odometry import run_stereo_odometry
 from pipelines.stereo_vo import StereoVO, StereoVOConfig
 
@@ -304,6 +304,7 @@ def benchmark_recording(
     max_frames: int | None = None,
     render: bool = True,
     yaw_source: str = "visual",
+    imu_config: IMUYawConfig | None = None,
 ) -> dict:
     reference_timestamps, _, _ = load_reference_trajectory(recording)
     frames = run_stereo_odometry(
@@ -315,12 +316,14 @@ def benchmark_recording(
         timestamp_min=float(reference_timestamps[0]),
         timestamp_max=float(reference_timestamps[-1]),
         yaw_source=yaw_source,
+        imu_config=imu_config,
     )
     imu_metadata = None
     if yaw_source == "imu":
         imu_metadata = load_imu_yaw_integrator(
             recording,
             frames[0].timestamp,
+            imu_config,
         ).metadata()
     timestamps, vo_poses = integrate_measurements(frames)
     reference_poses = interpolate_reference(recording, timestamps)
@@ -448,6 +451,24 @@ def parse_args() -> argparse.Namespace:
         default="imu",
     )
     parser.add_argument(
+        "--gyro-gate-override",
+        type=float,
+        help=(
+            "CHẨN ĐOÁN, không phải config nộp bài: ép ngưỡng "
+            "stationary_gyro_p95_rad_s để chạy phản chứng trên sequence bị "
+            "cổng chặn. Mặc định giữ 0.02."
+        ),
+    )
+    parser.add_argument(
+        "--bias-calibration-mode",
+        choices=("recording_start", "quietest_window"),
+        default="recording_start",
+        help=(
+            "CHẨN ĐOÁN: quietest_window quét cả recording tìm cửa sổ 2 s yên "
+            "nhất thay vì mặc định lấy 2 s đầu. Bài nộp dùng recording_start."
+        ),
+    )
+    parser.add_argument(
         "--refresh-existing",
         action="store_true",
         help=(
@@ -467,6 +488,15 @@ def run(args: argparse.Namespace) -> dict:
         )
     names = args.sequence or list(SEQUENCES)
     config = StereoVOConfig()
+    defaults = IMUYawConfig()
+    imu_config = IMUYawConfig(
+        stationary_gyro_p95_rad_s=(
+            args.gyro_gate_override
+            if args.gyro_gate_override is not None
+            else defaults.stationary_gyro_p95_rad_s
+        ),
+        bias_calibration_mode=args.bias_calibration_mode,
+    )
     cases = {}
     for name in names:
         recording = args.dataset / SEQUENCES[name]
@@ -482,12 +512,15 @@ def run(args: argparse.Namespace) -> dict:
             max_frames=args.max_frames,
             render=not args.no_render,
             yaw_source=args.yaw_source,
+            imu_config=imu_config,
         )
     report = {
         "method": (
             "ORB stereo depth + temporal PnP; "
             f"yaw_source={args.yaw_source}"
         ),
+        "gyro_gate_override": args.gyro_gate_override,
+        "bias_calibration_mode": args.bias_calibration_mode,
         "config": asdict(config),
         "metric": (
             "Relative start-to-end SE(2) error per non-overlapping "

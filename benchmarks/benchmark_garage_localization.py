@@ -30,6 +30,7 @@ import numpy as np
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
+from benchmarks.benchmark_gps_fusion import stable_relock_metric
 from benchmarks.benchmark_landmark_reid import (
     keyframe_indices_causal,
     run_causal_pipeline,
@@ -251,6 +252,18 @@ def evaluate(run: dict, reference: tuple, segment: dict) -> dict:
         )
     exit_error = float(errors[inside][-1]) if inside.any() else None
 
+    # Metric B8 áp lên thời điểm ra khỏi mái: GPS quay lại đúng lúc này, nên
+    # exit_time chính là anchor re-lock. Cùng định nghĩa với benchmark_gps_fusion.
+    after_2s = None
+    probe = exit_time + 2.0
+    if timestamps[-1] >= probe:
+        after_2s = float(np.interp(probe, timestamps, errors))
+    relock = {
+        "anchor_timestamp": exit_time,
+        "error_after_2s_m": after_2s,
+        **stable_relock_metric(timestamps, errors, exit_time),
+    }
+
     states_inside = [
         state for state, keep in zip(run["states"], inside) if keep
     ]
@@ -276,6 +289,7 @@ def evaluate(run: dict, reference: tuple, segment: dict) -> dict:
             ),
             "gps_states_seen": sorted(set(states_inside)),
         },
+        "relock_after_exit": relock,
         "landmark": {
             **landmark,
             "accepted_coverage_inside": coverage,
@@ -372,6 +386,15 @@ def main() -> None:
             f"p95 {inside['p95_m']:6.2f} m  "
             f"exit drift {'n/a' if drift is None else f'{drift:5.2f}%'}  "
             f"landmark accepted {results[name]['landmark']['accepted']}"
+        )
+        relock = results[name]["relock_after_exit"]
+        after = relock["error_after_2s_m"]
+        stable = relock["time_to_stable_5m_seconds"]
+        print(
+            f"{'':32s} relock: error@2s "
+            f"{'n/a' if after is None else f'{after:.2f} m'}  "
+            f"stable<5m "
+            f"{'không đạt trong 10 s' if stable is None else f'{stable:.2f} s'}"
         )
 
     report = {
