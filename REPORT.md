@@ -213,7 +213,7 @@ không đủ để ước lượng generalization cho mặt đường thật.
 | INT8 QDQ | Session nhanh hơn nhưng area trong ±15% giảm 78,9% → 68,4% | Loại |
 | YOLO mask + StereoSGBM | Đạt A1, metric depth và CPU budget tốt nhất trong các cấu hình đã đo | **Chọn** |
 
-### Failure analysis A — mask boundary làm hỏng area
+### Failure analysis A1–A2 — mask boundary làm hỏng area
 
 #### Case A1 — `model1/L8`: area over-estimate 25,08%
 
@@ -235,7 +235,7 @@ từng làm median đẹp hơn nhưng kéo xấu p95 và tỷ lệ trong ±15%, 
 Hướng sửa rẻ nhất là đo area từ giao giữa semantic mask và stereo residual,
 sau đó chấm trên nhiều hố vật lý hơn.
 
-### Case C — detector false negative và false positive
+### Failure analysis A3 — detector bỏ sót nhiều hơn báo nhầm
 
 Hai ca trên là lỗi hình học. Lỗi của chính detector được lấy bằng cách xếp hạng
 IoU trên **toàn bộ** 180 ảnh test thay vì lấy ba batch đầu — ba batch đầu tình
