@@ -1,6 +1,6 @@
 # Pothole depth/area estimation + GPS-degraded localization
 
-> **📄 Báo cáo kỹ thuật:** [`REPORT.pdf`](output/pdf/REPORT.pdf) để nộp và
+> **📄 Báo cáo kỹ thuật:** [`REPORT.pdf`](REPORT.pdf) để nộp và
 > [`REPORT.md`](REPORT.md) để review source — quyết định thiết kế, bảng KPI,
 > failure analysis và các thí nghiệm phản chứng. Đọc report trước nếu bạn đang
 > chấm bài; README này là hướng dẫn tái lập.
@@ -69,7 +69,7 @@ python3 -m venv .venv
 
 Mọi số deployment trong báo cáo đo bằng ONNX Runtime CPU.
 
-`output/pdf/REPORT.pdf` render từ `REPORT.md` bằng:
+`REPORT.pdf` render từ `REPORT.md` bằng:
 
 ```bash
 .venv/bin/pip install -r requirements-report.txt

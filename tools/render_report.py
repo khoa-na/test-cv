@@ -95,7 +95,7 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--source", type=Path, default=Path("REPORT.md"))
     parser.add_argument(
-        "--output", type=Path, default=Path("output/pdf/REPORT.pdf")
+        "--output", type=Path, default=Path("REPORT.pdf")
     )
     args = parser.parse_args()
     render(args.source, args.output)
