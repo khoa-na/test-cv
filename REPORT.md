@@ -318,6 +318,13 @@ thấp nhất dãy, 0,109°/100 m, nên lỗi chủ yếu là translation. Tươ
 drift và quãng đường mỗi frame chỉ 0,213; giả thuyết “chạy nhanh làm scale
 trôi” không được dữ liệu ủng hộ. Nguyên nhân chưa xác định.
 
+![Stereo VO so với reference trên office_loop_1](artifacts/vo-drift-final/office_loop_1.png)
+
+Quỹ đạo VO (đỏ) bám reference (xám) suốt phần lớn tuyến 3.776 m và tách ra ở
+vài đoạn — đúng hình dạng của drift tích lũy không có loop closure. Vì KPI đo
+theo cửa sổ 500 m độc lập nên độ lệch cuối tuyến không được tính vào B1; đây là
+lý do một cửa sổ trượt trong khi tổng thể vẫn đạt.
+
 ### Failure case B-1 — Map offset làm B2 trượt
 
 | Đại lượng | Median | Ý nghĩa |
