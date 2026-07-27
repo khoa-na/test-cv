@@ -1,0 +1,87 @@
+{
+  "kpi": "A1 — box mAP@0.5 >= 80% (đạt), >= 85% (xuất sắc)",
+  "purpose": "Receipt máy đọc được cho số headline Phần A; lần chạy trước chỉ để lại PNG nên số không tự truy vết được.",
+  "git_commit": "18c7b8b6a46922b1da1e66de8f7d8198acb8d8d1",
+  "model": {
+    "checkpoint": {
+      "path": "artifacts/final/pothole_yolo26n_seg.pt",
+      "bytes": 6542301,
+      "sha256": "09ea3ec53baabfad1d677f874500715e1e405fe8b4f6349f2212f6cd81c9a541"
+    },
+    "onnx_deployed": {
+      "path": "models/pothole_yolo26n_seg.onnx",
+      "bytes": 11006894,
+      "sha256": "3ab52bdc4b41cc59b4b845b090bcddc2d927870ce272fdcff2dbb473b3a598c5"
+    }
+  },
+  "dataset": {
+    "name": "Pothole-600 official test split",
+    "data_yaml": ".cache/data/pothole600-pothrgbd-seg.yaml",
+    "split": "test",
+    "images": 180,
+    "note": "Split không tham gia gradient update, nhưng đã được dùng để đối chiếu nhiều export/checkpoint, nên không gọi là test hoàn toàn chưa quan sát."
+  },
+  "run_config": {
+    "imgsz": 512,
+    "confidence_for_failure_ranking": 0.25,
+    "device": "cuda"
+  },
+  "versions": {
+    "ultralytics": "8.4.105",
+    "onnxruntime": "1.28.0",
+    "torch": "2.13.0+cu130",
+    "python": "3.14.4",
+    "platform": "Linux-6.18.33.1-microsoft-standard-WSL2-x86_64-with-glibc2.43"
+  },
+  "metrics": {
+    "box_map50": 0.8620183855615893,
+    "box_map": 0.5341035526766775,
+    "box_precision": 0.9247507218439153,
+    "box_recall": 0.7857142857142857,
+    "mask_map50": 0.8463070271153181,
+    "mask_map": 0.5079244636304266,
+    "mask_precision": 0.9122712202282994,
+    "mask_recall": 0.7755102040816326
+  },
+  "speed_ms_per_image": {
+    "preprocess": 0.3277265222499813,
+    "inference": 3.2423596777637913,
+    "loss": 0.0005385000198051179,
+    "postprocess": 0.6285438944461121
+  },
+  "failure_evidence": {
+    "note": "Mẫu chọn bằng xếp hạng theo IoU trên toàn split, không phải ba batch đầu (vốn toàn ca thành công).",
+    "images_with_false_negative": 30,
+    "images_with_false_positive": 36,
+    "selected": {
+      "false_negative": {
+        "image": "0111.png",
+        "truth": 2,
+        "predicted": 1,
+        "false_negatives": 2,
+        "false_positives": 1,
+        "worst_matched_iou": null
+      },
+      "false_positive": {
+        "image": "0050.png",
+        "truth": 1,
+        "predicted": 2,
+        "false_negatives": 1,
+        "false_positives": 2,
+        "worst_matched_iou": null
+      },
+      "mask_boundary": {
+        "image": "0144.png",
+        "truth": 1,
+        "predicted": 1,
+        "false_negatives": 0,
+        "false_positives": 0,
+        "worst_matched_iou": 0.5199204243895794
+      }
+    }
+  },
+  "limitations": [
+    "Metric đo bằng PyTorch checkpoint qua Ultralytics; ONNX deploy được ghi SHA nhưng không đo lại trong lần chạy này.",
+    "Số latency ở đây là của lần val trên thiết bị hiện tại, không thay thế benchmark ONNX Runtime CPU trong README."
+  ]
+}

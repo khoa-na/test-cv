@@ -1,0 +1,2925 @@
+{
+  "kpi": {
+    "pass": "demo hoạt động",
+    "excellent": "quantitative report"
+  },
+  "query_recording": "recording_2021-02-25_13-39-06",
+  "mapping_recording": "recording_2021-05-10_19-15-19",
+  "database_keyframes": 334,
+  "segment": {
+    "recording": "recording_2021-02-25_13-39-06",
+    "role": "B5 query traversal",
+    "covered_segment": {
+      "enter_timestamp": 1614256872.739383,
+      "exit_timestamp": 1614256923.1305017,
+      "duration_s": 50.39111876487732,
+      "evidence": "exposure jump + xác nhận bằng ảnh biên ±3 s"
+    },
+    "real_gps_outage": {
+      "enter_timestamp": 1614256892.1,
+      "exit_timestamp": 1614256927.5,
+      "note": "Receiver giữ fix một lúc sau khi xe đã vào mái che và mất fix thêm một lúc sau khi ra; outage thật là tập con lệch trễ của covered_segment, không trùng biên"
+    },
+    "usage": "Chốt trước khi chạy B5; ba cấu hình A/B/C dùng chung, không trim theo error"
+  },
+  "alignment": "raw_enu + datum chung (production Bước 3)",
+  "registration_floor_m": 0.349,
+  "configurations": {
+    "A_baseline_no_landmark": {
+      "configuration": "A_baseline_no_landmark",
+      "whole_track": {
+        "samples": 5488,
+        "median_m": 9.853030614555161,
+        "p95_m": 29.556281058424492,
+        "max_m": 1056.1517205105301,
+        "percentile_curve": {
+          "p5": 0.6409430864562982,
+          "p25": 1.3680688068403508,
+          "p45": 8.095357882471689,
+          "p50": 9.853030614555161,
+          "p55": 10.49929736689955,
+          "p75": 15.071440407461331,
+          "p90": 21.639680293321764,
+          "p95": 29.556281058424492,
+          "p99": 34.91698863145552
+        },
+        "by_30s_segment": [
+          {
+            "t_offset_s": 0.0,
+            "samples": 907,
+            "median_m": 1.4189670504756746,
+            "p95_m": 17.606972791739018
+          },
+          {
+            "t_offset_s": 30.0,
+            "samples": 904,
+            "median_m": 12.488898409915137,
+            "p95_m": 21.810958465352034
+          },
+          {
+            "t_offset_s": 60.0,
+            "samples": 906,
+            "median_m": 1.3590287969349757,
+            "p95_m": 20.22099087550209
+          },
+          {
+            "t_offset_s": 90.0,
+            "samples": 900,
+            "median_m": 1.3137508336485761,
+            "p95_m": 3.055412514716271
+          },
+          {
+            "t_offset_s": 120.0,
+            "samples": 899,
+            "median_m": 12.129649870085643,
+            "p95_m": 33.67103077734151
+          },
+          {
+            "t_offset_s": 150.0,
+            "samples": 900,
+            "median_m": 18.55852405778559,
+            "p95_m": 34.82615519230267
+          },
+          {
+            "t_offset_s": 180.0,
+            "samples": 72,
+            "median_m": 9.470761424639488,
+            "p95_m": 9.549226671860763
+          }
+        ],
+        "registration_floor_m": 0.349
+      },
+      "inside_cover": {
+        "samples": 1512,
+        "median_m": 14.65911491394604,
+        "p95_m": 34.52810397029679,
+        "max_m": 35.19825610839623,
+        "percentile_curve": {
+          "p5": 2.5326654157054014,
+          "p25": 10.475457793924118,
+          "p45": 13.043694793306516,
+          "p50": 14.65911491394604,
+          "p55": 18.436310991862705,
+          "p75": 25.380371133741797,
+          "p90": 32.91344995855208,
+          "p95": 34.52810397029679,
+          "p99": 35.153143746254926
+        },
+        "by_30s_segment": [
+          {
+            "t_offset_s": 0.0,
+            "samples": 900,
+            "median_m": 10.854665040753705,
+            "p95_m": 23.349291732710117
+          },
+          {
+            "t_offset_s": 30.0,
+            "samples": 612,
+            "median_m": 27.607794663624237,
+            "p95_m": 35.12079895886059
+          }
+        ],
+        "registration_floor_m": 0.349
+      },
+      "cover_segment": {
+        "enter_timestamp": 1614256872.739383,
+        "exit_timestamp": 1614256923.1305017,
+        "duration_s": 50.39111876487732,
+        "reference_path_length_m": 247.94459869130986,
+        "exit_error_m": 18.218799836023358,
+        "exit_drift_percent": 7.347931728371989,
+        "gps_states_seen": [
+          "DEGRADED",
+          "GOOD",
+          "LOST",
+          "RECOVERING"
+        ]
+      },
+      "relock_after_exit": {
+        "anchor_timestamp": 1614256923.1305017,
+        "error_after_2s_m": 17.464959196327396,
+        "time_to_stable_5m_seconds": null,
+        "error_at_stable_m": null
+      },
+      "landmark": {
+        "queries": 0,
+        "verified_matches": 0,
+        "accepted": 0,
+        "nis_rejected": 0,
+        "no_verified_match": 0,
+        "queries_inside_cover": 0,
+        "accepted_inside_cover": 0,
+        "accepted_coverage_inside": null
+      },
+      "recovery_events": [
+        {
+          "timestamp": 1614256757.0081108,
+          "event": "episode_started",
+          "reset": false
+        },
+        {
+          "timestamp": 1614256757.3,
+          "event": "consensus_achieved",
+          "candidate_count": 3,
+          "radius_m": 0.000746737890294094,
+          "fix_quality": 4,
+          "hdop": 0.9,
+          "satellites": 16
+        },
+        {
+          "timestamp": 1614256757.5,
+          "event": "episode_completed",
+          "outcome": "consensus_settled",
+          "terminal": true,
+          "gap_m": 0.0012999031333003975,
+          "consensus_achieved": true,
+          "latched_pose": null,
+          "latched_covariance": null,
+          "latched_timestamp": null
+        },
+        {
+          "timestamp": 1614256759.9,
+          "event": "episode_started",
+          "reset": false
+        },
+        {
+          "timestamp": 1614256760.2,
+          "event": "consensus_achieved",
+          "candidate_count": 3,
+          "radius_m": 0.039912919492681574,
+          "fix_quality": 4,
+          "hdop": 0.9,
+          "satellites": 16
+        },
+        {
+          "timestamp": 1614256760.4,
+          "event": "episode_completed",
+          "outcome": "consensus_settled",
+          "terminal": true,
+          "gap_m": 0.8300547706043188,
+          "consensus_achieved": true,
+          "latched_pose": [
+            -1029.664545932914,
+            236.5559321422451,
+            0.01016931364674667
+          ],
+          "latched_covariance": [
+            [
+              0.06449498193723983,
+              2.53312352897582e-06
+            ],
+            [
+              2.53312352897582e-06,
+              0.05565831376012795
+            ]
+          ],
+          "latched_timestamp": 1614256759.9
+        },
+        {
+          "timestamp": 1614256760.7,
+          "event": "episode_started",
+          "reset": false
+        },
+        {
+          "timestamp": 1614256761.9251225,
+          "event": "episode_started",
+          "reset": true
+        },
+        {
+          "timestamp": 1614256766.9411345,
+          "event": "consensus_timeout",
+          "candidate_count": 0
+        },
+        {
+          "timestamp": 1614256767.9,
+          "event": "consensus_achieved",
+          "candidate_count": 3,
+          "radius_m": 0.052798621668634055,
+          "fix_quality": 4,
+          "hdop": 0.9,
+          "satellites": 16
+        },
+        {
+          "timestamp": 1614256769.1,
+          "event": "episode_completed",
+          "outcome": "consensus_settled",
+          "terminal": true,
+          "gap_m": 0.9668147135408385,
+          "consensus_achieved": true,
+          "latched_pose": [
+            -1025.5621949802382,
+            237.73013810862034,
+            0.4426357599932116
+          ],
+          "latched_covariance": [
+            [
+              0.249957861392747,
+              -0.004283211882121697
+            ],
+            [
+              -0.004283211882121695,
+              0.24736795948891963
+            ]
+          ],
+          "latched_timestamp": 1614256760.7
+        },
+        {
+          "timestamp": 1614256783.2,
+          "event": "episode_started",
+          "reset": false
+        },
+        {
+          "timestamp": 1614256784.8,
+          "event": "episode_started",
+          "reset": true
+        },
+        {
+          "timestamp": 1614256789.8101878,
+          "event": "consensus_timeout",
+          "candidate_count": 0
+        },
+        {
+          "timestamp": 1614256792.483194,
+          "event": "episode_completed",
+          "outcome": "timeout_settled_low_confidence",
+          "terminal": true,
+          "gap_m": 0.9895729618366202,
+          "consensus_achieved": false,
+          "latched_pose": [
+            -994.1049370178135,
+            243.3810154814426,
+            -0.3087988418732781
+          ],
+          "latched_covariance": [
+            [
+              5.943814652831811,
+              3.0694298202043133
+            ],
+            [
+              3.0694298202043133,
+              41.72837702437597
+            ]
+          ],
+          "latched_timestamp": 1614256783.2
+        },
+        {
+          "timestamp": 1614256801.7,
+          "event": "episode_started",
+          "reset": false
+        },
+        {
+          "timestamp": 1614256806.7062278,
+          "event": "consensus_timeout",
+          "candidate_count": 0
+        },
+        {
+          "timestamp": 1614256807.4,
+          "event": "episode_started",
+          "reset": true
+        },
+        {
+          "timestamp": 1614256811.9,
+          "event": "episode_started",
+          "reset": true
+        },
+        {
+          "timestamp": 1614256814.9,
+          "event": "episode_started",
+          "reset": true
+        },
+        {
+          "timestamp": 1614256819.9062583,
+          "event": "consensus_timeout",
+          "candidate_count": 0
+        },
+        {
+          "timestamp": 1614256819.9062583,
+          "event": "episode_completed",
+          "outcome": "timeout_settled_low_confidence",
+          "terminal": true,
+          "gap_m": 0.8118444440473208,
+          "consensus_achieved": false,
+          "latched_pose": [
+            -963.6155605822503,
+            239.24310171769525,
+            -1.0679722027960228
+          ],
+          "latched_covariance": [
+            [
+              43.52283012694268,
+              35.86526413380533
+            ],
+            [
+              35.86526413380533,
+              87.75594040000698
+            ]
+          ],
+          "latched_timestamp": 1614256816.7
+        },
+        {
+          "timestamp": 1614256874.9,
+          "event": "episode_started",
+          "reset": false
+        },
+        {
+          "timestamp": 1614256879.9004,
+          "event": "consensus_timeout",
+          "candidate_count": 0
+        },
+        {
+          "timestamp": 1614256880.6,
+          "event": "episode_started",
+          "reset": true
+        },
+        {
+          "timestamp": 1614256881.7,
+          "event": "episode_started",
+          "reset": true
+        },
+        {
+          "timestamp": 1614256886.7314157,
+          "event": "consensus_timeout",
+          "candidate_count": 0
+        },
+        {
+          "timestamp": 1614256891.7144277,
+          "event": "recovery_unconverged",
+          "outcome": "unconverged",
+          "terminal": false,
+          "gap_m": 33.300323890017154,
+          "consensus_achieved": false
+        },
+        {
+          "timestamp": 1614256892.3,
+          "event": "episode_started",
+          "reset": true
+        },
+        {
+          "timestamp": 1614256897.3244407,
+          "event": "consensus_timeout",
+          "candidate_count": 0
+        },
+        {
+          "timestamp": 1614256902.3074524,
+          "event": "recovery_unconverged",
+          "outcome": "unconverged",
+          "terminal": false,
+          "gap_m": 1.5171561727291205,
+          "consensus_achieved": false
+        },
+        {
+          "timestamp": 1614256931.8,
+          "event": "consensus_achieved",
+          "candidate_count": 3,
+          "radius_m": 0.07275899693976243,
+          "fix_quality": 2,
+          "hdop": 1.0,
+          "satellites": 12
+        },
+        {
+          "timestamp": 1614256933.5915258,
+          "event": "episode_completed",
+          "outcome": "consensus_settled",
+          "terminal": true,
+          "gap_m": 0.9130027004725341,
+          "consensus_achieved": true,
+          "latched_pose": [
+            -1022.5554559177018,
+            252.79233338776984,
+            -2.571981633029659
+          ],
+          "latched_covariance": [
+            [
+              301.79421288323704,
+              287.5432894415121
+            ],
+            [
+              287.5432894415121,
+              425.54612309782914
+            ]
+          ],
+          "latched_timestamp": 1614256928.1
+        }
+      ]
+    },
+    "B_landmark": {
+      "configuration": "B_landmark",
+      "whole_track": {
+        "samples": 5488,
+        "median_m": 5.938563176426988,
+        "p95_m": 23.957648291443107,
+        "max_m": 1056.1517205105301,
+        "percentile_curve": {
+          "p5": 0.6409430864562982,
+          "p25": 1.3581061088151025,
+          "p45": 4.548794155262327,
+          "p50": 5.938563176426988,
+          "p55": 8.14825691464702,
+          "p75": 13.034209380680098,
+          "p90": 19.476475350837838,
+          "p95": 23.957648291443107,
+          "p99": 27.771261071921376
+        },
+        "by_30s_segment": [
+          {
+            "t_offset_s": 0.0,
+            "samples": 907,
+            "median_m": 1.4190158750300224,
+            "p95_m": 17.606972791739018
+          },
+          {
+            "t_offset_s": 30.0,
+            "samples": 904,
+            "median_m": 12.501652574813438,
+            "p95_m": 20.37053640187037
+          },
+          {
+            "t_offset_s": 60.0,
+            "samples": 906,
+            "median_m": 1.3590287969349757,
+            "p95_m": 20.152576804355114
+          },
+          {
+            "t_offset_s": 90.0,
+            "samples": 900,
+            "median_m": 1.3137508336485761,
+            "p95_m": 2.934397981292847
+          },
+          {
+            "t_offset_s": 120.0,
+            "samples": 899,
+            "median_m": 7.955922453630626,
+            "p95_m": 20.13463868484379
+          },
+          {
+            "t_offset_s": 150.0,
+            "samples": 900,
+            "median_m": 13.259712685093092,
+            "p95_m": 27.93189106608862
+          },
+          {
+            "t_offset_s": 180.0,
+            "samples": 72,
+            "median_m": 9.470761424639488,
+            "p95_m": 9.549226671860763
+          }
+        ],
+        "registration_floor_m": 0.349
+      },
+      "inside_cover": {
+        "samples": 1512,
+        "median_m": 8.616201191240794,
+        "p95_m": 21.969957026339547,
+        "max_m": 24.83145874993295,
+        "percentile_curve": {
+          "p5": 1.5978318774663434,
+          "p25": 3.490498184100151,
+          "p45": 7.631826820275929,
+          "p50": 8.616201191240794,
+          "p55": 9.594033494779005,
+          "p75": 13.333820584851432,
+          "p90": 19.80667101035536,
+          "p95": 21.969957026339547,
+          "p99": 24.47243507119561
+        },
+        "by_30s_segment": [
+          {
+            "t_offset_s": 0.0,
+            "samples": 900,
+            "median_m": 7.113228189042223,
+            "p95_m": 20.13440112945781
+          },
+          {
+            "t_offset_s": 30.0,
+            "samples": 612,
+            "median_m": 10.058304440987616,
+            "p95_m": 24.13118574812541
+          }
+        ],
+        "registration_floor_m": 0.349
+      },
+      "cover_segment": {
+        "enter_timestamp": 1614256872.739383,
+        "exit_timestamp": 1614256923.1305017,
+        "duration_s": 50.39111876487732,
+        "reference_path_length_m": 247.94459869130986,
+        "exit_error_m": 24.83145874993295,
+        "exit_drift_percent": 10.014922237063137,
+        "gps_states_seen": [
+          "DEGRADED",
+          "GOOD",
+          "LOST",
+          "RECOVERING"
+        ]
+      },
+      "relock_after_exit": {
+        "anchor_timestamp": 1614256923.1305017,
+        "error_after_2s_m": 26.043318365246964,
+        "time_to_stable_5m_seconds": null,
+        "error_at_stable_m": null
+      },
+      "landmark": {
+        "queries": 396,
+        "verified_matches": 97,
+        "accepted": 89,
+        "nis_rejected": 8,
+        "no_verified_match": 299,
+        "queries_inside_cover": 117,
+        "accepted_inside_cover": 43,
+        "accepted_coverage_inside": 0.36752136752136755
+      },
+      "recovery_events": [
+        {
+          "timestamp": 1614256757.0081108,
+          "event": "episode_started",
+          "reset": false
+        },
+        {
+          "timestamp": 1614256757.3,
+          "event": "consensus_achieved",
+          "candidate_count": 3,
+          "radius_m": 0.000746737890294094,
+          "fix_quality": 4,
+          "hdop": 0.9,
+          "satellites": 16
+        },
+        {
+          "timestamp": 1614256757.5,
+          "event": "episode_completed",
+          "outcome": "consensus_settled",
+          "terminal": true,
+          "gap_m": 0.0012999031333003975,
+          "consensus_achieved": true,
+          "latched_pose": null,
+          "latched_covariance": null,
+          "latched_timestamp": null
+        },
+        {
+          "timestamp": 1614256759.9,
+          "event": "episode_started",
+          "reset": false
+        },
+        {
+          "timestamp": 1614256760.2,
+          "event": "consensus_achieved",
+          "candidate_count": 3,
+          "radius_m": 0.039912919492681574,
+          "fix_quality": 4,
+          "hdop": 0.9,
+          "satellites": 16
+        },
+        {
+          "timestamp": 1614256760.4,
+          "event": "episode_completed",
+          "outcome": "consensus_settled",
+          "terminal": true,
+          "gap_m": 0.8300547706043188,
+          "consensus_achieved": true,
+          "latched_pose": [
+            -1029.664545932914,
+            236.5559321422451,
+            0.01016931364674667
+          ],
+          "latched_covariance": [
+            [
+              0.06449498193723983,
+              2.53312352897582e-06
+            ],
+            [
+              2.53312352897582e-06,
+              0.05565831376012795
+            ]
+          ],
+          "latched_timestamp": 1614256759.9
+        },
+        {
+          "timestamp": 1614256760.7,
+          "event": "episode_started",
+          "reset": false
+        },
+        {
+          "timestamp": 1614256761.9251225,
+          "event": "episode_started",
+          "reset": true
+        },
+        {
+          "timestamp": 1614256766.9411345,
+          "event": "consensus_timeout",
+          "candidate_count": 0
+        },
+        {
+          "timestamp": 1614256767.9,
+          "event": "consensus_achieved",
+          "candidate_count": 3,
+          "radius_m": 0.052798621668634055,
+          "fix_quality": 4,
+          "hdop": 0.9,
+          "satellites": 16
+        },
+        {
+          "timestamp": 1614256769.1,
+          "event": "episode_completed",
+          "outcome": "consensus_settled",
+          "terminal": true,
+          "gap_m": 0.9668147135408385,
+          "consensus_achieved": true,
+          "latched_pose": [
+            -1025.5621949802382,
+            237.73013810862034,
+            0.4426357599932116
+          ],
+          "latched_covariance": [
+            [
+              0.249957861392747,
+              -0.004283211882121697
+            ],
+            [
+              -0.004283211882121695,
+              0.24736795948891963
+            ]
+          ],
+          "latched_timestamp": 1614256760.7
+        },
+        {
+          "timestamp": 1614256783.2,
+          "event": "episode_started",
+          "reset": false
+        },
+        {
+          "timestamp": 1614256784.8,
+          "event": "episode_started",
+          "reset": true
+        },
+        {
+          "timestamp": 1614256789.8101878,
+          "event": "consensus_timeout",
+          "candidate_count": 0
+        },
+        {
+          "timestamp": 1614256792.483194,
+          "event": "episode_completed",
+          "outcome": "timeout_settled_low_confidence",
+          "terminal": true,
+          "gap_m": 0.9895729618366202,
+          "consensus_achieved": false,
+          "latched_pose": [
+            -994.1049370307168,
+            243.3810154777195,
+            -0.3087988418732781
+          ],
+          "latched_covariance": [
+            [
+              5.943814652831823,
+              3.069429820204312
+            ],
+            [
+              3.069429820204312,
+              41.72837702437597
+            ]
+          ],
+          "latched_timestamp": 1614256783.2
+        },
+        {
+          "timestamp": 1614256801.7,
+          "event": "episode_started",
+          "reset": false
+        },
+        {
+          "timestamp": 1614256806.7062278,
+          "event": "consensus_timeout",
+          "candidate_count": 0
+        },
+        {
+          "timestamp": 1614256807.4,
+          "event": "episode_started",
+          "reset": true
+        },
+        {
+          "timestamp": 1614256811.9,
+          "event": "episode_started",
+          "reset": true
+        },
+        {
+          "timestamp": 1614256814.9,
+          "event": "episode_started",
+          "reset": true
+        },
+        {
+          "timestamp": 1614256819.9062583,
+          "event": "consensus_timeout",
+          "candidate_count": 0
+        },
+        {
+          "timestamp": 1614256819.9062583,
+          "event": "episode_completed",
+          "outcome": "timeout_settled_low_confidence",
+          "terminal": true,
+          "gap_m": 0.8118444440473208,
+          "consensus_achieved": false,
+          "latched_pose": [
+            -964.3931927888848,
+            239.7295450946641,
+            -1.0679722027960228
+          ],
+          "latched_covariance": [
+            [
+              43.52283012694268,
+              35.86526413380533
+            ],
+            [
+              35.86526413380533,
+              87.75594040000698
+            ]
+          ],
+          "latched_timestamp": 1614256816.7
+        },
+        {
+          "timestamp": 1614256874.9,
+          "event": "episode_started",
+          "reset": false
+        },
+        {
+          "timestamp": 1614256879.9004,
+          "event": "consensus_timeout",
+          "candidate_count": 0
+        },
+        {
+          "timestamp": 1614256880.6,
+          "event": "episode_started",
+          "reset": true
+        },
+        {
+          "timestamp": 1614256881.7,
+          "event": "episode_started",
+          "reset": true
+        },
+        {
+          "timestamp": 1614256886.7314157,
+          "event": "consensus_timeout",
+          "candidate_count": 0
+        },
+        {
+          "timestamp": 1614256891.7144277,
+          "event": "recovery_unconverged",
+          "outcome": "unconverged",
+          "terminal": false,
+          "gap_m": 18.536345141633618,
+          "consensus_achieved": false
+        },
+        {
+          "timestamp": 1614256892.3,
+          "event": "episode_started",
+          "reset": true
+        },
+        {
+          "timestamp": 1614256897.3244407,
+          "event": "consensus_timeout",
+          "candidate_count": 0
+        },
+        {
+          "timestamp": 1614256902.3074524,
+          "event": "recovery_unconverged",
+          "outcome": "unconverged",
+          "terminal": false,
+          "gap_m": 6.640974230735387,
+          "consensus_achieved": false
+        },
+        {
+          "timestamp": 1614256931.8,
+          "event": "consensus_achieved",
+          "candidate_count": 3,
+          "radius_m": 0.07275899693976243,
+          "fix_quality": 2,
+          "hdop": 1.0,
+          "satellites": 12
+        },
+        {
+          "timestamp": 1614256934.0205271,
+          "event": "episode_completed",
+          "outcome": "consensus_settled",
+          "terminal": true,
+          "gap_m": 0.9717841112790334,
+          "consensus_achieved": true,
+          "latched_pose": [
+            -1016.5518195490926,
+            275.2569770860359,
+            -2.571981633029659
+          ],
+          "latched_covariance": [
+            [
+              301.7950305746132,
+              287.54261725781333
+            ],
+            [
+              287.54261725781333,
+              425.54667566665853
+            ]
+          ],
+          "latched_timestamp": 1614256928.1
+        }
+      ]
+    },
+    "C_landmark_artificial_outage": {
+      "configuration": "C_landmark_artificial_outage",
+      "whole_track": {
+        "samples": 5488,
+        "median_m": 5.516996441296559,
+        "p95_m": 21.90556211495274,
+        "max_m": 1056.1517205105301,
+        "percentile_curve": {
+          "p5": 0.6409430864562982,
+          "p25": 1.3521997688600602,
+          "p45": 4.795101071225395,
+          "p50": 5.516996441296559,
+          "p55": 6.4366216849045506,
+          "p75": 12.476345970658471,
+          "p90": 18.244214530584674,
+          "p95": 21.90556211495274,
+          "p99": 24.66125946737688
+        },
+        "by_30s_segment": [
+          {
+            "t_offset_s": 0.0,
+            "samples": 907,
+            "median_m": 1.4190158750300224,
+            "p95_m": 17.606972791739018
+          },
+          {
+            "t_offset_s": 30.0,
+            "samples": 904,
+            "median_m": 12.501652574813438,
+            "p95_m": 20.37053640187037
+          },
+          {
+            "t_offset_s": 60.0,
+            "samples": 906,
+            "median_m": 1.3590287969349757,
+            "p95_m": 20.152576804355114
+          },
+          {
+            "t_offset_s": 90.0,
+            "samples": 900,
+            "median_m": 1.3137508336485761,
+            "p95_m": 2.3708316942094703
+          },
+          {
+            "t_offset_s": 120.0,
+            "samples": 899,
+            "median_m": 5.872762782395649,
+            "p95_m": 17.740489028657866
+          },
+          {
+            "t_offset_s": 150.0,
+            "samples": 900,
+            "median_m": 12.024317359048858,
+            "p95_m": 24.76791715802183
+          },
+          {
+            "t_offset_s": 180.0,
+            "samples": 72,
+            "median_m": 9.458872331232733,
+            "p95_m": 9.549672488802253
+          }
+        ],
+        "registration_floor_m": 0.349
+      },
+      "inside_cover": {
+        "samples": 1512,
+        "median_m": 6.228391307705687,
+        "p95_m": 23.11965693852004,
+        "max_m": 24.414791019247758,
+        "percentile_curve": {
+          "p5": 1.5149137297586808,
+          "p25": 4.574270529507475,
+          "p45": 5.7903951434805006,
+          "p50": 6.228391307705687,
+          "p55": 6.623272525095967,
+          "p75": 10.800457416095059,
+          "p90": 18.319482845517673,
+          "p95": 23.11965693852004,
+          "p99": 24.371639107447432
+        },
+        "by_30s_segment": [
+          {
+            "t_offset_s": 0.0,
+            "samples": 900,
+            "median_m": 5.672546247690361,
+            "p95_m": 17.737489999726986
+          },
+          {
+            "t_offset_s": 30.0,
+            "samples": 612,
+            "median_m": 7.261879870691745,
+            "p95_m": 24.333703830603977
+          }
+        ],
+        "registration_floor_m": 0.349
+      },
+      "cover_segment": {
+        "enter_timestamp": 1614256872.739383,
+        "exit_timestamp": 1614256923.1305017,
+        "duration_s": 50.39111876487732,
+        "reference_path_length_m": 247.94459869130986,
+        "exit_error_m": 24.414791019247758,
+        "exit_drift_percent": 9.846873514532207,
+        "gps_states_seen": [
+          "DEGRADED",
+          "GOOD",
+          "LOST"
+        ]
+      },
+      "relock_after_exit": {
+        "anchor_timestamp": 1614256923.1305017,
+        "error_after_2s_m": 24.392546501514154,
+        "time_to_stable_5m_seconds": null,
+        "error_at_stable_m": null
+      },
+      "landmark": {
+        "queries": 396,
+        "verified_matches": 97,
+        "accepted": 89,
+        "nis_rejected": 8,
+        "no_verified_match": 299,
+        "queries_inside_cover": 117,
+        "accepted_inside_cover": 43,
+        "accepted_coverage_inside": 0.36752136752136755
+      },
+      "recovery_events": [
+        {
+          "timestamp": 1614256757.0081108,
+          "event": "episode_started",
+          "reset": false
+        },
+        {
+          "timestamp": 1614256757.3,
+          "event": "consensus_achieved",
+          "candidate_count": 3,
+          "radius_m": 0.000746737890294094,
+          "fix_quality": 4,
+          "hdop": 0.9,
+          "satellites": 16
+        },
+        {
+          "timestamp": 1614256757.5,
+          "event": "episode_completed",
+          "outcome": "consensus_settled",
+          "terminal": true,
+          "gap_m": 0.0012999031333003975,
+          "consensus_achieved": true,
+          "latched_pose": null,
+          "latched_covariance": null,
+          "latched_timestamp": null
+        },
+        {
+          "timestamp": 1614256759.9,
+          "event": "episode_started",
+          "reset": false
+        },
+        {
+          "timestamp": 1614256760.2,
+          "event": "consensus_achieved",
+          "candidate_count": 3,
+          "radius_m": 0.039912919492681574,
+          "fix_quality": 4,
+          "hdop": 0.9,
+          "satellites": 16
+        },
+        {
+          "timestamp": 1614256760.4,
+          "event": "episode_completed",
+          "outcome": "consensus_settled",
+          "terminal": true,
+          "gap_m": 0.8300547706043188,
+          "consensus_achieved": true,
+          "latched_pose": [
+            -1029.664545932914,
+            236.5559321422451,
+            0.01016931364674667
+          ],
+          "latched_covariance": [
+            [
+              0.06449498193723983,
+              2.53312352897582e-06
+            ],
+            [
+              2.53312352897582e-06,
+              0.05565831376012795
+            ]
+          ],
+          "latched_timestamp": 1614256759.9
+        },
+        {
+          "timestamp": 1614256760.7,
+          "event": "episode_started",
+          "reset": false
+        },
+        {
+          "timestamp": 1614256761.9251225,
+          "event": "episode_started",
+          "reset": true
+        },
+        {
+          "timestamp": 1614256766.9411345,
+          "event": "consensus_timeout",
+          "candidate_count": 0
+        },
+        {
+          "timestamp": 1614256767.9,
+          "event": "consensus_achieved",
+          "candidate_count": 3,
+          "radius_m": 0.052798621668634055,
+          "fix_quality": 4,
+          "hdop": 0.9,
+          "satellites": 16
+        },
+        {
+          "timestamp": 1614256769.1,
+          "event": "episode_completed",
+          "outcome": "consensus_settled",
+          "terminal": true,
+          "gap_m": 0.9668147135408385,
+          "consensus_achieved": true,
+          "latched_pose": [
+            -1025.5621949802382,
+            237.73013810862034,
+            0.4426357599932116
+          ],
+          "latched_covariance": [
+            [
+              0.249957861392747,
+              -0.004283211882121697
+            ],
+            [
+              -0.004283211882121695,
+              0.24736795948891963
+            ]
+          ],
+          "latched_timestamp": 1614256760.7
+        },
+        {
+          "timestamp": 1614256783.2,
+          "event": "episode_started",
+          "reset": false
+        },
+        {
+          "timestamp": 1614256784.8,
+          "event": "episode_started",
+          "reset": true
+        },
+        {
+          "timestamp": 1614256789.8101878,
+          "event": "consensus_timeout",
+          "candidate_count": 0
+        },
+        {
+          "timestamp": 1614256792.483194,
+          "event": "episode_completed",
+          "outcome": "timeout_settled_low_confidence",
+          "terminal": true,
+          "gap_m": 0.9895729618366202,
+          "consensus_achieved": false,
+          "latched_pose": [
+            -994.1049370307168,
+            243.3810154777195,
+            -0.3087988418732781
+          ],
+          "latched_covariance": [
+            [
+              5.943814652831823,
+              3.069429820204312
+            ],
+            [
+              3.069429820204312,
+              41.72837702437597
+            ]
+          ],
+          "latched_timestamp": 1614256783.2
+        },
+        {
+          "timestamp": 1614256801.7,
+          "event": "episode_started",
+          "reset": false
+        },
+        {
+          "timestamp": 1614256806.7062278,
+          "event": "consensus_timeout",
+          "candidate_count": 0
+        },
+        {
+          "timestamp": 1614256807.4,
+          "event": "episode_started",
+          "reset": true
+        },
+        {
+          "timestamp": 1614256811.9,
+          "event": "episode_started",
+          "reset": true
+        },
+        {
+          "timestamp": 1614256814.9,
+          "event": "episode_started",
+          "reset": true
+        },
+        {
+          "timestamp": 1614256819.9062583,
+          "event": "consensus_timeout",
+          "candidate_count": 0
+        },
+        {
+          "timestamp": 1614256819.9062583,
+          "event": "episode_completed",
+          "outcome": "timeout_settled_low_confidence",
+          "terminal": true,
+          "gap_m": 0.8118444440473208,
+          "consensus_achieved": false,
+          "latched_pose": [
+            -964.3931927888848,
+            239.7295450946641,
+            -1.0679722027960228
+          ],
+          "latched_covariance": [
+            [
+              43.52283012694268,
+              35.86526413380533
+            ],
+            [
+              35.86526413380533,
+              87.75594040000698
+            ]
+          ],
+          "latched_timestamp": 1614256816.7
+        },
+        {
+          "timestamp": 1614256872.8,
+          "event": "episode_started",
+          "reset": false
+        },
+        {
+          "timestamp": 1614256873.0,
+          "event": "episode_started",
+          "reset": true
+        },
+        {
+          "timestamp": 1614256878.0193954,
+          "event": "consensus_timeout",
+          "candidate_count": 0
+        },
+        {
+          "timestamp": 1614256883.002407,
+          "event": "recovery_unconverged",
+          "outcome": "unconverged",
+          "terminal": false,
+          "gap_m": 4.375375581557494,
+          "consensus_achieved": false
+        },
+        {
+          "timestamp": 1614256931.8,
+          "event": "consensus_achieved",
+          "candidate_count": 3,
+          "radius_m": 0.047499565248406365,
+          "fix_quality": 2,
+          "hdop": 1.0,
+          "satellites": 12
+        },
+        {
+          "timestamp": 1614256933.4,
+          "event": "episode_completed",
+          "outcome": "consensus_settled",
+          "terminal": true,
+          "gap_m": 0.8786153160270175,
+          "consensus_achieved": true,
+          "latched_pose": [
+            -1021.0789301819294,
+            268.44971067209326,
+            -2.3093972156394447
+          ],
+          "latched_covariance": [
+            [
+              165.97087460812895,
+              217.77138551944506
+            ],
+            [
+              217.77138551944506,
+              561.3702547488349
+            ]
+          ],
+          "latched_timestamp": 1614256928.1
+        }
+      ]
+    },
+    "sweep_count2_radius4": {
+      "configuration": "sweep_count2_radius4",
+      "whole_track": {
+        "samples": 5488,
+        "median_m": 9.840075749420418,
+        "p95_m": 29.556281058424492,
+        "max_m": 1056.1517205105301,
+        "percentile_curve": {
+          "p5": 0.6399874972240243,
+          "p25": 1.367704067368424,
+          "p45": 8.08955657180614,
+          "p50": 9.840075749420418,
+          "p55": 10.488600723161923,
+          "p75": 15.071440407461331,
+          "p90": 21.639680293321764,
+          "p95": 29.556281058424492,
+          "p99": 34.91698863145552
+        },
+        "by_30s_segment": [
+          {
+            "t_offset_s": 0.0,
+            "samples": 907,
+            "median_m": 1.4173207632124,
+            "p95_m": 17.600658478554635
+          },
+          {
+            "t_offset_s": 30.0,
+            "samples": 904,
+            "median_m": 12.488898409915137,
+            "p95_m": 21.810958465352034
+          },
+          {
+            "t_offset_s": 60.0,
+            "samples": 906,
+            "median_m": 1.3590287969349757,
+            "p95_m": 20.22099087550209
+          },
+          {
+            "t_offset_s": 90.0,
+            "samples": 900,
+            "median_m": 1.3137508336485761,
+            "p95_m": 3.055412514716271
+          },
+          {
+            "t_offset_s": 120.0,
+            "samples": 899,
+            "median_m": 12.129649870085643,
+            "p95_m": 33.67103077734151
+          },
+          {
+            "t_offset_s": 150.0,
+            "samples": 900,
+            "median_m": 18.55852405778559,
+            "p95_m": 34.82615519230267
+          },
+          {
+            "t_offset_s": 180.0,
+            "samples": 72,
+            "median_m": 9.470761424639488,
+            "p95_m": 9.549226671860763
+          }
+        ],
+        "registration_floor_m": 0.349
+      },
+      "inside_cover": {
+        "samples": 1512,
+        "median_m": 14.65911491394604,
+        "p95_m": 34.52810397029679,
+        "max_m": 35.19825610839623,
+        "percentile_curve": {
+          "p5": 2.5326654157054014,
+          "p25": 10.475457793924118,
+          "p45": 13.043694793306516,
+          "p50": 14.65911491394604,
+          "p55": 18.436310991862705,
+          "p75": 25.380371133741797,
+          "p90": 32.91344995855208,
+          "p95": 34.52810397029679,
+          "p99": 35.153143746254926
+        },
+        "by_30s_segment": [
+          {
+            "t_offset_s": 0.0,
+            "samples": 900,
+            "median_m": 10.854665040753705,
+            "p95_m": 23.349291732710117
+          },
+          {
+            "t_offset_s": 30.0,
+            "samples": 612,
+            "median_m": 27.607794663624237,
+            "p95_m": 35.12079895886059
+          }
+        ],
+        "registration_floor_m": 0.349
+      },
+      "cover_segment": {
+        "enter_timestamp": 1614256872.739383,
+        "exit_timestamp": 1614256923.1305017,
+        "duration_s": 50.39111876487732,
+        "reference_path_length_m": 247.94459869130986,
+        "exit_error_m": 18.218799836023358,
+        "exit_drift_percent": 7.347931728371989,
+        "gps_states_seen": [
+          "DEGRADED",
+          "GOOD",
+          "LOST",
+          "RECOVERING"
+        ]
+      },
+      "relock_after_exit": {
+        "anchor_timestamp": 1614256923.1305017,
+        "error_after_2s_m": 17.464959196327396,
+        "time_to_stable_5m_seconds": null,
+        "error_at_stable_m": null
+      },
+      "landmark": {
+        "queries": 0,
+        "verified_matches": 0,
+        "accepted": 0,
+        "nis_rejected": 0,
+        "no_verified_match": 0,
+        "queries_inside_cover": 0,
+        "accepted_inside_cover": 0,
+        "accepted_coverage_inside": null
+      },
+      "recovery_events": [
+        {
+          "timestamp": 1614256757.0081108,
+          "event": "episode_started",
+          "reset": false
+        },
+        {
+          "timestamp": 1614256757.2,
+          "event": "consensus_achieved",
+          "candidate_count": 2,
+          "radius_m": 0.00010496077600500186,
+          "fix_quality": 4,
+          "hdop": 0.9,
+          "satellites": 16
+        },
+        {
+          "timestamp": 1614256757.5,
+          "event": "episode_completed",
+          "outcome": "consensus_settled",
+          "terminal": true,
+          "gap_m": 0.0013110216870345897,
+          "consensus_achieved": true,
+          "latched_pose": null,
+          "latched_covariance": null,
+          "latched_timestamp": null
+        },
+        {
+          "timestamp": 1614256759.9,
+          "event": "episode_started",
+          "reset": false
+        },
+        {
+          "timestamp": 1614256760.1,
+          "event": "consensus_achieved",
+          "candidate_count": 2,
+          "radius_m": 0.019956459746453277,
+          "fix_quality": 4,
+          "hdop": 0.9,
+          "satellites": 16
+        },
+        {
+          "timestamp": 1614256760.4,
+          "event": "episode_completed",
+          "outcome": "consensus_settled",
+          "terminal": true,
+          "gap_m": 0.8224649092363592,
+          "consensus_achieved": true,
+          "latched_pose": [
+            -1029.6645459329186,
+            236.55593214216637,
+            0.01016931364674667
+          ],
+          "latched_covariance": [
+            [
+              0.06449498193723983,
+              2.53312352897582e-06
+            ],
+            [
+              2.53312352897582e-06,
+              0.05565831376012795
+            ]
+          ],
+          "latched_timestamp": 1614256759.9
+        },
+        {
+          "timestamp": 1614256760.7,
+          "event": "episode_started",
+          "reset": false
+        },
+        {
+          "timestamp": 1614256761.9251225,
+          "event": "episode_started",
+          "reset": true
+        },
+        {
+          "timestamp": 1614256766.9411345,
+          "event": "consensus_timeout",
+          "candidate_count": 0
+        },
+        {
+          "timestamp": 1614256767.8,
+          "event": "consensus_achieved",
+          "candidate_count": 2,
+          "radius_m": 0.0328825792086515,
+          "fix_quality": 4,
+          "hdop": 0.9,
+          "satellites": 16
+        },
+        {
+          "timestamp": 1614256769.0531392,
+          "event": "episode_completed",
+          "outcome": "consensus_settled",
+          "terminal": true,
+          "gap_m": 0.9447188711874157,
+          "consensus_achieved": true,
+          "latched_pose": [
+            -1025.5673690868018,
+            237.73488004645034,
+            0.4426357599932116
+          ],
+          "latched_covariance": [
+            [
+              0.249957861392747,
+              -0.004283211882121697
+            ],
+            [
+              -0.004283211882121695,
+              0.24736795948891963
+            ]
+          ],
+          "latched_timestamp": 1614256760.7
+        },
+        {
+          "timestamp": 1614256783.2,
+          "event": "episode_started",
+          "reset": false
+        },
+        {
+          "timestamp": 1614256784.8,
+          "event": "episode_started",
+          "reset": true
+        },
+        {
+          "timestamp": 1614256789.8101878,
+          "event": "consensus_timeout",
+          "candidate_count": 0
+        },
+        {
+          "timestamp": 1614256792.483194,
+          "event": "episode_completed",
+          "outcome": "timeout_settled_low_confidence",
+          "terminal": true,
+          "gap_m": 0.9895729618366202,
+          "consensus_achieved": false,
+          "latched_pose": [
+            -994.1049370178135,
+            243.3810154814426,
+            -0.3087988418732781
+          ],
+          "latched_covariance": [
+            [
+              5.943814652831811,
+              3.0694298202043133
+            ],
+            [
+              3.0694298202043133,
+              41.72837702437597
+            ]
+          ],
+          "latched_timestamp": 1614256783.2
+        },
+        {
+          "timestamp": 1614256801.7,
+          "event": "episode_started",
+          "reset": false
+        },
+        {
+          "timestamp": 1614256806.7062278,
+          "event": "consensus_timeout",
+          "candidate_count": 0
+        },
+        {
+          "timestamp": 1614256807.4,
+          "event": "episode_started",
+          "reset": true
+        },
+        {
+          "timestamp": 1614256811.9,
+          "event": "episode_started",
+          "reset": true
+        },
+        {
+          "timestamp": 1614256814.9,
+          "event": "episode_started",
+          "reset": true
+        },
+        {
+          "timestamp": 1614256819.9062583,
+          "event": "consensus_timeout",
+          "candidate_count": 0
+        },
+        {
+          "timestamp": 1614256819.9062583,
+          "event": "episode_completed",
+          "outcome": "timeout_settled_low_confidence",
+          "terminal": true,
+          "gap_m": 0.8118444440473208,
+          "consensus_achieved": false,
+          "latched_pose": [
+            -963.6155605822503,
+            239.24310171769525,
+            -1.0679722027960228
+          ],
+          "latched_covariance": [
+            [
+              43.52283012694268,
+              35.86526413380533
+            ],
+            [
+              35.86526413380533,
+              87.75594040000698
+            ]
+          ],
+          "latched_timestamp": 1614256816.7
+        },
+        {
+          "timestamp": 1614256874.9,
+          "event": "episode_started",
+          "reset": false
+        },
+        {
+          "timestamp": 1614256879.9004,
+          "event": "consensus_timeout",
+          "candidate_count": 0
+        },
+        {
+          "timestamp": 1614256880.6,
+          "event": "episode_started",
+          "reset": true
+        },
+        {
+          "timestamp": 1614256881.7,
+          "event": "episode_started",
+          "reset": true
+        },
+        {
+          "timestamp": 1614256886.7314157,
+          "event": "consensus_timeout",
+          "candidate_count": 0
+        },
+        {
+          "timestamp": 1614256891.7144277,
+          "event": "recovery_unconverged",
+          "outcome": "unconverged",
+          "terminal": false,
+          "gap_m": 33.300323890017154,
+          "consensus_achieved": false
+        },
+        {
+          "timestamp": 1614256892.3,
+          "event": "episode_started",
+          "reset": true
+        },
+        {
+          "timestamp": 1614256897.3244407,
+          "event": "consensus_timeout",
+          "candidate_count": 0
+        },
+        {
+          "timestamp": 1614256902.3074524,
+          "event": "recovery_unconverged",
+          "outcome": "unconverged",
+          "terminal": false,
+          "gap_m": 1.5171561727291205,
+          "consensus_achieved": false
+        },
+        {
+          "timestamp": 1614256931.7,
+          "event": "consensus_achieved",
+          "candidate_count": 2,
+          "radius_m": 0.028352270700098003,
+          "fix_quality": 2,
+          "hdop": 1.0,
+          "satellites": 12
+        },
+        {
+          "timestamp": 1614256933.5,
+          "event": "episode_completed",
+          "outcome": "consensus_settled",
+          "terminal": true,
+          "gap_m": 0.9525797329181032,
+          "consensus_achieved": true,
+          "latched_pose": [
+            -1022.5554559177018,
+            252.79233338776984,
+            -2.571981633029659
+          ],
+          "latched_covariance": [
+            [
+              301.79421288323704,
+              287.5432894415121
+            ],
+            [
+              287.5432894415121,
+              425.54612309782914
+            ]
+          ],
+          "latched_timestamp": 1614256928.1
+        }
+      ]
+    },
+    "sweep_count1_radius4": {
+      "configuration": "sweep_count1_radius4",
+      "whole_track": {
+        "samples": 5488,
+        "median_m": 9.823166695716196,
+        "p95_m": 29.556281058424492,
+        "max_m": 1056.1517205105301,
+        "percentile_curve": {
+          "p5": 0.6382920125573706,
+          "p25": 1.3673670426909625,
+          "p45": 8.07677583377523,
+          "p50": 9.823166695716196,
+          "p55": 10.481742712959377,
+          "p75": 15.071440407461331,
+          "p90": 21.639680293321764,
+          "p95": 29.556281058424492,
+          "p99": 34.91698863145552
+        },
+        "by_30s_segment": [
+          {
+            "t_offset_s": 0.0,
+            "samples": 907,
+            "median_m": 1.4160653828109353,
+            "p95_m": 17.595131761039315
+          },
+          {
+            "t_offset_s": 30.0,
+            "samples": 904,
+            "median_m": 12.488898409915137,
+            "p95_m": 21.810958465352034
+          },
+          {
+            "t_offset_s": 60.0,
+            "samples": 906,
+            "median_m": 1.3590287969349757,
+            "p95_m": 20.22099087550209
+          },
+          {
+            "t_offset_s": 90.0,
+            "samples": 900,
+            "median_m": 1.3137508336485761,
+            "p95_m": 3.055412514716271
+          },
+          {
+            "t_offset_s": 120.0,
+            "samples": 899,
+            "median_m": 12.129649870085643,
+            "p95_m": 33.67103077734151
+          },
+          {
+            "t_offset_s": 150.0,
+            "samples": 900,
+            "median_m": 18.55852405778559,
+            "p95_m": 34.82615519230267
+          },
+          {
+            "t_offset_s": 180.0,
+            "samples": 72,
+            "median_m": 9.470761424639488,
+            "p95_m": 9.549226671860763
+          }
+        ],
+        "registration_floor_m": 0.349
+      },
+      "inside_cover": {
+        "samples": 1512,
+        "median_m": 14.65911491394604,
+        "p95_m": 34.52810397029679,
+        "max_m": 35.19825610839623,
+        "percentile_curve": {
+          "p5": 2.5326654157054014,
+          "p25": 10.475457793924118,
+          "p45": 13.043694793306516,
+          "p50": 14.65911491394604,
+          "p55": 18.436310991862705,
+          "p75": 25.380371133741797,
+          "p90": 32.91344995855208,
+          "p95": 34.52810397029679,
+          "p99": 35.153143746254926
+        },
+        "by_30s_segment": [
+          {
+            "t_offset_s": 0.0,
+            "samples": 900,
+            "median_m": 10.854665040753705,
+            "p95_m": 23.349291732710117
+          },
+          {
+            "t_offset_s": 30.0,
+            "samples": 612,
+            "median_m": 27.607794663624237,
+            "p95_m": 35.12079895886059
+          }
+        ],
+        "registration_floor_m": 0.349
+      },
+      "cover_segment": {
+        "enter_timestamp": 1614256872.739383,
+        "exit_timestamp": 1614256923.1305017,
+        "duration_s": 50.39111876487732,
+        "reference_path_length_m": 247.94459869130986,
+        "exit_error_m": 18.218799836023358,
+        "exit_drift_percent": 7.347931728371989,
+        "gps_states_seen": [
+          "DEGRADED",
+          "GOOD",
+          "LOST",
+          "RECOVERING"
+        ]
+      },
+      "relock_after_exit": {
+        "anchor_timestamp": 1614256923.1305017,
+        "error_after_2s_m": 17.464959196327396,
+        "time_to_stable_5m_seconds": null,
+        "error_at_stable_m": null
+      },
+      "landmark": {
+        "queries": 0,
+        "verified_matches": 0,
+        "accepted": 0,
+        "nis_rejected": 0,
+        "no_verified_match": 0,
+        "queries_inside_cover": 0,
+        "accepted_inside_cover": 0,
+        "accepted_coverage_inside": null
+      },
+      "recovery_events": [
+        {
+          "timestamp": 1614256757.0081108,
+          "event": "episode_started",
+          "reset": false
+        },
+        {
+          "timestamp": 1614256757.1,
+          "event": "consensus_achieved",
+          "candidate_count": 1,
+          "radius_m": 0.0,
+          "fix_quality": 4,
+          "hdop": 0.9,
+          "satellites": 16
+        },
+        {
+          "timestamp": 1614256757.5,
+          "event": "episode_completed",
+          "outcome": "consensus_settled",
+          "terminal": true,
+          "gap_m": 0.0005928147891826253,
+          "consensus_achieved": true,
+          "latched_pose": null,
+          "latched_covariance": null,
+          "latched_timestamp": null
+        },
+        {
+          "timestamp": 1614256759.9,
+          "event": "episode_started",
+          "reset": false
+        },
+        {
+          "timestamp": 1614256760.0,
+          "event": "consensus_achieved",
+          "candidate_count": 1,
+          "radius_m": 0.0,
+          "fix_quality": 4,
+          "hdop": 0.9,
+          "satellites": 16
+        },
+        {
+          "timestamp": 1614256760.4,
+          "event": "episode_completed",
+          "outcome": "consensus_settled",
+          "terminal": true,
+          "gap_m": 0.8154125120053115,
+          "consensus_achieved": true,
+          "latched_pose": [
+            -1029.6645459329234,
+            236.55593214208767,
+            0.01016931364674667
+          ],
+          "latched_covariance": [
+            [
+              0.06449498193723983,
+              2.53312352897582e-06
+            ],
+            [
+              2.53312352897582e-06,
+              0.05565831376012795
+            ]
+          ],
+          "latched_timestamp": 1614256759.9
+        },
+        {
+          "timestamp": 1614256760.7,
+          "event": "episode_started",
+          "reset": false
+        },
+        {
+          "timestamp": 1614256761.9251225,
+          "event": "episode_started",
+          "reset": true
+        },
+        {
+          "timestamp": 1614256766.9411345,
+          "event": "consensus_timeout",
+          "candidate_count": 0
+        },
+        {
+          "timestamp": 1614256767.7,
+          "event": "consensus_achieved",
+          "candidate_count": 1,
+          "radius_m": 0.0,
+          "fix_quality": 4,
+          "hdop": 0.9,
+          "satellites": 16
+        },
+        {
+          "timestamp": 1614256768.987139,
+          "event": "episode_completed",
+          "outcome": "consensus_settled",
+          "terminal": true,
+          "gap_m": 0.9525320564959676,
+          "consensus_achieved": true,
+          "latched_pose": [
+            -1025.5729553287395,
+            237.74004285727156,
+            0.4426357599932116
+          ],
+          "latched_covariance": [
+            [
+              0.249957861392747,
+              -0.004283211882121697
+            ],
+            [
+              -0.004283211882121695,
+              0.24736795948891963
+            ]
+          ],
+          "latched_timestamp": 1614256760.7
+        },
+        {
+          "timestamp": 1614256783.2,
+          "event": "episode_started",
+          "reset": false
+        },
+        {
+          "timestamp": 1614256784.8,
+          "event": "episode_started",
+          "reset": true
+        },
+        {
+          "timestamp": 1614256789.8101878,
+          "event": "consensus_timeout",
+          "candidate_count": 0
+        },
+        {
+          "timestamp": 1614256792.483194,
+          "event": "episode_completed",
+          "outcome": "timeout_settled_low_confidence",
+          "terminal": true,
+          "gap_m": 0.9895729618366202,
+          "consensus_achieved": false,
+          "latched_pose": [
+            -994.1049370178135,
+            243.3810154814426,
+            -0.3087988418732781
+          ],
+          "latched_covariance": [
+            [
+              5.943814652831811,
+              3.0694298202043133
+            ],
+            [
+              3.0694298202043133,
+              41.72837702437597
+            ]
+          ],
+          "latched_timestamp": 1614256783.2
+        },
+        {
+          "timestamp": 1614256801.7,
+          "event": "episode_started",
+          "reset": false
+        },
+        {
+          "timestamp": 1614256806.7062278,
+          "event": "consensus_timeout",
+          "candidate_count": 0
+        },
+        {
+          "timestamp": 1614256807.4,
+          "event": "episode_started",
+          "reset": true
+        },
+        {
+          "timestamp": 1614256811.9,
+          "event": "episode_started",
+          "reset": true
+        },
+        {
+          "timestamp": 1614256814.9,
+          "event": "episode_started",
+          "reset": true
+        },
+        {
+          "timestamp": 1614256819.9062583,
+          "event": "consensus_timeout",
+          "candidate_count": 0
+        },
+        {
+          "timestamp": 1614256819.9062583,
+          "event": "episode_completed",
+          "outcome": "timeout_settled_low_confidence",
+          "terminal": true,
+          "gap_m": 0.8118444440473208,
+          "consensus_achieved": false,
+          "latched_pose": [
+            -963.6155605822503,
+            239.24310171769525,
+            -1.0679722027960228
+          ],
+          "latched_covariance": [
+            [
+              43.52283012694268,
+              35.86526413380533
+            ],
+            [
+              35.86526413380533,
+              87.75594040000698
+            ]
+          ],
+          "latched_timestamp": 1614256816.7
+        },
+        {
+          "timestamp": 1614256874.9,
+          "event": "episode_started",
+          "reset": false
+        },
+        {
+          "timestamp": 1614256879.9004,
+          "event": "consensus_timeout",
+          "candidate_count": 0
+        },
+        {
+          "timestamp": 1614256880.6,
+          "event": "episode_started",
+          "reset": true
+        },
+        {
+          "timestamp": 1614256881.7,
+          "event": "episode_started",
+          "reset": true
+        },
+        {
+          "timestamp": 1614256886.7314157,
+          "event": "consensus_timeout",
+          "candidate_count": 0
+        },
+        {
+          "timestamp": 1614256891.7144277,
+          "event": "recovery_unconverged",
+          "outcome": "unconverged",
+          "terminal": false,
+          "gap_m": 33.300323890017154,
+          "consensus_achieved": false
+        },
+        {
+          "timestamp": 1614256892.3,
+          "event": "episode_started",
+          "reset": true
+        },
+        {
+          "timestamp": 1614256897.3244407,
+          "event": "consensus_timeout",
+          "candidate_count": 0
+        },
+        {
+          "timestamp": 1614256902.3074524,
+          "event": "recovery_unconverged",
+          "outcome": "unconverged",
+          "terminal": false,
+          "gap_m": 1.5171561727291205,
+          "consensus_achieved": false
+        },
+        {
+          "timestamp": 1614256931.6,
+          "event": "consensus_achieved",
+          "candidate_count": 1,
+          "radius_m": 0.0,
+          "fix_quality": 2,
+          "hdop": 1.0,
+          "satellites": 12
+        },
+        {
+          "timestamp": 1614256933.4265256,
+          "event": "episode_completed",
+          "outcome": "consensus_settled",
+          "terminal": true,
+          "gap_m": 0.9640974612064486,
+          "consensus_achieved": true,
+          "latched_pose": [
+            -1022.5554559177018,
+            252.79233338776984,
+            -2.571981633029659
+          ],
+          "latched_covariance": [
+            [
+              301.79421288323704,
+              287.5432894415121
+            ],
+            [
+              287.5432894415121,
+              425.54612309782914
+            ]
+          ],
+          "latched_timestamp": 1614256928.1
+        }
+      ]
+    },
+    "sweep_count3_radius8": {
+      "configuration": "sweep_count3_radius8",
+      "whole_track": {
+        "samples": 5488,
+        "median_m": 9.853030614555161,
+        "p95_m": 29.556281058424492,
+        "max_m": 1056.1517205105301,
+        "percentile_curve": {
+          "p5": 0.6409430864562982,
+          "p25": 1.3680688068403508,
+          "p45": 8.095357882471689,
+          "p50": 9.853030614555161,
+          "p55": 10.49929736689955,
+          "p75": 15.071440407461331,
+          "p90": 21.639680293321764,
+          "p95": 29.556281058424492,
+          "p99": 34.91698863145552
+        },
+        "by_30s_segment": [
+          {
+            "t_offset_s": 0.0,
+            "samples": 907,
+            "median_m": 1.4189670504756746,
+            "p95_m": 17.606972791739018
+          },
+          {
+            "t_offset_s": 30.0,
+            "samples": 904,
+            "median_m": 12.488898409915137,
+            "p95_m": 21.810958465352034
+          },
+          {
+            "t_offset_s": 60.0,
+            "samples": 906,
+            "median_m": 1.3590287969349757,
+            "p95_m": 20.22099087550209
+          },
+          {
+            "t_offset_s": 90.0,
+            "samples": 900,
+            "median_m": 1.3137508336485761,
+            "p95_m": 3.055412514716271
+          },
+          {
+            "t_offset_s": 120.0,
+            "samples": 899,
+            "median_m": 12.129649870085643,
+            "p95_m": 33.67103077734151
+          },
+          {
+            "t_offset_s": 150.0,
+            "samples": 900,
+            "median_m": 18.55852405778559,
+            "p95_m": 34.82615519230267
+          },
+          {
+            "t_offset_s": 180.0,
+            "samples": 72,
+            "median_m": 9.470761424639488,
+            "p95_m": 9.549226671860763
+          }
+        ],
+        "registration_floor_m": 0.349
+      },
+      "inside_cover": {
+        "samples": 1512,
+        "median_m": 14.65911491394604,
+        "p95_m": 34.52810397029679,
+        "max_m": 35.19825610839623,
+        "percentile_curve": {
+          "p5": 2.5326654157054014,
+          "p25": 10.475457793924118,
+          "p45": 13.043694793306516,
+          "p50": 14.65911491394604,
+          "p55": 18.436310991862705,
+          "p75": 25.380371133741797,
+          "p90": 32.91344995855208,
+          "p95": 34.52810397029679,
+          "p99": 35.153143746254926
+        },
+        "by_30s_segment": [
+          {
+            "t_offset_s": 0.0,
+            "samples": 900,
+            "median_m": 10.854665040753705,
+            "p95_m": 23.349291732710117
+          },
+          {
+            "t_offset_s": 30.0,
+            "samples": 612,
+            "median_m": 27.607794663624237,
+            "p95_m": 35.12079895886059
+          }
+        ],
+        "registration_floor_m": 0.349
+      },
+      "cover_segment": {
+        "enter_timestamp": 1614256872.739383,
+        "exit_timestamp": 1614256923.1305017,
+        "duration_s": 50.39111876487732,
+        "reference_path_length_m": 247.94459869130986,
+        "exit_error_m": 18.218799836023358,
+        "exit_drift_percent": 7.347931728371989,
+        "gps_states_seen": [
+          "DEGRADED",
+          "GOOD",
+          "LOST",
+          "RECOVERING"
+        ]
+      },
+      "relock_after_exit": {
+        "anchor_timestamp": 1614256923.1305017,
+        "error_after_2s_m": 17.464959196327396,
+        "time_to_stable_5m_seconds": null,
+        "error_at_stable_m": null
+      },
+      "landmark": {
+        "queries": 0,
+        "verified_matches": 0,
+        "accepted": 0,
+        "nis_rejected": 0,
+        "no_verified_match": 0,
+        "queries_inside_cover": 0,
+        "accepted_inside_cover": 0,
+        "accepted_coverage_inside": null
+      },
+      "recovery_events": [
+        {
+          "timestamp": 1614256757.0081108,
+          "event": "episode_started",
+          "reset": false
+        },
+        {
+          "timestamp": 1614256757.3,
+          "event": "consensus_achieved",
+          "candidate_count": 3,
+          "radius_m": 0.000746737890294094,
+          "fix_quality": 4,
+          "hdop": 0.9,
+          "satellites": 16
+        },
+        {
+          "timestamp": 1614256757.5,
+          "event": "episode_completed",
+          "outcome": "consensus_settled",
+          "terminal": true,
+          "gap_m": 0.0012999031333003975,
+          "consensus_achieved": true,
+          "latched_pose": null,
+          "latched_covariance": null,
+          "latched_timestamp": null
+        },
+        {
+          "timestamp": 1614256759.9,
+          "event": "episode_started",
+          "reset": false
+        },
+        {
+          "timestamp": 1614256760.2,
+          "event": "consensus_achieved",
+          "candidate_count": 3,
+          "radius_m": 0.039912919492681574,
+          "fix_quality": 4,
+          "hdop": 0.9,
+          "satellites": 16
+        },
+        {
+          "timestamp": 1614256760.4,
+          "event": "episode_completed",
+          "outcome": "consensus_settled",
+          "terminal": true,
+          "gap_m": 0.8300547706043188,
+          "consensus_achieved": true,
+          "latched_pose": [
+            -1029.664545932914,
+            236.5559321422451,
+            0.01016931364674667
+          ],
+          "latched_covariance": [
+            [
+              0.06449498193723983,
+              2.53312352897582e-06
+            ],
+            [
+              2.53312352897582e-06,
+              0.05565831376012795
+            ]
+          ],
+          "latched_timestamp": 1614256759.9
+        },
+        {
+          "timestamp": 1614256760.7,
+          "event": "episode_started",
+          "reset": false
+        },
+        {
+          "timestamp": 1614256761.9251225,
+          "event": "episode_started",
+          "reset": true
+        },
+        {
+          "timestamp": 1614256766.9411345,
+          "event": "consensus_timeout",
+          "candidate_count": 0
+        },
+        {
+          "timestamp": 1614256767.9,
+          "event": "consensus_achieved",
+          "candidate_count": 3,
+          "radius_m": 0.052798621668634055,
+          "fix_quality": 4,
+          "hdop": 0.9,
+          "satellites": 16
+        },
+        {
+          "timestamp": 1614256769.1,
+          "event": "episode_completed",
+          "outcome": "consensus_settled",
+          "terminal": true,
+          "gap_m": 0.9668147135408385,
+          "consensus_achieved": true,
+          "latched_pose": [
+            -1025.5621949802382,
+            237.73013810862034,
+            0.4426357599932116
+          ],
+          "latched_covariance": [
+            [
+              0.249957861392747,
+              -0.004283211882121697
+            ],
+            [
+              -0.004283211882121695,
+              0.24736795948891963
+            ]
+          ],
+          "latched_timestamp": 1614256760.7
+        },
+        {
+          "timestamp": 1614256783.2,
+          "event": "episode_started",
+          "reset": false
+        },
+        {
+          "timestamp": 1614256784.8,
+          "event": "episode_started",
+          "reset": true
+        },
+        {
+          "timestamp": 1614256789.8101878,
+          "event": "consensus_timeout",
+          "candidate_count": 0
+        },
+        {
+          "timestamp": 1614256792.483194,
+          "event": "episode_completed",
+          "outcome": "timeout_settled_low_confidence",
+          "terminal": true,
+          "gap_m": 0.9895729618366202,
+          "consensus_achieved": false,
+          "latched_pose": [
+            -994.1049370178135,
+            243.3810154814426,
+            -0.3087988418732781
+          ],
+          "latched_covariance": [
+            [
+              5.943814652831811,
+              3.0694298202043133
+            ],
+            [
+              3.0694298202043133,
+              41.72837702437597
+            ]
+          ],
+          "latched_timestamp": 1614256783.2
+        },
+        {
+          "timestamp": 1614256801.7,
+          "event": "episode_started",
+          "reset": false
+        },
+        {
+          "timestamp": 1614256806.7062278,
+          "event": "consensus_timeout",
+          "candidate_count": 0
+        },
+        {
+          "timestamp": 1614256807.4,
+          "event": "episode_started",
+          "reset": true
+        },
+        {
+          "timestamp": 1614256811.9,
+          "event": "episode_started",
+          "reset": true
+        },
+        {
+          "timestamp": 1614256814.9,
+          "event": "episode_started",
+          "reset": true
+        },
+        {
+          "timestamp": 1614256819.9062583,
+          "event": "consensus_timeout",
+          "candidate_count": 0
+        },
+        {
+          "timestamp": 1614256819.9062583,
+          "event": "episode_completed",
+          "outcome": "timeout_settled_low_confidence",
+          "terminal": true,
+          "gap_m": 0.8118444440473208,
+          "consensus_achieved": false,
+          "latched_pose": [
+            -963.6155605822503,
+            239.24310171769525,
+            -1.0679722027960228
+          ],
+          "latched_covariance": [
+            [
+              43.52283012694268,
+              35.86526413380533
+            ],
+            [
+              35.86526413380533,
+              87.75594040000698
+            ]
+          ],
+          "latched_timestamp": 1614256816.7
+        },
+        {
+          "timestamp": 1614256874.9,
+          "event": "episode_started",
+          "reset": false
+        },
+        {
+          "timestamp": 1614256879.9004,
+          "event": "consensus_timeout",
+          "candidate_count": 0
+        },
+        {
+          "timestamp": 1614256880.6,
+          "event": "episode_started",
+          "reset": true
+        },
+        {
+          "timestamp": 1614256881.7,
+          "event": "episode_started",
+          "reset": true
+        },
+        {
+          "timestamp": 1614256886.7314157,
+          "event": "consensus_timeout",
+          "candidate_count": 0
+        },
+        {
+          "timestamp": 1614256891.7144277,
+          "event": "recovery_unconverged",
+          "outcome": "unconverged",
+          "terminal": false,
+          "gap_m": 33.300323890017154,
+          "consensus_achieved": false
+        },
+        {
+          "timestamp": 1614256892.3,
+          "event": "episode_started",
+          "reset": true
+        },
+        {
+          "timestamp": 1614256897.3244407,
+          "event": "consensus_timeout",
+          "candidate_count": 0
+        },
+        {
+          "timestamp": 1614256902.3074524,
+          "event": "recovery_unconverged",
+          "outcome": "unconverged",
+          "terminal": false,
+          "gap_m": 1.5171561727291205,
+          "consensus_achieved": false
+        },
+        {
+          "timestamp": 1614256931.8,
+          "event": "consensus_achieved",
+          "candidate_count": 3,
+          "radius_m": 0.07275899693976243,
+          "fix_quality": 2,
+          "hdop": 1.0,
+          "satellites": 12
+        },
+        {
+          "timestamp": 1614256933.5915258,
+          "event": "episode_completed",
+          "outcome": "consensus_settled",
+          "terminal": true,
+          "gap_m": 0.9130027004725341,
+          "consensus_achieved": true,
+          "latched_pose": [
+            -1022.5554559177018,
+            252.79233338776984,
+            -2.571981633029659
+          ],
+          "latched_covariance": [
+            [
+              301.79421288323704,
+              287.5432894415121
+            ],
+            [
+              287.5432894415121,
+              425.54612309782914
+            ]
+          ],
+          "latched_timestamp": 1614256928.1
+        }
+      ]
+    },
+    "sweep_count1_radius8": {
+      "configuration": "sweep_count1_radius8",
+      "whole_track": {
+        "samples": 5488,
+        "median_m": 9.823166695716196,
+        "p95_m": 29.556281058424492,
+        "max_m": 1056.1517205105301,
+        "percentile_curve": {
+          "p5": 0.6382920125573706,
+          "p25": 1.3673670426909625,
+          "p45": 8.07677583377523,
+          "p50": 9.823166695716196,
+          "p55": 10.481742712959377,
+          "p75": 15.071440407461331,
+          "p90": 21.639680293321764,
+          "p95": 29.556281058424492,
+          "p99": 34.91698863145552
+        },
+        "by_30s_segment": [
+          {
+            "t_offset_s": 0.0,
+            "samples": 907,
+            "median_m": 1.4160653828109353,
+            "p95_m": 17.595131761039315
+          },
+          {
+            "t_offset_s": 30.0,
+            "samples": 904,
+            "median_m": 12.488898409915137,
+            "p95_m": 21.810958465352034
+          },
+          {
+            "t_offset_s": 60.0,
+            "samples": 906,
+            "median_m": 1.3590287969349757,
+            "p95_m": 20.22099087550209
+          },
+          {
+            "t_offset_s": 90.0,
+            "samples": 900,
+            "median_m": 1.3137508336485761,
+            "p95_m": 3.055412514716271
+          },
+          {
+            "t_offset_s": 120.0,
+            "samples": 899,
+            "median_m": 12.129649870085643,
+            "p95_m": 33.67103077734151
+          },
+          {
+            "t_offset_s": 150.0,
+            "samples": 900,
+            "median_m": 18.55852405778559,
+            "p95_m": 34.82615519230267
+          },
+          {
+            "t_offset_s": 180.0,
+            "samples": 72,
+            "median_m": 9.470761424639488,
+            "p95_m": 9.549226671860763
+          }
+        ],
+        "registration_floor_m": 0.349
+      },
+      "inside_cover": {
+        "samples": 1512,
+        "median_m": 14.65911491394604,
+        "p95_m": 34.52810397029679,
+        "max_m": 35.19825610839623,
+        "percentile_curve": {
+          "p5": 2.5326654157054014,
+          "p25": 10.475457793924118,
+          "p45": 13.043694793306516,
+          "p50": 14.65911491394604,
+          "p55": 18.436310991862705,
+          "p75": 25.380371133741797,
+          "p90": 32.91344995855208,
+          "p95": 34.52810397029679,
+          "p99": 35.153143746254926
+        },
+        "by_30s_segment": [
+          {
+            "t_offset_s": 0.0,
+            "samples": 900,
+            "median_m": 10.854665040753705,
+            "p95_m": 23.349291732710117
+          },
+          {
+            "t_offset_s": 30.0,
+            "samples": 612,
+            "median_m": 27.607794663624237,
+            "p95_m": 35.12079895886059
+          }
+        ],
+        "registration_floor_m": 0.349
+      },
+      "cover_segment": {
+        "enter_timestamp": 1614256872.739383,
+        "exit_timestamp": 1614256923.1305017,
+        "duration_s": 50.39111876487732,
+        "reference_path_length_m": 247.94459869130986,
+        "exit_error_m": 18.218799836023358,
+        "exit_drift_percent": 7.347931728371989,
+        "gps_states_seen": [
+          "DEGRADED",
+          "GOOD",
+          "LOST",
+          "RECOVERING"
+        ]
+      },
+      "relock_after_exit": {
+        "anchor_timestamp": 1614256923.1305017,
+        "error_after_2s_m": 17.464959196327396,
+        "time_to_stable_5m_seconds": null,
+        "error_at_stable_m": null
+      },
+      "landmark": {
+        "queries": 0,
+        "verified_matches": 0,
+        "accepted": 0,
+        "nis_rejected": 0,
+        "no_verified_match": 0,
+        "queries_inside_cover": 0,
+        "accepted_inside_cover": 0,
+        "accepted_coverage_inside": null
+      },
+      "recovery_events": [
+        {
+          "timestamp": 1614256757.0081108,
+          "event": "episode_started",
+          "reset": false
+        },
+        {
+          "timestamp": 1614256757.1,
+          "event": "consensus_achieved",
+          "candidate_count": 1,
+          "radius_m": 0.0,
+          "fix_quality": 4,
+          "hdop": 0.9,
+          "satellites": 16
+        },
+        {
+          "timestamp": 1614256757.5,
+          "event": "episode_completed",
+          "outcome": "consensus_settled",
+          "terminal": true,
+          "gap_m": 0.0005928147891826253,
+          "consensus_achieved": true,
+          "latched_pose": null,
+          "latched_covariance": null,
+          "latched_timestamp": null
+        },
+        {
+          "timestamp": 1614256759.9,
+          "event": "episode_started",
+          "reset": false
+        },
+        {
+          "timestamp": 1614256760.0,
+          "event": "consensus_achieved",
+          "candidate_count": 1,
+          "radius_m": 0.0,
+          "fix_quality": 4,
+          "hdop": 0.9,
+          "satellites": 16
+        },
+        {
+          "timestamp": 1614256760.4,
+          "event": "episode_completed",
+          "outcome": "consensus_settled",
+          "terminal": true,
+          "gap_m": 0.8154125120053115,
+          "consensus_achieved": true,
+          "latched_pose": [
+            -1029.6645459329234,
+            236.55593214208767,
+            0.01016931364674667
+          ],
+          "latched_covariance": [
+            [
+              0.06449498193723983,
+              2.53312352897582e-06
+            ],
+            [
+              2.53312352897582e-06,
+              0.05565831376012795
+            ]
+          ],
+          "latched_timestamp": 1614256759.9
+        },
+        {
+          "timestamp": 1614256760.7,
+          "event": "episode_started",
+          "reset": false
+        },
+        {
+          "timestamp": 1614256761.9251225,
+          "event": "episode_started",
+          "reset": true
+        },
+        {
+          "timestamp": 1614256766.9411345,
+          "event": "consensus_timeout",
+          "candidate_count": 0
+        },
+        {
+          "timestamp": 1614256767.7,
+          "event": "consensus_achieved",
+          "candidate_count": 1,
+          "radius_m": 0.0,
+          "fix_quality": 4,
+          "hdop": 0.9,
+          "satellites": 16
+        },
+        {
+          "timestamp": 1614256768.987139,
+          "event": "episode_completed",
+          "outcome": "consensus_settled",
+          "terminal": true,
+          "gap_m": 0.9525320564959676,
+          "consensus_achieved": true,
+          "latched_pose": [
+            -1025.5729553287395,
+            237.74004285727156,
+            0.4426357599932116
+          ],
+          "latched_covariance": [
+            [
+              0.249957861392747,
+              -0.004283211882121697
+            ],
+            [
+              -0.004283211882121695,
+              0.24736795948891963
+            ]
+          ],
+          "latched_timestamp": 1614256760.7
+        },
+        {
+          "timestamp": 1614256783.2,
+          "event": "episode_started",
+          "reset": false
+        },
+        {
+          "timestamp": 1614256784.8,
+          "event": "episode_started",
+          "reset": true
+        },
+        {
+          "timestamp": 1614256789.8101878,
+          "event": "consensus_timeout",
+          "candidate_count": 0
+        },
+        {
+          "timestamp": 1614256792.483194,
+          "event": "episode_completed",
+          "outcome": "timeout_settled_low_confidence",
+          "terminal": true,
+          "gap_m": 0.9895729618366202,
+          "consensus_achieved": false,
+          "latched_pose": [
+            -994.1049370178135,
+            243.3810154814426,
+            -0.3087988418732781
+          ],
+          "latched_covariance": [
+            [
+              5.943814652831811,
+              3.0694298202043133
+            ],
+            [
+              3.0694298202043133,
+              41.72837702437597
+            ]
+          ],
+          "latched_timestamp": 1614256783.2
+        },
+        {
+          "timestamp": 1614256801.7,
+          "event": "episode_started",
+          "reset": false
+        },
+        {
+          "timestamp": 1614256806.7062278,
+          "event": "consensus_timeout",
+          "candidate_count": 0
+        },
+        {
+          "timestamp": 1614256807.4,
+          "event": "episode_started",
+          "reset": true
+        },
+        {
+          "timestamp": 1614256811.9,
+          "event": "episode_started",
+          "reset": true
+        },
+        {
+          "timestamp": 1614256814.9,
+          "event": "episode_started",
+          "reset": true
+        },
+        {
+          "timestamp": 1614256819.9062583,
+          "event": "consensus_timeout",
+          "candidate_count": 0
+        },
+        {
+          "timestamp": 1614256819.9062583,
+          "event": "episode_completed",
+          "outcome": "timeout_settled_low_confidence",
+          "terminal": true,
+          "gap_m": 0.8118444440473208,
+          "consensus_achieved": false,
+          "latched_pose": [
+            -963.6155605822503,
+            239.24310171769525,
+            -1.0679722027960228
+          ],
+          "latched_covariance": [
+            [
+              43.52283012694268,
+              35.86526413380533
+            ],
+            [
+              35.86526413380533,
+              87.75594040000698
+            ]
+          ],
+          "latched_timestamp": 1614256816.7
+        },
+        {
+          "timestamp": 1614256874.9,
+          "event": "episode_started",
+          "reset": false
+        },
+        {
+          "timestamp": 1614256879.9004,
+          "event": "consensus_timeout",
+          "candidate_count": 0
+        },
+        {
+          "timestamp": 1614256880.6,
+          "event": "episode_started",
+          "reset": true
+        },
+        {
+          "timestamp": 1614256881.7,
+          "event": "episode_started",
+          "reset": true
+        },
+        {
+          "timestamp": 1614256886.7314157,
+          "event": "consensus_timeout",
+          "candidate_count": 0
+        },
+        {
+          "timestamp": 1614256891.7144277,
+          "event": "recovery_unconverged",
+          "outcome": "unconverged",
+          "terminal": false,
+          "gap_m": 33.300323890017154,
+          "consensus_achieved": false
+        },
+        {
+          "timestamp": 1614256892.3,
+          "event": "episode_started",
+          "reset": true
+        },
+        {
+          "timestamp": 1614256897.3244407,
+          "event": "consensus_timeout",
+          "candidate_count": 0
+        },
+        {
+          "timestamp": 1614256902.3074524,
+          "event": "recovery_unconverged",
+          "outcome": "unconverged",
+          "terminal": false,
+          "gap_m": 1.5171561727291205,
+          "consensus_achieved": false
+        },
+        {
+          "timestamp": 1614256931.6,
+          "event": "consensus_achieved",
+          "candidate_count": 1,
+          "radius_m": 0.0,
+          "fix_quality": 2,
+          "hdop": 1.0,
+          "satellites": 12
+        },
+        {
+          "timestamp": 1614256933.4265256,
+          "event": "episode_completed",
+          "outcome": "consensus_settled",
+          "terminal": true,
+          "gap_m": 0.9640974612064486,
+          "consensus_achieved": true,
+          "latched_pose": [
+            -1022.5554559177018,
+            252.79233338776984,
+            -2.571981633029659
+          ],
+          "latched_covariance": [
+            [
+              301.79421288323704,
+              287.5432894415121
+            ],
+            [
+              287.5432894415121,
+              425.54612309782914
+            ]
+          ],
+          "latched_timestamp": 1614256928.1
+        }
+      ]
+    }
+  },
+  "limitations": [
+    "A và B đo outage GPS THẬT (35,4 s). C cắt GPS nhân tạo trên toàn đoạn có mái (50,4 s) để dựng kịch bản thuần visual.",
+    "Segment vào/ra hầm chốt ở gate #1 bằng exposure + ảnh biên, không trim theo error.",
+    "Median toàn tuyến của recording này mong manh (gate #2: p45 5,49 m vs p55 9,96 m); dùng percentile curve và error theo đoạn 30 s.",
+    "Dataset không có lux metadata nên không claim '<10 lux' hay IR."
+  ]
+}

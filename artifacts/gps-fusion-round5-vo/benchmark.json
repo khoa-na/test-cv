@@ -1,0 +1,1023 @@
+{
+  "method": "local vo odometry EKF + GPS integrity + smoothed map->odom",
+  "kpi": {
+    "handover_target_seconds": 2.0,
+    "relock_target_error_m": 5.0,
+    "correction_discontinuity_target_m": 0.5
+  },
+  "cases": {
+    "garage_2_real_nmea": {
+      "frames": 5486,
+      "duration_seconds": 182.29242849349976,
+      "trajectory_error_m": {
+        "median": 8.942580118744054,
+        "p95": 29.662031467745003,
+        "final": 10.17444525934443
+      },
+      "handover": {
+        "events": [
+          {
+            "timestamp": 1614256783.3,
+            "kind": "quality_degraded",
+            "detected_state": "DEGRADED",
+            "latency_seconds": 0.0
+          },
+          {
+            "timestamp": 1614256784.3,
+            "kind": "quality_degraded",
+            "detected_state": "DEGRADED",
+            "latency_seconds": 0.0
+          },
+          {
+            "timestamp": 1614256801.8,
+            "kind": "quality_degraded",
+            "detected_state": "DEGRADED",
+            "latency_seconds": 0.0
+          },
+          {
+            "timestamp": 1614256807.3,
+            "kind": "fix_quality_zero",
+            "detected_state": "DEGRADED",
+            "latency_seconds": 0.0
+          },
+          {
+            "timestamp": 1614256811.8,
+            "kind": "fix_quality_zero",
+            "detected_state": "DEGRADED",
+            "latency_seconds": 0.0
+          },
+          {
+            "timestamp": 1614256814.8,
+            "kind": "fix_quality_zero",
+            "detected_state": "DEGRADED",
+            "latency_seconds": 0.0
+          },
+          {
+            "timestamp": 1614256816.8,
+            "kind": "quality_degraded",
+            "detected_state": "DEGRADED",
+            "latency_seconds": 0.0
+          },
+          {
+            "timestamp": 1614256875.0,
+            "kind": "fix_quality_zero",
+            "detected_state": "DEGRADED",
+            "latency_seconds": 0.0
+          },
+          {
+            "timestamp": 1614256879.6,
+            "kind": "quality_degraded",
+            "detected_state": "DEGRADED",
+            "latency_seconds": 0.0
+          },
+          {
+            "timestamp": 1614256880.5,
+            "kind": "fix_quality_zero",
+            "detected_state": "DEGRADED",
+            "latency_seconds": 0.0
+          },
+          {
+            "timestamp": 1614256881.6,
+            "kind": "fix_quality_zero",
+            "detected_state": "DEGRADED",
+            "latency_seconds": 0.0
+          },
+          {
+            "timestamp": 1614256892.0,
+            "kind": "quality_degraded",
+            "detected_state": "DEGRADED",
+            "latency_seconds": 0.0
+          },
+          {
+            "timestamp": 1614256928.1999998,
+            "kind": "quality_degraded",
+            "detected_state": "DEGRADED",
+            "latency_seconds": 0.0
+          }
+        ],
+        "max_latency_seconds": 0.0,
+        "within_2_seconds": true
+      },
+      "relock": {
+        "events": [
+          {
+            "lost_timestamp": 1614256784.8999999,
+            "recovering_timestamp": 1614256789.6999998,
+            "recovery_anchor_timestamp": 1614256789.6999998,
+            "good_timestamp": 1614256790.1,
+            "error_after_2s_m": 13.193882024107058,
+            "time_to_stable_5m_seconds": null,
+            "error_at_stable_m": null,
+            "gps_quality_counts_10s": {
+              "1": 101
+            }
+          },
+          {
+            "lost_timestamp": 1614256807.5,
+            "recovering_timestamp": 1614256807.6999998,
+            "recovery_anchor_timestamp": 1614256807.6999998,
+            "good_timestamp": 1614256808.1,
+            "error_after_2s_m": 13.303410847079887,
+            "time_to_stable_5m_seconds": null,
+            "error_at_stable_m": null,
+            "gps_quality_counts_10s": {
+              "0": 8,
+              "1": 93
+            }
+          },
+          {
+            "lost_timestamp": 1614256812.0,
+            "recovering_timestamp": 1614256812.1999998,
+            "recovery_anchor_timestamp": 1614256812.1999998,
+            "good_timestamp": 1614256812.6,
+            "error_after_2s_m": 20.329785741299357,
+            "time_to_stable_5m_seconds": null,
+            "error_at_stable_m": null,
+            "gps_quality_counts_10s": {
+              "0": 4,
+              "1": 97
+            }
+          },
+          {
+            "lost_timestamp": 1614256815.0,
+            "recovering_timestamp": 1614256815.1999998,
+            "recovery_anchor_timestamp": 1614256815.1999998,
+            "good_timestamp": 1614256815.6,
+            "error_after_2s_m": 20.759811466993053,
+            "time_to_stable_5m_seconds": null,
+            "error_at_stable_m": null,
+            "gps_quality_counts_10s": {
+              "1": 101
+            }
+          },
+          {
+            "lost_timestamp": 1614256880.6999998,
+            "recovering_timestamp": 1614256881.1999998,
+            "recovery_anchor_timestamp": 1614256881.1999998,
+            "good_timestamp": 1614256891.6,
+            "error_after_2s_m": 10.450351680695022,
+            "time_to_stable_5m_seconds": null,
+            "error_at_stable_m": null,
+            "gps_quality_counts_10s": {
+              "0": 96,
+              "1": 5
+            }
+          },
+          {
+            "lost_timestamp": 1614256892.3999999,
+            "recovering_timestamp": 1614256927.6999998,
+            "recovery_anchor_timestamp": 1614256927.6999998,
+            "good_timestamp": 1614256928.1,
+            "error_after_2s_m": 15.627595480456582,
+            "time_to_stable_5m_seconds": null,
+            "error_at_stable_m": null,
+            "gps_quality_counts_10s": {
+              "1": 40,
+              "2": 10,
+              "4": 31,
+              "5": 20
+            }
+          }
+        ],
+        "max_error_after_2s_m": 20.759811466993053,
+        "max_time_to_stable_5m_seconds": null,
+        "max_error_at_stable_m": null,
+        "all_stable_within_10s": false
+      },
+      "dropouts": [
+        {
+          "start": 1614256784.8999999,
+          "end": 1614256789.6999998,
+          "duration_seconds": 4.799999952316284,
+          "end_error_m": 5.526218151128511,
+          "path_length_m": 13.251233890830488,
+          "drift_ratio": 0.417034232182145
+        },
+        {
+          "start": 1614256807.5,
+          "end": 1614256807.6999998,
+          "duration_seconds": 0.19999980926513672,
+          "end_error_m": 11.00451919675487,
+          "path_length_m": 0.8935629324193813,
+          "drift_ratio": 12.315326428055156
+        },
+        {
+          "start": 1614256812.0,
+          "end": 1614256812.1999998,
+          "duration_seconds": 0.19999980926513672,
+          "end_error_m": 17.167406954543125,
+          "path_length_m": 0.6203244890174342,
+          "drift_ratio": 27.67488186986704
+        },
+        {
+          "start": 1614256815.0,
+          "end": 1614256815.1999998,
+          "duration_seconds": 0.19999980926513672,
+          "end_error_m": 21.10018053412565,
+          "path_length_m": 0.6231368166432115,
+          "drift_ratio": 33.861232349888496
+        },
+        {
+          "start": 1614256880.6999998,
+          "end": 1614256881.1999998,
+          "duration_seconds": 0.5,
+          "end_error_m": 15.366568701089559,
+          "path_length_m": 2.916238479166524,
+          "drift_ratio": 5.269311412927177
+        },
+        {
+          "start": 1614256881.8,
+          "end": 1614256891.1999998,
+          "duration_seconds": 9.399999856948853,
+          "end_error_m": 10.925566863509868,
+          "path_length_m": 52.57676651048899,
+          "drift_ratio": 0.20780218314357984
+        },
+        {
+          "start": 1614256892.3999999,
+          "end": 1614256927.6999998,
+          "duration_seconds": 35.299999952316284,
+          "end_error_m": 17.421583762928083,
+          "path_length_m": 163.41295597560088,
+          "drift_ratio": 0.1066107865127248
+        }
+      ],
+      "local_continuity": {
+        "max_correction_induced_discontinuity_m": 0.31754021611959643,
+        "within_0_5_m": true
+      },
+      "nis_by_state": {
+        "LOST": {
+          "measurements": 8,
+          "accepted": 8,
+          "accept_rate": 1.0
+        },
+        "RECOVERING": {
+          "measurements": 61,
+          "accepted": 61,
+          "accept_rate": 1.0
+        },
+        "GOOD": {
+          "measurements": 1189,
+          "accepted": 1180,
+          "accept_rate": 0.992430613961312
+        },
+        "DEGRADED": {
+          "measurements": 9,
+          "accepted": 9,
+          "accept_rate": 1.0
+        }
+      },
+      "transitions": [
+        {
+          "timestamp": 1614256757.1,
+          "previous": "LOST",
+          "current": "RECOVERING",
+          "reason": "valid_fix_returned"
+        },
+        {
+          "timestamp": 1614256757.5,
+          "previous": "RECOVERING",
+          "current": "GOOD",
+          "reason": "recovery_hysteresis_passed"
+        },
+        {
+          "timestamp": 1614256760.1999998,
+          "previous": "GOOD",
+          "current": "DEGRADED",
+          "reason": "nis_reject_streak"
+        },
+        {
+          "timestamp": 1614256760.3,
+          "previous": "DEGRADED",
+          "current": "RECOVERING",
+          "reason": "recovery_fix_accepted"
+        },
+        {
+          "timestamp": 1614256760.6999998,
+          "previous": "RECOVERING",
+          "current": "GOOD",
+          "reason": "recovery_hysteresis_passed"
+        },
+        {
+          "timestamp": 1614256761.0,
+          "previous": "GOOD",
+          "current": "DEGRADED",
+          "reason": "nis_reject_streak"
+        },
+        {
+          "timestamp": 1614256761.1,
+          "previous": "DEGRADED",
+          "current": "RECOVERING",
+          "reason": "recovery_fix_accepted"
+        },
+        {
+          "timestamp": 1614256761.5,
+          "previous": "RECOVERING",
+          "current": "GOOD",
+          "reason": "recovery_hysteresis_passed"
+        },
+        {
+          "timestamp": 1614256761.8,
+          "previous": "GOOD",
+          "current": "DEGRADED",
+          "reason": "nis_reject_streak"
+        },
+        {
+          "timestamp": 1614256761.8999999,
+          "previous": "DEGRADED",
+          "current": "RECOVERING",
+          "reason": "recovery_fix_accepted"
+        },
+        {
+          "timestamp": 1614256762.3,
+          "previous": "RECOVERING",
+          "current": "GOOD",
+          "reason": "recovery_hysteresis_passed"
+        },
+        {
+          "timestamp": 1614256783.3,
+          "previous": "GOOD",
+          "current": "DEGRADED",
+          "reason": "quality_gate_failed"
+        },
+        {
+          "timestamp": 1614256784.1999998,
+          "previous": "DEGRADED",
+          "current": "RECOVERING",
+          "reason": "recovery_fix_accepted"
+        },
+        {
+          "timestamp": 1614256784.3,
+          "previous": "RECOVERING",
+          "current": "DEGRADED",
+          "reason": "recovery_quality_gate_failed"
+        },
+        {
+          "timestamp": 1614256784.8999999,
+          "previous": "DEGRADED",
+          "current": "LOST",
+          "reason": "fix_quality_zero_confirmed"
+        },
+        {
+          "timestamp": 1614256789.6999998,
+          "previous": "LOST",
+          "current": "RECOVERING",
+          "reason": "valid_fix_returned"
+        },
+        {
+          "timestamp": 1614256790.1,
+          "previous": "RECOVERING",
+          "current": "GOOD",
+          "reason": "recovery_hysteresis_passed"
+        },
+        {
+          "timestamp": 1614256801.8,
+          "previous": "GOOD",
+          "current": "DEGRADED",
+          "reason": "quality_gate_failed"
+        },
+        {
+          "timestamp": 1614256802.1999998,
+          "previous": "DEGRADED",
+          "current": "RECOVERING",
+          "reason": "recovery_fix_accepted"
+        },
+        {
+          "timestamp": 1614256802.6,
+          "previous": "RECOVERING",
+          "current": "GOOD",
+          "reason": "recovery_hysteresis_passed"
+        },
+        {
+          "timestamp": 1614256807.3,
+          "previous": "GOOD",
+          "current": "DEGRADED",
+          "reason": "fix_quality_zero_degraded"
+        },
+        {
+          "timestamp": 1614256807.5,
+          "previous": "DEGRADED",
+          "current": "LOST",
+          "reason": "fix_quality_zero_confirmed"
+        },
+        {
+          "timestamp": 1614256807.6999998,
+          "previous": "LOST",
+          "current": "RECOVERING",
+          "reason": "valid_fix_returned"
+        },
+        {
+          "timestamp": 1614256808.1,
+          "previous": "RECOVERING",
+          "current": "GOOD",
+          "reason": "recovery_hysteresis_passed"
+        },
+        {
+          "timestamp": 1614256811.8,
+          "previous": "GOOD",
+          "current": "DEGRADED",
+          "reason": "fix_quality_zero_degraded"
+        },
+        {
+          "timestamp": 1614256812.0,
+          "previous": "DEGRADED",
+          "current": "LOST",
+          "reason": "fix_quality_zero_confirmed"
+        },
+        {
+          "timestamp": 1614256812.1999998,
+          "previous": "LOST",
+          "current": "RECOVERING",
+          "reason": "valid_fix_returned"
+        },
+        {
+          "timestamp": 1614256812.6,
+          "previous": "RECOVERING",
+          "current": "GOOD",
+          "reason": "recovery_hysteresis_passed"
+        },
+        {
+          "timestamp": 1614256814.8,
+          "previous": "GOOD",
+          "current": "DEGRADED",
+          "reason": "fix_quality_zero_degraded"
+        },
+        {
+          "timestamp": 1614256815.0,
+          "previous": "DEGRADED",
+          "current": "LOST",
+          "reason": "fix_quality_zero_confirmed"
+        },
+        {
+          "timestamp": 1614256815.1999998,
+          "previous": "LOST",
+          "current": "RECOVERING",
+          "reason": "valid_fix_returned"
+        },
+        {
+          "timestamp": 1614256815.6,
+          "previous": "RECOVERING",
+          "current": "GOOD",
+          "reason": "recovery_hysteresis_passed"
+        },
+        {
+          "timestamp": 1614256816.8,
+          "previous": "GOOD",
+          "current": "DEGRADED",
+          "reason": "quality_gate_failed"
+        },
+        {
+          "timestamp": 1614256817.1999998,
+          "previous": "DEGRADED",
+          "current": "RECOVERING",
+          "reason": "recovery_fix_accepted"
+        },
+        {
+          "timestamp": 1614256817.6,
+          "previous": "RECOVERING",
+          "current": "GOOD",
+          "reason": "recovery_hysteresis_passed"
+        },
+        {
+          "timestamp": 1614256875.0,
+          "previous": "GOOD",
+          "current": "DEGRADED",
+          "reason": "fix_quality_zero_degraded"
+        },
+        {
+          "timestamp": 1614256875.1999998,
+          "previous": "DEGRADED",
+          "current": "RECOVERING",
+          "reason": "recovery_fix_accepted"
+        },
+        {
+          "timestamp": 1614256875.6,
+          "previous": "RECOVERING",
+          "current": "GOOD",
+          "reason": "recovery_hysteresis_passed"
+        },
+        {
+          "timestamp": 1614256879.6,
+          "previous": "GOOD",
+          "current": "DEGRADED",
+          "reason": "quality_gate_failed"
+        },
+        {
+          "timestamp": 1614256880.1999998,
+          "previous": "DEGRADED",
+          "current": "RECOVERING",
+          "reason": "recovery_fix_accepted"
+        },
+        {
+          "timestamp": 1614256880.5,
+          "previous": "RECOVERING",
+          "current": "DEGRADED",
+          "reason": "fix_quality_zero_degraded"
+        },
+        {
+          "timestamp": 1614256880.6999998,
+          "previous": "DEGRADED",
+          "current": "LOST",
+          "reason": "fix_quality_zero_confirmed"
+        },
+        {
+          "timestamp": 1614256881.1999998,
+          "previous": "LOST",
+          "current": "RECOVERING",
+          "reason": "valid_fix_returned"
+        },
+        {
+          "timestamp": 1614256881.6,
+          "previous": "RECOVERING",
+          "current": "DEGRADED",
+          "reason": "fix_quality_zero_degraded"
+        },
+        {
+          "timestamp": 1614256881.8,
+          "previous": "DEGRADED",
+          "current": "LOST",
+          "reason": "fix_quality_zero_confirmed"
+        },
+        {
+          "timestamp": 1614256891.1999998,
+          "previous": "LOST",
+          "current": "RECOVERING",
+          "reason": "valid_fix_returned"
+        },
+        {
+          "timestamp": 1614256891.6,
+          "previous": "RECOVERING",
+          "current": "GOOD",
+          "reason": "recovery_hysteresis_passed"
+        },
+        {
+          "timestamp": 1614256892.0,
+          "previous": "GOOD",
+          "current": "DEGRADED",
+          "reason": "quality_gate_failed"
+        },
+        {
+          "timestamp": 1614256892.3999999,
+          "previous": "DEGRADED",
+          "current": "LOST",
+          "reason": "fix_quality_zero_confirmed"
+        },
+        {
+          "timestamp": 1614256927.6999998,
+          "previous": "LOST",
+          "current": "RECOVERING",
+          "reason": "valid_fix_returned"
+        },
+        {
+          "timestamp": 1614256928.1,
+          "previous": "RECOVERING",
+          "current": "GOOD",
+          "reason": "recovery_hysteresis_passed"
+        },
+        {
+          "timestamp": 1614256928.1999998,
+          "previous": "GOOD",
+          "current": "DEGRADED",
+          "reason": "quality_gate_failed"
+        },
+        {
+          "timestamp": 1614256928.6999998,
+          "previous": "DEGRADED",
+          "current": "RECOVERING",
+          "reason": "recovery_fix_accepted"
+        },
+        {
+          "timestamp": 1614256929.1,
+          "previous": "RECOVERING",
+          "current": "GOOD",
+          "reason": "recovery_hysteresis_passed"
+        }
+      ],
+      "recording": "recording_2021-02-25_13-39-06",
+      "gps_source": {
+        "alignment": "transform_chain",
+        "datum_latitude": 48.19529599166667,
+        "datum_longitude": 11.623416473333334,
+        "rotation": [
+          [
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0
+          ]
+        ],
+        "translation": [
+          0.0,
+          0.0
+        ],
+        "alignment_error": null,
+        "time_offset_s": 0.1,
+        "transform_chain": {
+          "gnss_scale": 1.04278,
+          "gps_imu_lever_arm_m": 0.0,
+          "camera_imu_lever_arm_m": 0.1848223084505764,
+          "altitude": "GGA MSL altitude + geoid separation",
+          "convention": "WGS84->ECEF->GPS-world/ENU->world->SLAM, matching official libartipy"
+        }
+      },
+      "odometry": {
+        "source": "stereo_vo",
+        "frames": 5487,
+        "valid_updates": 5484,
+        "dropout_frames": 2,
+        "yaw_source_requested": "imu",
+        "imu_yaw_updates": 5484,
+        "imu_yaw_calibration": {
+          "low_angular_rate_gate_passed": true,
+          "gyro_norm_p95_rad_s": 0.018665991181193588,
+          "gyro_norm_p95_threshold_rad_s": 0.02,
+          "bias_camera_y_rad_s": 0.004289945833625147,
+          "calibration_seconds": 2.0
+        },
+        "processing_fps": 42.20407675700951
+      },
+      "recovery_events": [
+        {
+          "timestamp": 1614256757.074111,
+          "event": "episode_started",
+          "reset": false,
+          "reference_error_m": 0.19253605968799828
+        },
+        {
+          "timestamp": 1614256757.3,
+          "event": "consensus_achieved",
+          "candidate_count": 3,
+          "radius_m": 0.0004740299873316552,
+          "target": [
+            0.2565258712235963,
+            -0.34489232158345423
+          ],
+          "fix_quality": 4,
+          "hdop": 0.9,
+          "satellites": 16,
+          "reference_error_m": 0.2978925751274585
+        },
+        {
+          "timestamp": 1614256757.5,
+          "event": "episode_completed",
+          "outcome": "consensus_settled",
+          "terminal": true,
+          "gap_m": 0.00012197575300215702,
+          "consensus_achieved": true,
+          "latched_pose": null,
+          "latched_covariance": null,
+          "latched_timestamp": null,
+          "reference_error_m": 0.29768237353702676
+        },
+        {
+          "timestamp": 1614256760.1999998,
+          "event": "episode_started",
+          "reset": false,
+          "reference_error_m": 2.630194612305685
+        },
+        {
+          "timestamp": 1614256760.5,
+          "event": "consensus_achieved",
+          "candidate_count": 3,
+          "radius_m": 0.008137312982830653,
+          "target": [
+            0.2651614132347871,
+            -0.370692675039785
+          ],
+          "fix_quality": 4,
+          "hdop": 0.9,
+          "satellites": 16,
+          "reference_error_m": 4.2437414505317825
+        },
+        {
+          "timestamp": 1614256760.6999998,
+          "event": "episode_completed",
+          "outcome": "consensus_settled",
+          "terminal": true,
+          "gap_m": 0.00560754781774373,
+          "consensus_achieved": true,
+          "latched_pose": [
+            2.036531043657323,
+            -1.4054876568841608,
+            -0.13875753115596723
+          ],
+          "latched_covariance": [
+            [
+              0.06628538009118033,
+              -0.0007072116520885295
+            ],
+            [
+              -0.0007072116520885282,
+              0.059940728729962506
+            ]
+          ],
+          "latched_timestamp": 1614256760.1999998,
+          "reference_error_m": 4.572278272306953
+        },
+        {
+          "timestamp": 1614256761.0,
+          "event": "episode_started",
+          "reset": false,
+          "reference_error_m": 4.920248171292052
+        },
+        {
+          "timestamp": 1614256761.3,
+          "event": "consensus_achieved",
+          "candidate_count": 3,
+          "radius_m": 0.10163034673119423,
+          "target": [
+            0.2714751470000114,
+            -0.3001851368377011
+          ],
+          "fix_quality": 4,
+          "hdop": 0.9,
+          "satellites": 16,
+          "reference_error_m": 5.056601789748574
+        },
+        {
+          "timestamp": 1614256761.5,
+          "event": "episode_completed",
+          "outcome": "consensus_settled",
+          "terminal": true,
+          "gap_m": 0.09741529981612952,
+          "consensus_achieved": true,
+          "latched_pose": [
+            4.653081226055959,
+            -3.1023933804339507,
+            -0.5358557690535402
+          ],
+          "latched_covariance": [
+            [
+              0.26118147708681066,
+              0.014122875924150076
+            ],
+            [
+              0.014122875924150076,
+              0.2782258087693683
+            ]
+          ],
+          "latched_timestamp": 1614256761.0,
+          "reference_error_m": 5.053084583539043
+        },
+        {
+          "timestamp": 1614256761.8,
+          "event": "episode_started",
+          "reset": false,
+          "reference_error_m": 4.916471154237187
+        },
+        {
+          "timestamp": 1614256762.1,
+          "event": "consensus_achieved",
+          "candidate_count": 3,
+          "radius_m": 0.04340944441602712,
+          "target": [
+            0.27135962261893093,
+            -0.40320767678056946
+          ],
+          "fix_quality": 4,
+          "hdop": 0.9,
+          "satellites": 16,
+          "reference_error_m": 4.581052666320791
+        },
+        {
+          "timestamp": 1614256763.5421264,
+          "event": "episode_completed",
+          "outcome": "consensus_settled",
+          "terminal": true,
+          "gap_m": 0.9804387163202084,
+          "consensus_achieved": true,
+          "latched_pose": [
+            5.235706019506436,
+            -6.905589317250446,
+            -0.9437266843092447
+          ],
+          "latched_covariance": [
+            [
+              0.5465848862724676,
+              0.12636089195437925
+            ],
+            [
+              0.12636089195437925,
+              0.520574970216643
+            ]
+          ],
+          "latched_timestamp": 1614256761.8,
+          "reference_error_m": 0.9157631903383059
+        },
+        {
+          "timestamp": 1614256783.3,
+          "event": "episode_started",
+          "reset": false,
+          "reference_error_m": 3.6140604671995904
+        },
+        {
+          "timestamp": 1614256784.8999999,
+          "event": "episode_started",
+          "reset": true,
+          "reference_error_m": 4.92009022673109
+        },
+        {
+          "timestamp": 1614256789.909188,
+          "event": "consensus_timeout",
+          "candidate_count": 0,
+          "reference_error_m": 6.134996066141136
+        },
+        {
+          "timestamp": 1614256792.5491943,
+          "event": "episode_completed",
+          "outcome": "timeout_settled_low_confidence",
+          "terminal": true,
+          "gap_m": 0.901567468892637,
+          "consensus_achieved": false,
+          "latched_pose": [
+            -17.94156902590183,
+            30.119215442209345,
+            1.578980849156264
+          ],
+          "latched_covariance": [
+            [
+              40.30880849573087,
+              8.322107214994585
+            ],
+            [
+              8.322107214994585,
+              7.6114840493516285
+            ]
+          ],
+          "latched_timestamp": 1614256783.3,
+          "reference_error_m": 14.43144010104894
+        },
+        {
+          "timestamp": 1614256801.8,
+          "event": "episode_started",
+          "reset": false,
+          "reference_error_m": 13.284314586594999
+        },
+        {
+          "timestamp": 1614256806.8052278,
+          "event": "consensus_timeout",
+          "candidate_count": 0,
+          "reference_error_m": 9.844311089435344
+        },
+        {
+          "timestamp": 1614256807.5,
+          "event": "episode_started",
+          "reset": true,
+          "reference_error_m": 10.710228484122757
+        },
+        {
+          "timestamp": 1614256812.0,
+          "event": "episode_started",
+          "reset": true,
+          "reference_error_m": 16.872221927641014
+        },
+        {
+          "timestamp": 1614256815.0,
+          "event": "episode_started",
+          "reset": true,
+          "reference_error_m": 20.850542798573372
+        },
+        {
+          "timestamp": 1614256820.0052588,
+          "event": "consensus_timeout",
+          "candidate_count": 0,
+          "reference_error_m": 16.3571510097756
+        },
+        {
+          "timestamp": 1614256820.0052588,
+          "event": "episode_completed",
+          "outcome": "timeout_settled_low_confidence",
+          "terminal": true,
+          "gap_m": 0.7540634486138692,
+          "consensus_achieved": false,
+          "latched_pose": [
+            -23.76342774541078,
+            60.71693392140941,
+            0.8057024342671659
+          ],
+          "latched_covariance": [
+            [
+              103.71573960396415,
+              -16.207597369361523
+            ],
+            [
+              -16.207597369361523,
+              26.290423614910296
+            ]
+          ],
+          "latched_timestamp": 1614256816.8,
+          "reference_error_m": 16.3571510097756
+        },
+        {
+          "timestamp": 1614256875.0,
+          "event": "episode_started",
+          "reset": false,
+          "reference_error_m": 2.151800231708536
+        },
+        {
+          "timestamp": 1614256880.0324001,
+          "event": "consensus_timeout",
+          "candidate_count": 0,
+          "reference_error_m": 13.124004951605409
+        },
+        {
+          "timestamp": 1614256880.6999998,
+          "event": "episode_started",
+          "reset": true,
+          "reference_error_m": 14.528522973443076
+        },
+        {
+          "timestamp": 1614256881.8,
+          "event": "episode_started",
+          "reset": true,
+          "reference_error_m": 14.328243377357536
+        },
+        {
+          "timestamp": 1614256886.8304162,
+          "event": "consensus_timeout",
+          "candidate_count": 0,
+          "reference_error_m": 11.41488976318222
+        },
+        {
+          "timestamp": 1614256891.813428,
+          "event": "recovery_unconverged",
+          "outcome": "unconverged",
+          "terminal": false,
+          "gap_m": 32.706199840373124,
+          "consensus_achieved": false,
+          "reference_error_m": 10.793489447428788
+        },
+        {
+          "timestamp": 1614256892.3999999,
+          "event": "episode_started",
+          "reset": true,
+          "reference_error_m": 10.648828986251871
+        },
+        {
+          "timestamp": 1614256897.4234412,
+          "event": "consensus_timeout",
+          "candidate_count": 0,
+          "reference_error_m": 12.28848048551679
+        },
+        {
+          "timestamp": 1614256902.4064527,
+          "event": "recovery_unconverged",
+          "outcome": "unconverged",
+          "terminal": false,
+          "gap_m": 0.9373512481172839,
+          "consensus_achieved": false,
+          "reference_error_m": 28.300633599250958
+        },
+        {
+          "timestamp": 1614256931.8999999,
+          "event": "consensus_achieved",
+          "candidate_count": 3,
+          "radius_m": 0.0849110228399752,
+          "target": [
+            2.4925023561582886,
+            10.767924263521593
+          ],
+          "fix_quality": 2,
+          "hdop": 1.0,
+          "satellites": 12,
+          "reference_error_m": 13.246168532117991
+        },
+        {
+          "timestamp": 1614256933.6905262,
+          "event": "episode_completed",
+          "outcome": "consensus_settled",
+          "terminal": true,
+          "gap_m": 0.9437210161372401,
+          "consensus_achieved": true,
+          "latched_pose": [
+            -17.703671663583485,
+            0.8177364628773436,
+            -0.6370227654342848
+          ],
+          "latched_covariance": [
+            [
+              588.1821059843523,
+              -191.85407325651536
+            ],
+            [
+              -191.85407325651533,
+              138.31651469504868
+            ]
+          ],
+          "latched_timestamp": 1614256928.1999998,
+          "reference_error_m": 8.900267435930633
+        }
+      ],
+      "reference_usage": "Offline only: simulated GPS, ENU rigid alignment and evaluation; reference pose never enters stereo VO inference"
+    }
+  },
+  "limitations": [
+    "4Seasons reference pose combines stereo VIO and RTK-GNSS.",
+    "NMEA uses the official 4Seasons WGS84/ECEF transform chain; clock offset was selected on a separate calibration split.",
+    "Simulated GPS validates software transitions and does not replace real receiver evidence.",
+    "Stereo VO uses ORB stereo depth + temporal PnP and may drop low-feature frames."
+  ]
+}

@@ -48,7 +48,7 @@ from data_tools.map_frame import (
 )
 from data_tools.stereo_odometry import load_calibration, stereo_frames
 from pipelines.landmark_db import LandmarkConfig, LandmarkMatcher, build_database
-from pipelines.localization_ekf import GPSState, LocalizationFusion
+from pipelines.localization_ekf import FusionConfig, GPSState, LocalizationFusion
 from pipelines.stereo_vo import StereoVO, StereoVOConfig
 
 MAPPING = "recording_2021-05-10_19-15-19"
@@ -108,8 +108,9 @@ def run_configuration(
     segment: dict,
     *,
     artificial_outage: bool,
+    fusion_config: FusionConfig | None = None,
 ) -> dict:
-    fusion = LocalizationFusion()
+    fusion = LocalizationFusion(fusion_config)
     enter = segment["covered_segment"]["enter_timestamp"]
     exit_time = segment["covered_segment"]["exit_timestamp"]
 
@@ -308,6 +309,14 @@ def main() -> None:
         "--output", type=Path, default=Path("artifacts/garage-localization")
     )
     parser.add_argument("--max-frames", type=int)
+    parser.add_argument(
+        "--consensus-sweep",
+        action="store_true",
+        help=(
+            "Thêm các cấu hình chỉ đổi recovery_consensus_count/radius trên nền "
+            "cấu hình A, để đo đường đánh đổi của B8. Không đổi cấu hình nộp bài."
+        ),
+    )
     args = parser.parse_args()
 
     mapping = args.dataset / MAPPING
@@ -354,13 +363,32 @@ def main() -> None:
     reference_timestamps, reference_xyz, _ = reference_in_map_frame(query, fit)
     reference = (reference_timestamps, reference_xyz[:, :2])
 
+    # Cấu hình nộp bài, cộng phần quét ngưỡng consensus nếu được yêu cầu. VO đã
+    # cache nên mỗi cấu hình thêm gần như miễn phí.
+    defaults = FusionConfig()
     configurations = [
-        ("A_baseline_no_landmark", False, False),
-        ("B_landmark", True, False),
-        ("C_landmark_artificial_outage", True, True),
+        ("A_baseline_no_landmark", False, False, None),
+        ("B_landmark", True, False, None),
+        ("C_landmark_artificial_outage", True, True, None),
     ]
+    if args.consensus_sweep:
+        # Giữ nguyên cấu hình A và chỉ đổi cổng consensus, để tách riêng ảnh
+        # hưởng của recovery policy khỏi ảnh hưởng của landmark.
+        for count, radius in ((2, 4.0), (1, 4.0), (3, 8.0), (1, 8.0)):
+            configurations.append(
+                (
+                    f"sweep_count{count}_radius{radius:g}",
+                    False,
+                    False,
+                    replace(
+                        defaults,
+                        recovery_consensus_count=count,
+                        recovery_consensus_radius_m=radius,
+                    ),
+                )
+            )
     results = {}
-    for name, use_landmark, artificial in configurations:
+    for name, use_landmark, artificial, fusion_config in configurations:
         replay = load_nmea_replay(
             query, alignment_mode="raw_enu", datum=datum.as_tuple()
         )
@@ -373,6 +401,7 @@ def main() -> None:
         run = run_configuration(
             name, cached, replay, matcher, keyframes, segment,
             artificial_outage=artificial,
+            fusion_config=fusion_config,
         )
         results[name] = evaluate(run, reference, segment)
         inside = results[name]["inside_cover"]

@@ -1,0 +1,405 @@
+{
+  "kpi": {
+    "metric": "detection latency vs turn completion",
+    "target_s": 2.0,
+    "excellent_s": 1.0,
+    "threshold_degrees": 150.0,
+    "window_seconds": 8.0,
+    "note": "Ngưỡng và cửa sổ chốt ở Bước 1, giữ nguyên sau khi thấy KPI."
+  },
+  "ground_truth_definition": {
+    "min_turn_rate_deg_s": 5.0,
+    "min_duration_s": 2.0,
+    "min_sweep_deg": 150.0,
+    "match_tolerance_s": 2.0
+  },
+  "cases": {
+    "garage_2": {
+      "recording": "recording_2021-02-25_13-39-06",
+      "turn_spacing_s": {
+        "window_seconds": 8.0,
+        "median_gap": 3.4980099201202393,
+        "min_gap": 2.0789999961853027,
+        "gaps_shorter_than_window": 9,
+        "turns": 12
+      },
+      "ground_truth": {
+        "source": "reference pose (evaluation only)",
+        "uses_ground_truth": true,
+        "turns": [
+          {
+            "start": 1614256764.59813,
+            "end": 1614256773.17815,
+            "duration_s": 8.5800199508667,
+            "sweep_degrees": -184.66677290877942
+          },
+          {
+            "start": 1614256795.5192,
+            "end": 1614256804.42922,
+            "duration_s": 8.910019874572754,
+            "sweep_degrees": 174.250611423217
+          },
+          {
+            "start": 1614256809.28023,
+            "end": 1614256815.84725,
+            "duration_s": 6.567019939422607,
+            "sweep_degrees": 152.57263510874932
+          },
+          {
+            "start": 1614256827.26528,
+            "end": 1614256834.45929,
+            "duration_s": 7.194010019302368,
+            "sweep_degrees": 173.7390189468803
+          },
+          {
+            "start": 1614256837.1323,
+            "end": 1614256843.00631,
+            "duration_s": 5.87401008605957,
+            "sweep_degrees": 177.29629451192372
+          },
+          {
+            "start": 1614256846.30632,
+            "end": 1614256851.61933,
+            "duration_s": 5.313009977340698,
+            "sweep_degrees": 179.24285431378766
+          },
+          {
+            "start": 1614256854.25934,
+            "end": 1614256859.83635,
+            "duration_s": 5.577009916305542,
+            "sweep_degrees": 182.13860579849575
+          },
+          {
+            "start": 1614256862.47636,
+            "end": 1614256869.67038,
+            "duration_s": 7.19402003288269,
+            "sweep_degrees": 177.43458252841253
+          },
+          {
+            "start": 1614256874.45539,
+            "end": 1614256882.60641,
+            "duration_s": 8.151020050048828,
+            "sweep_degrees": 175.76839696884232
+          },
+          {
+            "start": 1614256884.68541,
+            "end": 1614256891.71443,
+            "duration_s": 7.029020071029663,
+            "sweep_degrees": 180.12725633884273
+          },
+          {
+            "start": 1614256895.21244,
+            "end": 1614256901.35045,
+            "duration_s": 6.138010025024414,
+            "sweep_degrees": 174.89166593059184
+          },
+          {
+            "start": 1614256905.24446,
+            "end": 1614256914.25348,
+            "duration_s": 9.00901985168457,
+            "sweep_degrees": 175.31631393826316
+          }
+        ]
+      },
+      "system_global_heading": {
+        "ground_truth_turns": 12,
+        "detections": 11,
+        "true_positives": 11,
+        "false_positives": 0,
+        "false_negatives": 1,
+        "precision": 1.0,
+        "recall": 0.9166666666666666,
+        "detection_latency_s": {
+          "definition": "KPI B3: thời điểm phát hiện trừ thời điểm khúc quay kết thúc. Âm nghĩa là hệ báo trước khi xe quay xong.",
+          "target_s": 2.0,
+          "excellent_s": 1.0,
+          "median": -2.178002119064331,
+          "p95": -1.435502052307129,
+          "max": -1.3530027866363525,
+          "within_target": true,
+          "within_excellent": true
+        },
+        "latency_from_turn_start_s": {
+          "definition": "Phụ: đo từ lúc bắt đầu quay, phụ thuộc độ dài khúc quay.",
+          "median": 4.7850072383880615,
+          "max": 7.392018556594849
+        },
+        "missed_turns": [
+          {
+            "start": 1614256809.28023,
+            "end": 1614256815.84725,
+            "duration_s": 6.567019939422607,
+            "sweep_degrees": 152.57263510874932
+          }
+        ],
+        "unmatched_detections": [],
+        "swept_at_detection": {
+          "samples": 11,
+          "median_deg": 144.2835448016367,
+          "min_deg": 67.11948843349664,
+          "below_threshold_count": 9,
+          "note": "Dưới 150 độ nghĩa là detector bắn nhờ góc cộng dồn từ khúc quay trước trong cùng cửa sổ, không phải nhờ khúc hiện tại."
+        }
+      },
+      "local_heading": {
+        "ground_truth_turns": 12,
+        "detections": 12,
+        "true_positives": 12,
+        "false_positives": 0,
+        "false_negatives": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "detection_latency_s": {
+          "definition": "KPI B3: thời điểm phát hiện trừ thời điểm khúc quay kết thúc. Âm nghĩa là hệ báo trước khi xe quay xong.",
+          "target_s": 2.0,
+          "excellent_s": 1.0,
+          "median": -1.8315013647079468,
+          "p95": -0.9669025540351874,
+          "max": -0.49500226974487305,
+          "within_target": true,
+          "within_excellent": true
+        },
+        "latency_from_turn_start_s": {
+          "definition": "Phụ: đo từ lúc bắt đầu quay, phụ thuộc độ dài khúc quay.",
+          "median": 5.461511492729187,
+          "max": 7.128018140792847
+        },
+        "missed_turns": [],
+        "unmatched_detections": []
+      },
+      "reference_heading_oracle": {
+        "ground_truth_turns": 12,
+        "detections": 12,
+        "true_positives": 12,
+        "false_positives": 0,
+        "false_negatives": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "detection_latency_s": {
+          "definition": "KPI B3: thời điểm phát hiện trừ thời điểm khúc quay kết thúc. Âm nghĩa là hệ báo trước khi xe quay xong.",
+          "target_s": 2.0,
+          "excellent_s": 1.0,
+          "median": -1.881005048751831,
+          "p95": -0.9999000310897833,
+          "max": -0.5279998779296875,
+          "within_target": true,
+          "within_excellent": true
+        },
+        "latency_from_turn_start_s": {
+          "definition": "Phụ: đo từ lúc bắt đầu quay, phụ thuộc độ dài khúc quay.",
+          "median": 5.412009954452515,
+          "max": 7.095019817352295
+        },
+        "missed_turns": [],
+        "unmatched_detections": []
+      },
+      "odometry": {
+        "source": "stereo_vo",
+        "frames": 5487,
+        "valid_updates": 5484,
+        "dropout_frames": 2,
+        "yaw_source_requested": "imu",
+        "imu_yaw_updates": 5484,
+        "imu_yaw_calibration": {
+          "low_angular_rate_gate_passed": true,
+          "gyro_norm_p95_rad_s": 0.018665991181193588,
+          "gyro_norm_p95_threshold_rad_s": 0.02,
+          "bias_camera_y_rad_s": 0.004289945833625147,
+          "calibration_seconds": 2.0
+        },
+        "processing_fps": 52.87911866108523
+      },
+      "vo_frames": 5486
+    },
+    "garage_3": {
+      "recording": "recording_2021-05-10_19-15-19",
+      "turn_spacing_s": {
+        "window_seconds": 8.0,
+        "median_gap": 4.620010137557983,
+        "min_gap": 2.24399995803833,
+        "gaps_shorter_than_window": 7,
+        "turns": 10
+      },
+      "ground_truth": {
+        "source": "reference pose (evaluation only)",
+        "uses_ground_truth": true,
+        "turns": [
+          {
+            "start": 1620666929.44258,
+            "end": 1620666938.3526,
+            "duration_s": 8.910020112991333,
+            "sweep_degrees": -174.15846030638133
+          },
+          {
+            "start": 1620666959.83565,
+            "end": 1620666968.44867,
+            "duration_s": 8.613019943237305,
+            "sweep_degrees": 171.6903577903833
+          },
+          {
+            "start": 1620666973.26668,
+            "end": 1620666980.1307,
+            "duration_s": 6.864020109176636,
+            "sweep_degrees": 173.07038805747874
+          },
+          {
+            "start": 1620666983.99171,
+            "end": 1620666990.52572,
+            "duration_s": 6.53400993347168,
+            "sweep_degrees": 179.36390766487204
+          },
+          {
+            "start": 1620666995.14573,
+            "end": 1620667001.41575,
+            "duration_s": 6.270020008087158,
+            "sweep_degrees": 154.25855981744652
+          },
+          {
+            "start": 1620667013.49378,
+            "end": 1620667021.1168,
+            "duration_s": 7.623020172119141,
+            "sweep_degrees": 173.36406234041894
+          },
+          {
+            "start": 1620667023.3608,
+            "end": 1620667030.65382,
+            "duration_s": 7.293020009994507,
+            "sweep_degrees": 178.84797475523425
+          },
+          {
+            "start": 1620667033.52482,
+            "end": 1620667041.87384,
+            "duration_s": 8.349020004272461,
+            "sweep_degrees": 175.95782144809115
+          },
+          {
+            "start": 1620667047.12086,
+            "end": 1620667055.56888,
+            "duration_s": 8.448019981384277,
+            "sweep_degrees": 170.38706198040796
+          },
+          {
+            "start": 1620667059.19889,
+            "end": 1620667068.57091,
+            "duration_s": 9.37202000617981,
+            "sweep_degrees": 173.46361256111888
+          }
+        ]
+      },
+      "system_global_heading": {
+        "ground_truth_turns": 10,
+        "detections": 9,
+        "true_positives": 9,
+        "false_positives": 0,
+        "false_negatives": 1,
+        "precision": 1.0,
+        "recall": 0.9,
+        "detection_latency_s": {
+          "definition": "KPI B3: thời điểm phát hiện trừ thời điểm khúc quay kết thúc. Âm nghĩa là hệ báo trước khi xe quay xong.",
+          "target_s": 2.0,
+          "excellent_s": 1.0,
+          "median": -2.607001781463623,
+          "p95": -1.201205348968506,
+          "max": -1.188004970550537,
+          "within_target": true,
+          "within_excellent": true
+        },
+        "latency_from_turn_start_s": {
+          "definition": "Phụ: đo từ lúc bắt đầu quay, phụ thuộc độ dài khúc quay.",
+          "median": 5.676015138626099,
+          "max": 7.326017618179321
+        },
+        "missed_turns": [
+          {
+            "start": 1620666995.14573,
+            "end": 1620667001.41575,
+            "duration_s": 6.270020008087158,
+            "sweep_degrees": 154.25855981744652
+          }
+        ],
+        "unmatched_detections": [],
+        "swept_at_detection": {
+          "samples": 9,
+          "median_deg": 147.66502300528532,
+          "min_deg": 58.143014767244246,
+          "below_threshold_count": 5,
+          "note": "Dưới 150 độ nghĩa là detector bắn nhờ góc cộng dồn từ khúc quay trước trong cùng cửa sổ, không phải nhờ khúc hiện tại."
+        }
+      },
+      "local_heading": {
+        "ground_truth_turns": 10,
+        "detections": 10,
+        "true_positives": 10,
+        "false_positives": 0,
+        "false_negatives": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "detection_latency_s": {
+          "definition": "KPI B3: thời điểm phát hiện trừ thời điểm khúc quay kết thúc. Âm nghĩa là hệ báo trước khi xe quay xong.",
+          "target_s": 2.0,
+          "excellent_s": 1.0,
+          "median": -1.53450345993042,
+          "p95": -0.9174027800560006,
+          "max": -0.5610029697418213,
+          "within_target": true,
+          "within_excellent": true
+        },
+        "latency_from_turn_start_s": {
+          "definition": "Phụ: đo từ lúc bắt đầu quay, phụ thuộc độ dài khúc quay.",
+          "median": 5.874014973640442,
+          "max": 7.425015687942505
+        },
+        "missed_turns": [],
+        "unmatched_detections": []
+      },
+      "reference_heading_oracle": {
+        "ground_truth_turns": 10,
+        "detections": 10,
+        "true_positives": 10,
+        "false_positives": 0,
+        "false_negatives": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "detection_latency_s": {
+          "definition": "KPI B3: thời điểm phát hiện trừ thời điểm khúc quay kết thúc. Âm nghĩa là hệ báo trước khi xe quay xong.",
+          "target_s": 2.0,
+          "excellent_s": 1.0,
+          "median": -1.6170049905776978,
+          "p95": -0.9982500076293954,
+          "max": -0.627000093460083,
+          "within_target": true,
+          "within_excellent": true
+        },
+        "latency_from_turn_start_s": {
+          "definition": "Phụ: đo từ lúc bắt đầu quay, phụ thuộc độ dài khúc quay.",
+          "median": 5.7750149965286255,
+          "max": 7.458019971847534
+        },
+        "missed_turns": [],
+        "unmatched_detections": []
+      },
+      "odometry": {
+        "source": "stereo_vo",
+        "frames": 5253,
+        "valid_updates": 5201,
+        "dropout_frames": 51,
+        "yaw_source_requested": "imu",
+        "imu_yaw_updates": 0,
+        "imu_yaw_calibration": {
+          "low_angular_rate_gate_passed": false,
+          "gyro_norm_p95_rad_s": 0.04390616323909566,
+          "gyro_norm_p95_threshold_rad_s": 0.02,
+          "bias_camera_y_rad_s": 0.02051484470443854,
+          "calibration_seconds": 2.0
+        },
+        "processing_fps": 57.17656585981372
+      },
+      "vo_frames": 5252
+    }
+  },
+  "limitations": [
+    "U-turn thật chỉ xuất hiện ở hai tuyến garage; office_loop_1 (3776 m) và neighborhood_4 (2195 m) có 0 U-turn nên không đóng góp mẫu dương.",
+    "GT sinh từ reference pose (stereo VIO + RTK-GNSS), không phải nhãn người.",
+    "Detector đọc heading của hệ; reference chỉ dùng để chấm."
+  ]
+}

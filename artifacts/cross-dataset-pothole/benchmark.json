@@ -1,0 +1,49 @@
+{
+  "kpi": "mAP@0.5 >= 80% (đề bài, đo trên val cùng miền)",
+  "question": "Model giữ được bao nhiêu khi sang bộ dữ liệu chưa từng thấy?",
+  "detector": "artifacts/final/pothole_yolo26n_seg.pt",
+  "imgsz": 512,
+  "source_dataset": {
+    "name": "Mendeley 5bwfg4v4cd v2 - pothole video dataset",
+    "license": "CC BY 4.0",
+    "country": "Indonesia",
+    "split_used": "test",
+    "camera": "top-down, ~130 cm above road"
+  },
+  "dataset_build": {
+    "clips": 123,
+    "frames": 1476,
+    "frame_stride": 4,
+    "gt_instances": 1532,
+    "frames_without_instance": 0,
+    "mask_compression_grey_fraction": 0.000675057318560154,
+    "data_yaml": ".cache/data/pothole-video-id/yoloseg/data.yaml"
+  },
+  "cross_dataset": {
+    "box_map50": 0.4989976465496033,
+    "box_map": 0.2629659131708313,
+    "box_precision": 0.6213037931413202,
+    "box_recall": 0.5013054830287206,
+    "mask_map50": 0.45418595767905146,
+    "mask_map": 0.21171748233046558,
+    "mask_precision": 0.6011373987101044,
+    "mask_recall": 0.4751588495855201
+  },
+  "in_domain_reference": {
+    "box_map50": 0.898,
+    "box_map": 0.563,
+    "mask_map50": 0.871,
+    "mask_map": 0.525
+  },
+  "retention": {
+    "box_map50": 0.5556766665363065,
+    "box_map": 0.46707977472616574,
+    "mask_map50": 0.5214534531332393,
+    "mask_map": 0.4032713949151725
+  },
+  "limitations": [
+    "Ground truth phát hành dưới dạng mp4 nén mất mát; biên mask có nhiễu nén. Tỉ lệ pixel xám 64..192 ghi trong dataset_build.",
+    "Instance tách bằng connected components trên mask nhị phân, nên hai ổ gà dính nhau bị đếm thành một.",
+    "Bộ này quay ở Indonesia, không phải TP.HCM. Không thay thế được yêu cầu quay thực địa của đề bài."
+  ]
+}

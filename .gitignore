@@ -226,3 +226,46 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Ghi chú nội bộ trong lúc làm bài, không thuộc bài nộp
+BENCH_STATUS.md
+luu-y-viet-report-bai-test.md
+
+# Bằng chứng mà REPORT.md trích dẫn: giữ trong repo để report tự kiểm chứng
+# được trên GitHub. Phần artifacts/ còn lại vẫn bị bỏ qua.
+!artifacts/
+artifacts/*
+!artifacts/verify-final/
+!artifacts/verify-final/**
+!artifacts/a3-grid/
+artifacts/a3-grid/*
+!artifacts/a3-grid/final-s03125-d112/
+artifacts/a3-grid/final-s03125-d112/*
+!artifacts/a3-grid/final-s03125-d112/failures/
+!artifacts/a3-grid/final-s03125-d112/failures/**
+!artifacts/vo-drift-final/
+!artifacts/vo-drift-final/benchmark.json
+!artifacts/landmark-reid/
+!artifacts/landmark-reid/benchmark.json
+!artifacts/uturn-b3/
+!artifacts/uturn-b3/benchmark.json
+!artifacts/garage-localization/
+!artifacts/garage-localization/benchmark.json
+!artifacts/garage-localization-sweep/
+!artifacts/garage-localization-sweep/benchmark.json
+!artifacts/system-fps-b7/
+!artifacts/system-fps-b7/benchmark.json
+!artifacts/cross-dataset-pothole/
+!artifacts/cross-dataset-pothole/benchmark.json
+!artifacts/gps-fusion-round5-vo/
+!artifacts/gps-fusion-round5-vo/benchmark.json
+!artifacts/gyro-calibration-audit/
+!artifacts/gyro-calibration-audit/audit.json
+!artifacts/label-frame-audit/
+!artifacts/label-frame-audit/audit.json
+# Cache nhị phân và ảnh không được report trích dẫn
+artifacts/system-fps-b7/landmark_db.npz
+artifacts/a3-grid/final-s03125-d112/failures/model2_L9.jpg
+
+# Tài liệu tuyển dụng của công ty, không thuộc bài nộp
+[JD]*.pdf

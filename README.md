@@ -1,9 +1,21 @@
-# Pothole depth and area estimation
+# Pothole depth/area estimation + GPS-degraded localization
 
-Pipeline CPU/ONNX phát hiện ổ gà, tạo segmentation mask và ghép depth để ước
-lượng độ sâu, diện tích. Pipeline cuối dùng `YOLO26n-seg` để định vị và
-StereoSGBM để đo hình học so với mặt đường — xem
-[Stereo depth và area metric](#stereo-depth-và-area-metric).
+> **📄 Báo cáo kỹ thuật: [`REPORT.md`](REPORT.md)** — quyết định thiết kế, bảng
+> KPI đầy đủ, failure analysis và các thí nghiệm phản chứng. Đọc file đó trước
+> nếu bạn đang chấm bài; README này là hướng dẫn tái lập.
+
+Hai phần dùng chung một camera stereo và một ngân sách CPU:
+
+- **Phần A** — phát hiện ổ gà, đo độ sâu và diện tích. Pipeline CPU/ONNX dùng
+  `YOLO26n-seg` để định vị và StereoSGBM để đo hình học so với mặt đường; xem
+  [Stereo depth và area metric](#stereo-depth-và-area-metric).
+- **Phần B** — giữ pose liên tục khi GPS suy giảm, bằng stereo VO, IMU,
+  landmark database và EKF hai frame.
+
+Tóm tắt nghiệm thu: Phần A đạt A1–A3 (86,2% box mAP@0.5 in-domain, **49,9%**
+trên một bộ dữ liệu độc lập). Phần B đạt 5 trên 8 KPI — trượt landmark re-ID,
+GPS re-lock và lane position. Cả ba trường hợp trượt đều có chẩn đoán nguyên
+nhân trong `REPORT.md`.
 
 ## Model đã chốt
 
@@ -18,12 +30,18 @@ i5-13400F:
 
 | Metric | Kết quả |
 |---|---:|
-| Box mAP@0.5 | 89.8% |
-| Box mAP@0.5:0.95 | 56.3% |
-| Mask mAP@0.5 | 87.1% |
-| Mask mAP@0.5:0.95 | 52.5% |
+| Box mAP@0.5 | 86.2% |
+| Box mAP@0.5:0.95 | 53.4% |
+| Mask mAP@0.5 | 84.6% |
+| Mask mAP@0.5:0.95 | 50.8% |
 | Preprocess + inference + postprocess | 29.4 ms |
 | Model pipeline FPS | 34.0 |
+
+Số trên do `benchmarks/benchmark_a1_receipt.py` sinh; receipt đầy đủ kèm model
+SHA, split và phiên bản thư viện ở `artifacts/verify-final/a1/benchmark.json`.
+Bản nháp trước của tài liệu ghi 89.8% / 87.1% lấy từ dòng "ONNX merged" trong
+`BENCHMARK.md`; con số đó không tái lập được bằng đường nào còn chạy được, xem
+mục detector trong `REPORT.md`.
 
 Model đạt KPI detection `mAP@0.5 >= 80%` và tốc độ riêng model `>= 15 FPS`.
 Weights train trên tập gộp Pothole-600 + PothRGBD; val chạy trên Pothole-600

@@ -5,6 +5,13 @@ from pathlib import Path
 
 import cv2
 import numpy as np
+# onnxruntime-gpu liên kết động libcudart; trên máy không cài CUDA runtime
+# hệ thống, thư viện đó chỉ có trong wheel của torch. Nạp torch trước để nó đưa
+# libcudart vào process, nếu không "import onnxruntime" chết ngay lúc import.
+try:  # pragma: no cover - phụ thuộc môi trường
+    import torch  # noqa: F401
+except ImportError:
+    pass
 import onnxruntime as ort
 
 

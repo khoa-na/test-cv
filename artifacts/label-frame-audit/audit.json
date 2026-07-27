@@ -1,0 +1,134 @@
+{
+  "datum": {
+    "source_recording": "recording_2021-05-10_19-15-19",
+    "latitude": 48.196277385,
+    "longitude": 11.62036672,
+    "altitude_m": 541.674
+  },
+  "absolute_fit_residual": {
+    "garage_3": {
+      "recording": "recording_2021-05-10_19-15-19",
+      "quality4_fixes_used": 639,
+      "overall": {
+        "median_m": 2.1127559479782985,
+        "p95_m": 11.730426467082934,
+        "rmse_m": 4.9116916433023325
+      },
+      "by_route_section": [
+        {
+          "route_fraction": [
+            0.0,
+            0.25
+          ],
+          "fixes": 188,
+          "median_m": 1.5173031897262474,
+          "p95_m": 2.243263390755721
+        },
+        {
+          "route_fraction": [
+            0.25,
+            0.5
+          ],
+          "fixes": 0,
+          "median_m": null,
+          "p95_m": null
+        },
+        {
+          "route_fraction": [
+            0.5,
+            0.75
+          ],
+          "fixes": 323,
+          "median_m": 2.1492672073702845,
+          "p95_m": 2.9856845046164504
+        },
+        {
+          "route_fraction": [
+            0.75,
+            1.0
+          ],
+          "fixes": 128,
+          "median_m": 10.48588085506876,
+          "p95_m": 11.947440874195125
+        }
+      ],
+      "holdout_residual": {
+        "count": 256,
+        "median_m": 4.899598803951309,
+        "p95_m": 11.94629228204245,
+        "rmse_m": 7.39279928029045
+      }
+    },
+    "garage_2": {
+      "recording": "recording_2021-02-25_13-39-06",
+      "quality4_fixes_used": 758,
+      "overall": {
+        "median_m": 1.0972072682076242,
+        "p95_m": 8.350431168506763,
+        "rmse_m": 2.545829369593228
+      },
+      "by_route_section": [
+        {
+          "route_fraction": [
+            0.0,
+            0.25
+          ],
+          "fixes": 240,
+          "median_m": 0.6601075251390053,
+          "p95_m": 1.2123784769403652
+        },
+        {
+          "route_fraction": [
+            0.25,
+            0.5
+          ],
+          "fixes": 206,
+          "median_m": 1.1538602789394825,
+          "p95_m": 1.767655898848917
+        },
+        {
+          "route_fraction": [
+            0.5,
+            0.75
+          ],
+          "fixes": 264,
+          "median_m": 1.3806449726083443,
+          "p95_m": 2.4483446965855986
+        },
+        {
+          "route_fraction": [
+            0.75,
+            1.0
+          ],
+          "fixes": 48,
+          "median_m": 9.082495501014375,
+          "p95_m": 9.598936056400511
+        }
+      ],
+      "holdout_residual": {
+        "count": 304,
+        "median_m": 1.4775319737762942,
+        "p95_m": 9.415441568413938,
+        "rmse_m": 3.8243355811544735
+      }
+    }
+  },
+  "relative_consistency": {
+    "planar_nn_m": {
+      "median": 0.3487181534765932,
+      "p95": 1.895631527039346,
+      "fraction_under_1m": 0.8441203281677302,
+      "fraction_under_5m": 0.9773928896991796
+    },
+    "vertical_at_nn_m": {
+      "median": 0.3464314293602797,
+      "p95": 3.282887630020184
+    }
+  },
+  "reading": [
+    "Residual tuyệt đối lớn (median vài mét) nhưng nearest-neighbour giữa hai traversal dưới nửa mét: sai số là common-mode, không phải sai số gán nhãn. Hai fit độc lập sai 5 m sẽ cho nn khoảng 7 m, không phải 0,35 m.",
+    "Residual dồn vào phần tư cuối tuyến ở CẢ HAI recording. Nhãn ở 3/4 đầu tin được; 1/4 cuối thì không.",
+    "Vì vậy holdout_residual bi quan theo thiết kế: split 60/40 theo thời gian dồn trọn phần tư xấu vào holdout. garage_3 có median toàn tuyến 2,11 m nhưng median holdout 4,90 m — cùng một fit, khác mẫu. Split thời gian được chọn để tránh rò rỉ lạc quan, và cái giá là con số holdout không đại diện cho toàn tuyến.",
+    "Nearest-neighbour ràng buộc chặt sai lệch ngang, nhưng gần như mù với sai lệch dọc theo hướng đi. Ngưỡng positive 5 m rộng gấp 2,5 lần spacing keyframe 2 m, nên lệch dọc vài mét đổi keyframe nào được tính là positive chứ không đổi việc query có positive hay không."
+  ]
+}
