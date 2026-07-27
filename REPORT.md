@@ -291,6 +291,19 @@ Thiết kế này giải thích B6: handover không khởi tạo lại bộ lọ
 6. Khi fix trở lại, hệ vào RECOVERING; correction chỉ được nhận sau consensus,
    rồi áp vào `map→odom`.
 
+### Về gợi ý ghost projection của đề
+
+Ghost projection — EKF dự đoán pose, chiếu landmark từ database lên ảnh, detect
+bằng YOLO rồi lấy reprojection error làm EKF update — chính là measurement
+model của Qu et al. (IV 2015) với biển báo geo-referenced. Hệ hiện tại giữ đúng
+vai trò đó cho landmark nhưng thay bước đối sánh: PnP trên điểm 3D stereo của
+keyframe thay vì reprojection error của semantic bounding box, vì hầm xe trong
+dữ liệu không có biển báo geo-referenced để detect, và một bbox 2D cho một
+update yếu hơn hàng chục điểm 3D đã verify hình học. Đối sánh mức semantic vẫn
+là hướng đúng khi có database biển báo — điểm vào của nó là
+`update_position()`, cùng cổng landmark hiện tại, nên thêm sau không phải sửa
+filter.
+
 ### Kết quả B1–B8
 
 | KPI | Kết quả | Kết luận đúng phạm vi |
@@ -537,3 +550,7 @@ liên tục và không chọn clip theo kết quả.
    T-RO, 2021.
 6. Nikhil Keetha et al. [*AnyLoc: Towards Universal Visual Place
    Recognition*](https://arxiv.org/abs/2308.00688), RA-L, 2024.
+7. Xiaozhi Qu, Bahman Soheilian, Nicolas Paparoditis. [*Vehicle localization
+   using mono-camera and geo-referenced traffic
+   signs*](https://www.researchgate.net/publication/308864003_Vehicle_localization_using_mono-camera_and_geo-referenced_traffic_signs),
+   IEEE IV, 2015.
