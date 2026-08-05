@@ -195,7 +195,7 @@ def match(truths: list[dict], detections: list[dict]) -> dict:
                 "Âm nghĩa là hệ báo trước khi xe quay xong."
             ),
             "target_s": 2.0,
-            "excellent_s": 1.0,
+            "stretch_s": 1.0,
             "median": float(np.median(since_completion)) if since_completion else None,
             "p95": float(np.percentile(since_completion, 95)) if since_completion else None,
             "max": float(np.max(since_completion)) if since_completion else None,
@@ -322,7 +322,7 @@ def main() -> None:
         "kpi": {
             "metric": "detection latency vs turn completion",
             "target_s": 2.0,
-            "excellent_s": 1.0,
+            "stretch_s": 1.0,
             "threshold_degrees": 150.0,
             "window_seconds": 8.0,
             "note": (

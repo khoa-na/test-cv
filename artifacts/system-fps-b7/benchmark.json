@@ -233,7 +233,7 @@
   },
   "notes": [
     "FPS chính không tính thời gian đọc PNG từ đĩa; hệ thật nhận frame từ camera driver. Cột with_disk_read_median cho biết chi phí đó.",
-    "Phần A đo riêng ở benchmark_stereo_yolo (median 17,8 FPS CPU).",
+    "Stack pothole perception đo riêng ở benchmark_stereo_yolo (median 17,8 FPS CPU).",
     "Vòng đo gồm stereo VO, EKF + integrity, U-turn detector và landmark query ở nhịp keyframe."
   ]
 }

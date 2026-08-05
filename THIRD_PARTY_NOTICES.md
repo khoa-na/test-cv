@@ -75,7 +75,7 @@ is separately subject to `CC BY-NC-SA 4.0`:
 - numeric benchmark receipts under `artifacts/*localization*`,
   `artifacts/landmark-reid`, `artifacts/uturn-b3`, and
   `artifacts/system-fps-b7`
-- the separately hosted Part B demo video
+- the separately hosted localization demo video
 
 Per-directory provenance is summarized in `artifacts/README.md`.
 

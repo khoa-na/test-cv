@@ -1,4 +1,4 @@
-"""Video demo Phần A trên footage video thật, có ground truth từng frame.
+"""Video demo pothole perception trên footage video thật, có ground truth từng frame.
 
 Bộ Fan chỉ có 27 cặp stereo tĩnh nên `render_part_a.py` phải giữ mỗi cặp vài
 giây. Bộ này là video liên tục 24fps, và quan trọng hơn: model chưa từng thấy

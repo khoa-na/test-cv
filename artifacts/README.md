@@ -14,3 +14,21 @@ terms.
 See `THIRD_PARTY_NOTICES.md` for authors, source links, and additional use
 restrictions. Numeric receipts may still encode derived measurements and must
 retain their source attribution when redistributed.
+
+## Benchmark ID legend
+
+Directory and receipt names carry short benchmark IDs inherited from the
+project's original evaluation plan. They are internal labels only:
+
+| ID | Benchmark |
+|---|---|
+| A1 | Pothole detection accuracy (box/mask mAP) |
+| A2 | Metric pothole depth and surface-area error |
+| A3 | Stereo pothole pipeline end-to-end throughput |
+| B1 | Stereo VO drift over 500 m windows |
+| B2 | Landmark re-identification recall |
+| B3 | U-turn detection latency |
+| B5 | Parking-garage localization error |
+| B6 | GPS handover detection |
+| B7 | Localization-stack CPU throughput |
+| B8 | GPS re-lock accuracy after outage |

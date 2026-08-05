@@ -1,7 +1,6 @@
 {
   "kpi": {
-    "pass": "demo hoạt động",
-    "excellent": "quantitative report"
+    "target": "quantitative localization-error report vs reference"
   },
   "query_recording": "recording_2021-02-25_13-39-06",
   "mapping_recording": "recording_2021-05-10_19-15-19",

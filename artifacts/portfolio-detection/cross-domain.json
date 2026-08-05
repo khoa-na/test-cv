@@ -19,8 +19,8 @@
     },
     "in_domain_receipt": {
       "path": "artifacts/portfolio-detection/a1.json",
-      "bytes": 3724,
-      "sha256": "e2900b009b5fc6ae77d65fab3afea33f0c0f143300f6b2428dc4a870ff42e7fb"
+      "bytes": 3716,
+      "sha256": "0a40e0c9072d123bb2d4c9a7cedd37d7ba35816fb97ddcf0667872864a4661ff"
     },
     "environment": {
       "python": "3.14.4",

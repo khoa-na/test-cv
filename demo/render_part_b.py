@@ -1,4 +1,4 @@
-"""Video demo Phần B — localization + GPS integrity trên garage_2.
+"""Video demo localization — localization + GPS integrity trên garage_2.
 
 Script này chạy vòng fusion riêng thay vì gọi ``benchmark_gps_fusion.run_fusion``
 vì cần state của integrity monitor ở từng frame để vẽ. Mọi con số KPI trong báo

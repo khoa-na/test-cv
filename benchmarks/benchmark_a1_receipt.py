@@ -1,4 +1,4 @@
-"""A1 — receipt máy đọc được cho con số headline của Phần A.
+"""A1 — receipt máy đọc được cho con số headline của stack pothole perception.
 
 Report trích 89,8% box mAP@0.5 nhưng lần chạy trước chỉ để lại PNG (PR curve,
 confusion matrix). Không có file nào ghi model SHA, split, phiên bản thư viện
@@ -217,10 +217,10 @@ def main() -> None:
     picks = select_samples(records)
 
     report = {
-        "kpi": "A1 — box mAP@0.5 >= 80% (đạt), >= 85% (xuất sắc)",
+        "kpi": "A1 — box mAP@0.5 target >= 80%, stretch >= 85%",
         "purpose": (
-            "Receipt máy đọc được cho số headline Phần A; lần chạy trước chỉ "
-            "để lại PNG nên số không tự truy vết được."
+            "Receipt máy đọc được cho số headline detection; lần chạy trước "
+            "chỉ để lại PNG nên số không tự truy vết được."
         ),
         "receipt": {
             "created_at_utc": datetime.now(timezone.utc).isoformat(),

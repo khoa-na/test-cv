@@ -2,7 +2,7 @@
   "kpi": {
     "metric": "detection latency vs turn completion",
     "target_s": 2.0,
-    "excellent_s": 1.0,
+    "stretch_s": 1.0,
     "threshold_degrees": 150.0,
     "window_seconds": 8.0,
     "note": "Ngưỡng và cửa sổ chốt ở Bước 1, giữ nguyên sau khi thấy KPI."
@@ -112,7 +112,7 @@
         "detection_latency_s": {
           "definition": "KPI B3: thời điểm phát hiện trừ thời điểm khúc quay kết thúc. Âm nghĩa là hệ báo trước khi xe quay xong.",
           "target_s": 2.0,
-          "excellent_s": 1.0,
+          "stretch_s": 1.0,
           "median": -2.178002119064331,
           "p95": -1.435502052307129,
           "max": -1.3530027866363525,
@@ -152,7 +152,7 @@
         "detection_latency_s": {
           "definition": "KPI B3: thời điểm phát hiện trừ thời điểm khúc quay kết thúc. Âm nghĩa là hệ báo trước khi xe quay xong.",
           "target_s": 2.0,
-          "excellent_s": 1.0,
+          "stretch_s": 1.0,
           "median": -1.8315013647079468,
           "p95": -0.9669025540351874,
           "max": -0.49500226974487305,
@@ -178,7 +178,7 @@
         "detection_latency_s": {
           "definition": "KPI B3: thời điểm phát hiện trừ thời điểm khúc quay kết thúc. Âm nghĩa là hệ báo trước khi xe quay xong.",
           "target_s": 2.0,
-          "excellent_s": 1.0,
+          "stretch_s": 1.0,
           "median": -1.881005048751831,
           "p95": -0.9999000310897833,
           "max": -0.5279998779296875,
@@ -297,7 +297,7 @@
         "detection_latency_s": {
           "definition": "KPI B3: thời điểm phát hiện trừ thời điểm khúc quay kết thúc. Âm nghĩa là hệ báo trước khi xe quay xong.",
           "target_s": 2.0,
-          "excellent_s": 1.0,
+          "stretch_s": 1.0,
           "median": -2.607001781463623,
           "p95": -1.201205348968506,
           "max": -1.188004970550537,
@@ -337,7 +337,7 @@
         "detection_latency_s": {
           "definition": "KPI B3: thời điểm phát hiện trừ thời điểm khúc quay kết thúc. Âm nghĩa là hệ báo trước khi xe quay xong.",
           "target_s": 2.0,
-          "excellent_s": 1.0,
+          "stretch_s": 1.0,
           "median": -1.53450345993042,
           "p95": -0.9174027800560006,
           "max": -0.5610029697418213,
@@ -363,7 +363,7 @@
         "detection_latency_s": {
           "definition": "KPI B3: thời điểm phát hiện trừ thời điểm khúc quay kết thúc. Âm nghĩa là hệ báo trước khi xe quay xong.",
           "target_s": 2.0,
-          "excellent_s": 1.0,
+          "stretch_s": 1.0,
           "median": -1.6170049905776978,
           "p95": -0.9982500076293954,
           "max": -0.627000093460083,

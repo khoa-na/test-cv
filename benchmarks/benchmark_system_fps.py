@@ -1,4 +1,4 @@
-"""B7 — throughput của stack localization Phần B trên CPU.
+"""B7 — throughput của stack localization trên CPU.
 
 Đo trên cùng một cửa sổ frame cố định để so được giữa các cấu hình thread.
 Tách thời gian từng tầng vì con số tổng không cho biết còn bao nhiêu ngân sách
@@ -315,8 +315,8 @@ def main() -> None:
         "notes": [
             "FPS chính không tính thời gian đọc PNG từ đĩa; hệ thật nhận frame "
             "từ camera driver. Cột with_disk_read_median cho biết chi phí đó.",
-            "Phần A được đo riêng bởi benchmark_stereo_yolo và không nằm "
-            "trong throughput localization này.",
+            "Stack pothole perception được đo riêng bởi benchmark_stereo_yolo "
+            "và không nằm trong throughput localization này.",
             (
                 "Vòng đo gồm stereo VO, EKF + integrity, U-turn detector và "
                 "landmark query ở nhịp keyframe."

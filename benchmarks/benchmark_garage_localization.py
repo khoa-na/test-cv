@@ -427,7 +427,7 @@ def main() -> None:
         )
 
     report = {
-        "kpi": {"pass": "demo hoạt động", "excellent": "quantitative report"},
+        "kpi": {"target": "quantitative localization-error report vs reference"},
         "query_recording": query.name,
         "mapping_recording": mapping.name,
         "database_keyframes": len(database),

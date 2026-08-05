@@ -1,6 +1,6 @@
 {
-  "kpi": "A1 — box mAP@0.5 >= 80% (đạt), >= 85% (xuất sắc)",
-  "purpose": "Receipt máy đọc được cho số headline Phần A; lần chạy trước chỉ để lại PNG nên số không tự truy vết được.",
+  "kpi": "A1 — box mAP@0.5 target >= 80%, stretch >= 85%",
+  "purpose": "Receipt máy đọc được cho số headline detection; lần chạy trước chỉ để lại PNG nên số không tự truy vết được.",
   "git_commit": "18c7b8b6a46922b1da1e66de8f7d8198acb8d8d1",
   "model": {
     "checkpoint": {

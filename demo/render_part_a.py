@@ -1,4 +1,4 @@
-"""Video demo Phần A — phát hiện ổ gà + đo độ sâu/diện tích bằng stereo.
+"""Video demo pothole perception — phát hiện ổ gà + đo độ sâu/diện tích bằng stereo.
 
 Bộ Fan chỉ có 27 cặp stereo tĩnh, không phải video liên tục, nên mỗi cặp được
 giữ vài giây. Ground truth hiển thị cạnh số đo để người xem tự đối chiếu.

@@ -108,14 +108,14 @@ minh họa không tham gia tính KPI.
 
 | Bằng chứng | Artifact |
 |---|---|
-| A1 in-domain / cross-domain | [`verify-final/a1/benchmark.json`](https://github.com/khoa-na/pothole-gps-localization/blob/main/artifacts/verify-final/a1/benchmark.json) / [`cross-dataset-pothole/benchmark.json`](https://github.com/khoa-na/pothole-gps-localization/blob/main/artifacts/cross-dataset-pothole/benchmark.json) |
-| A2/A3 depth, area, latency | [`a3-grid/final-s03125-d112/benchmark.json`](https://github.com/khoa-na/pothole-gps-localization/blob/main/artifacts/a3-grid/final-s03125-d112/benchmark.json) và [`rows.csv`](https://github.com/khoa-na/pothole-gps-localization/blob/main/artifacts/a3-grid/final-s03125-d112/rows.csv) |
-| B1 VO drift | [`vo-drift-final/benchmark.json`](https://github.com/khoa-na/pothole-gps-localization/blob/main/artifacts/vo-drift-final/benchmark.json) |
-| B2 landmark re-ID | [`landmark-reid/benchmark.json`](https://github.com/khoa-na/pothole-gps-localization/blob/main/artifacts/landmark-reid/benchmark.json) |
-| B3 U-turn | [`uturn-b3/benchmark.json`](https://github.com/khoa-na/pothole-gps-localization/blob/main/artifacts/uturn-b3/benchmark.json) |
-| B5/B8 garage + consensus | [`garage-localization/benchmark.json`](https://github.com/khoa-na/pothole-gps-localization/blob/main/artifacts/garage-localization/benchmark.json) / [`garage-localization-sweep/benchmark.json`](https://github.com/khoa-na/pothole-gps-localization/blob/main/artifacts/garage-localization-sweep/benchmark.json) |
-| B6/B8 NMEA handover/re-lock | [`gps-fusion-round5-vo/benchmark.json`](https://github.com/khoa-na/pothole-gps-localization/blob/main/artifacts/gps-fusion-round5-vo/benchmark.json) |
-| B7 throughput | [`system-fps-b7/benchmark.json`](https://github.com/khoa-na/pothole-gps-localization/blob/main/artifacts/system-fps-b7/benchmark.json) |
+| A1 in-domain / cross-domain | [`verify-final/a1/benchmark.json`](../../artifacts/verify-final/a1/benchmark.json) / [`cross-dataset-pothole/benchmark.json`](../../artifacts/cross-dataset-pothole/benchmark.json) |
+| A2/A3 depth, area, latency | [`a3-grid/final-s03125-d112/benchmark.json`](../../artifacts/a3-grid/final-s03125-d112/benchmark.json) và [`rows.csv`](../../artifacts/a3-grid/final-s03125-d112/rows.csv) |
+| B1 VO drift | [`vo-drift-final/benchmark.json`](../../artifacts/vo-drift-final/benchmark.json) |
+| B2 landmark re-ID | [`landmark-reid/benchmark.json`](../../artifacts/landmark-reid/benchmark.json) |
+| B3 U-turn | [`uturn-b3/benchmark.json`](../../artifacts/uturn-b3/benchmark.json) |
+| B5/B8 garage + consensus | [`garage-localization/benchmark.json`](../../artifacts/garage-localization/benchmark.json) / [`garage-localization-sweep/benchmark.json`](../../artifacts/garage-localization-sweep/benchmark.json) |
+| B6/B8 NMEA handover/re-lock | [`gps-fusion-round5-vo/benchmark.json`](../../artifacts/gps-fusion-round5-vo/benchmark.json) |
+| B7 throughput | [`system-fps-b7/benchmark.json`](../../artifacts/system-fps-b7/benchmark.json) |
 
 ## System Decision Frame
 
@@ -188,7 +188,7 @@ Chính `BENCHMARK.md` cũng ủng hộ số thấp hơn: dòng "PyTorch baseline
 end2end=False" ghi 86,9%, sát với 86,2% đo được ở đây.
 
 Report dùng **86,2%** vì đó là con số duy nhất bảo vệ được. KPI không đổi hạng —
-86,2% vẫn vượt ngưỡng đạt 80% và ngưỡng xuất sắc 85%. Thứ đổi là con số ấy giờ
+86,2% vẫn vượt ngưỡng mục tiêu 80% lẫn mốc 85%. Thứ đổi là con số ấy giờ
 có receipt đi kèm.
 
 Production recipe cao hơn baseline Pothole-600-only 4,3 điểm phần trăm box
