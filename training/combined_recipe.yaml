@@ -1,0 +1,31 @@
+schema_version: 1
+purpose: Canonical recipe used for the tracked combined-dataset detector
+software:
+  ultralytics: 8.4.105
+base_model:
+  path: yolo26n-seg.pt
+  sha256: 361fbfabab285c3237700b6bb91d7ecfa602cd945fffda8dbe1242829b71e73f
+dataset:
+  training_images: 1008
+  training_instances: 1092
+  split_policy: Pothole-600 train plus deterministic PothRGBD train; Pothole-600 val/test excluded from gradient updates
+train:
+  epochs: 150
+  patience: 0
+  batch: 16
+  imgsz: 512
+  cache: true
+  device: 0
+  workers: 8
+  pretrained: true
+  seed: 42
+  deterministic: true
+  cos_lr: true
+  copy_paste: 0.3
+  close_mosaic: 10
+  cls_remap: true
+output:
+  onnx_sha256: 3ab52bdc4b41cc59b4b845b090bcddc2d927870ce272fdcff2dbb473b3a598c5
+notes:
+  - Deterministic training reduces variance but does not promise bit-identical CUDA results across hardware and driver versions.
+  - Use --device cpu only as an explicit portability override; it is not the recorded training environment.

@@ -1,0 +1,126 @@
+{
+  "schema_version": 1,
+  "description": "Machine-readable source of truth for every result in the README headline table.",
+  "claims": [
+    {
+      "id": "detection_box_map50",
+      "receipt": "artifacts/portfolio-detection/a1.json",
+      "path": ["metrics", "box_map50"],
+      "expected": 0.8976455581185483,
+      "documents": [{"path": "README.md", "contains": "89.8%"}, {"path": "MODEL_CARD.md", "contains": "89.8%"}]
+    },
+    {
+      "id": "detection_mask_map50",
+      "receipt": "artifacts/portfolio-detection/a1.json",
+      "path": ["metrics", "mask_map50"],
+      "expected": 0.8709216921942611,
+      "documents": [{"path": "README.md", "contains": "87.1%"}, {"path": "MODEL_CARD.md", "contains": "87.1%"}]
+    },
+    {
+      "id": "cross_domain_box_map50",
+      "receipt": "artifacts/portfolio-detection/cross-domain.json",
+      "path": ["cross_dataset", "box_map50"],
+      "expected": 0.3851392182405666,
+      "documents": [{"path": "README.md", "contains": "38.5%"}, {"path": "MODEL_CARD.md", "contains": "38.5%"}]
+    },
+    {
+      "id": "cross_domain_mask_map50",
+      "receipt": "artifacts/portfolio-detection/cross-domain.json",
+      "path": ["cross_dataset", "mask_map50"],
+      "expected": 0.328348827017375,
+      "documents": [{"path": "MODEL_CARD.md", "contains": "32.8%"}]
+    },
+    {
+      "id": "stereo_depth_median_error",
+      "receipt": "artifacts/portfolio-stereo/benchmark.json",
+      "path": ["held_out", "median_relative_error"],
+      "expected": 0.04012236513381376,
+      "documents": [{"path": "README.md", "contains": "4.01%"}]
+    },
+    {
+      "id": "stereo_area_median_error",
+      "receipt": "artifacts/portfolio-stereo/benchmark.json",
+      "path": ["held_out", "area_median_relative_error"],
+      "expected": 0.11225377759950943,
+      "documents": [{"path": "README.md", "contains": "11.23%"}]
+    },
+    {
+      "id": "stereo_median_fps",
+      "receipt": "artifacts/portfolio-stereo/benchmark.json",
+      "path": ["performance", "median_fps"],
+      "expected": 18.244133174740284,
+      "documents": [{"path": "README.md", "contains": "18.24 FPS"}]
+    },
+    {
+      "id": "stereo_pairs_at_least_15_fps",
+      "receipt": "artifacts/portfolio-stereo/benchmark.json",
+      "path": ["performance", "pairs_at_least_15_fps"],
+      "expected": 0.9259259259259259,
+      "documents": [{"path": "README.md", "contains": "25/27 pairs"}]
+    },
+    {
+      "id": "vo_passed_windows",
+      "receipt": "artifacts/vo-drift-final/benchmark.json",
+      "path": ["summary_all_sequences", "passed_windows"],
+      "expected": 12,
+      "documents": [{"path": "README.md", "contains": "12/13"}]
+    },
+    {
+      "id": "vo_total_windows",
+      "receipt": "artifacts/vo-drift-final/benchmark.json",
+      "path": ["summary_all_sequences", "total_windows"],
+      "expected": 13,
+      "documents": [{"path": "README.md", "contains": "12/13"}]
+    },
+    {
+      "id": "vo_failure_drift",
+      "receipt": "artifacts/vo-drift-final/benchmark.json",
+      "path": ["summary_all_sequences", "failures", 0, "translation_drift_ratio"],
+      "expected": 0.060100266556235044,
+      "documents": [{"path": "README.md", "contains": "6.01% failure"}]
+    },
+    {
+      "id": "landmark_retrieval_recall_at_1",
+      "receipt": "artifacts/landmark-reid/benchmark.json",
+      "path": ["pairs", "forward", "regimes", 0, "retrieval_recall_at_1"],
+      "expected": 0.7080103359173127,
+      "documents": [{"path": "README.md", "contains": "0.708"}]
+    },
+    {
+      "id": "garage_landmark_median_error",
+      "receipt": "artifacts/garage-localization/benchmark.json",
+      "path": ["configurations", "B_landmark", "inside_cover", "median_m"],
+      "expected": 8.616201191240794,
+      "documents": [{"path": "README.md", "contains": "8.62 m"}]
+    },
+    {
+      "id": "gps_handover_events",
+      "receipt": "artifacts/gps-fusion-round5-vo/benchmark.json",
+      "path": ["cases", "garage_2_real_nmea", "handover", "events"],
+      "mode": "length",
+      "expected": 13,
+      "documents": [{"path": "README.md", "contains": "13/13 events"}]
+    },
+    {
+      "id": "gps_handover_within_2_seconds",
+      "receipt": "artifacts/gps-fusion-round5-vo/benchmark.json",
+      "path": ["cases", "garage_2_real_nmea", "handover", "within_2_seconds"],
+      "expected": true,
+      "documents": [{"path": "README.md", "contains": "13/13 events"}]
+    },
+    {
+      "id": "localization_throughput_fps",
+      "receipt": "artifacts/system-fps-b7/benchmark.json",
+      "path": ["headline", "throughput_fps"],
+      "expected": 44.31164204299326,
+      "documents": [{"path": "README.md", "contains": "44.3 FPS"}]
+    },
+    {
+      "id": "gps_relock_within_10_seconds",
+      "receipt": "artifacts/gps-fusion-round5-vo/benchmark.json",
+      "path": ["cases", "garage_2_real_nmea", "relock", "all_stable_within_10s"],
+      "expected": false,
+      "documents": [{"path": "README.md", "contains": "Not achieved"}]
+    }
+  ]
+}

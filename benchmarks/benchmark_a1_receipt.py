@@ -17,10 +17,13 @@ batch đầu vốn toàn ca thành công.
 
 import argparse
 import hashlib
+import importlib.metadata
 import json
+import os
 import platform
 import subprocess
 import sys
+from datetime import datetime, timezone
 from pathlib import Path
 
 import cv2
@@ -41,13 +44,29 @@ def file_digest(path: Path) -> dict:
     }
 
 
-def git_commit() -> str | None:
+def git_receipt() -> dict:
     try:
-        return subprocess.run(
+        commit = subprocess.run(
             ["git", "rev-parse", "HEAD"],
             capture_output=True, text=True, check=True,
         ).stdout.strip()
-    except Exception:
+        dirty = bool(
+            subprocess.run(
+                ["git", "status", "--porcelain"],
+                capture_output=True,
+                text=True,
+                check=True,
+            ).stdout.strip()
+        )
+    except (OSError, subprocess.CalledProcessError):
+        return {"commit": None, "working_tree_dirty": None}
+    return {"commit": commit, "working_tree_dirty": dirty}
+
+
+def package_version(name: str) -> str | None:
+    try:
+        return importlib.metadata.version(name)
+    except importlib.metadata.PackageNotFoundError:
         return None
 
 
@@ -132,8 +151,7 @@ def collect_failures(model, images: list[Path], labels_dir: Path, confidence: fl
     return records
 
 
-def save_samples(records, images_dir: Path, output: Path) -> dict:
-    output.mkdir(parents=True, exist_ok=True)
+def select_samples(records) -> dict:
     picks = {}
     by_fn = [r for r in records if r["false_negatives"] > 0]
     by_fp = [r for r in records if r["false_positives"] > 0]
@@ -144,18 +162,13 @@ def save_samples(records, images_dir: Path, output: Path) -> dict:
         picks["false_positive"] = max(by_fp, key=lambda r: r["false_positives"])
     if by_boundary:
         picks["mask_boundary"] = min(by_boundary, key=lambda r: r["worst_matched_iou"])
-    for kind, record in picks.items():
-        source = images_dir / record["image"]
-        image = cv2.imread(str(source))
-        if image is not None:
-            cv2.imwrite(str(output / f"{kind}_{record['image']}"), image)
     return picks
 
 
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "--detector", type=Path, default=Path("artifacts/final/pothole_yolo26n_seg.pt")
+        "--detector", type=Path, default=Path("models/pothole_yolo26n_seg.onnx")
     )
     parser.add_argument(
         "--onnx", type=Path, default=Path("models/pothole_yolo26n_seg.onnx")
@@ -167,7 +180,9 @@ def main() -> None:
     parser.add_argument(
         "--labels", type=Path, default=Path("artifacts/yolo26n-seg/dataset/labels/test")
     )
-    parser.add_argument("--output", type=Path, default=Path("artifacts/verify-final/a1"))
+    parser.add_argument(
+        "--output", type=Path, default=Path("artifacts/portfolio-detection/a1.json")
+    )
     parser.add_argument("--imgsz", type=int, default=512)
     parser.add_argument("--confidence", type=float, default=0.25)
     # ONNX phải chạy CPU: onnxruntime trong môi trường này thiếu libcudart, và
@@ -184,22 +199,22 @@ def main() -> None:
     import ultralytics
     from ultralytics import YOLO
 
-    model = YOLO(str(args.detector))
+    model = YOLO(str(args.detector), task="segment")
     metrics = model.val(
         data=str(args.data),
         split="test",
         imgsz=args.imgsz,
         verbose=False,
         plots=False,
-        project=str(args.output.parent),
-        name=args.output.name,
+        project=".cache/benchmark-output",
+        name="a1",
         exist_ok=True,
         device=args.device,
     )
 
     images = sorted(args.images.glob("*.jpg")) + sorted(args.images.glob("*.png"))
     records = collect_failures(model, images, args.labels, args.confidence)
-    picks = save_samples(records, args.images, args.output / "failure_samples")
+    picks = select_samples(records)
 
     report = {
         "kpi": "A1 — box mAP@0.5 >= 80% (đạt), >= 85% (xuất sắc)",
@@ -207,10 +222,32 @@ def main() -> None:
             "Receipt máy đọc được cho số headline Phần A; lần chạy trước chỉ "
             "để lại PNG nên số không tự truy vết được."
         ),
-        "git_commit": git_commit(),
+        "receipt": {
+            "created_at_utc": datetime.now(timezone.utc).isoformat(),
+            "git": git_receipt(),
+            "source": {
+                **file_digest(Path(__file__)),
+                "path": "benchmarks/benchmark_a1_receipt.py",
+            },
+            "environment": {
+                "python": platform.python_version(),
+                "platform": platform.platform(),
+                "cpu_count": os.cpu_count(),
+                "torch": torch.__version__,
+                "ultralytics": ultralytics.__version__,
+                "onnxruntime": onnxruntime.__version__,
+                "onnxruntime_gpu": package_version("onnxruntime-gpu"),
+                "opencv": cv2.__version__,
+                "numpy": np.__version__,
+            },
+        },
         "model": {
-            "checkpoint": file_digest(args.detector),
-            "onnx_deployed": file_digest(args.onnx) if args.onnx.exists() else None,
+            "evaluated": file_digest(args.detector),
+            "deployed": file_digest(args.onnx) if args.onnx.exists() else None,
+            "same_artifact": (
+                args.onnx.exists()
+                and args.detector.resolve() == args.onnx.resolve()
+            ),
         },
         "dataset": {
             "name": "Pothole-600 official test split",
@@ -228,13 +265,6 @@ def main() -> None:
             "confidence_for_failure_ranking": args.confidence,
             "device": args.device or ("cuda" if torch.cuda.is_available() else "cpu"),
         },
-        "versions": {
-            "ultralytics": ultralytics.__version__,
-            "onnxruntime": onnxruntime.__version__,
-            "torch": torch.__version__,
-            "python": platform.python_version(),
-            "platform": platform.platform(),
-        },
         "metrics": {
             "box_map50": float(metrics.box.map50),
             "box_map": float(metrics.box.map),
@@ -249,7 +279,8 @@ def main() -> None:
         "failure_evidence": {
             "note": (
                 "Mẫu chọn bằng xếp hạng theo IoU trên toàn split, không phải "
-                "ba batch đầu (vốn toàn ca thành công)."
+                "ba batch đầu (vốn toàn ca thành công). Receipt chỉ lưu metadata "
+                "để file máy đọc được gọn; dataset nguồn được phát hành MIT."
             ),
             "images_with_false_negative": sum(
                 1 for r in records if r["false_negatives"] > 0
@@ -260,22 +291,24 @@ def main() -> None:
             "selected": picks,
         },
         "limitations": [
-            "Metric đo bằng PyTorch checkpoint qua Ultralytics; ONNX deploy "
-            "được ghi SHA nhưng không đo lại trong lần chạy này.",
-            "Số latency ở đây là của lần val trên thiết bị hiện tại, không "
-            "thay thế benchmark ONNX Runtime CPU trong README.",
+            "Pothole-600 test split đã được xem khi chọn export/checkpoint, "
+            "nên đây là evaluation split chứ không phải unseen test.",
+            "Latency của validation bao gồm protocol khác stereo throughput; "
+            "không dùng số này thay benchmark pipeline trong README.",
+            "Receipt chỉ lưu tên file và số đo failure; người dùng phải tự tải "
+            "Pothole-600 để xem raw frame.",
         ],
     }
-    args.output.mkdir(parents=True, exist_ok=True)
-    (args.output / "benchmark.json").write_text(
+    args.output.parent.mkdir(parents=True, exist_ok=True)
+    args.output.write_text(
         json.dumps(report, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
     )
     m = report["metrics"]
     print(
         f"box  mAP@0.5 {m['box_map50']:.4f}  mAP@0.5:0.95 {m['box_map']:.4f}\n"
         f"mask mAP@0.5 {m['mask_map50']:.4f}  mAP@0.5:0.95 {m['mask_map']:.4f}\n"
-        f"failure samples: {sorted(picks)}\n"
-        f"artifact: {args.output / 'benchmark.json'}"
+        f"ranked failure cases: {sorted(picks)}\n"
+        f"artifact: {args.output}"
     )
 
 

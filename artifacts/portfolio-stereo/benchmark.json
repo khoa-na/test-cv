@@ -1,9 +1,9 @@
 {
   "method": "YOLO26n-seg ONNX + StereoSGBM road-disparity fusion",
   "receipt": {
-    "created_at_utc": "2026-08-05T04:03:23.758925+00:00",
+    "created_at_utc": "2026-08-05T05:07:05.661234+00:00",
     "git": {
-      "commit": "ad4b69163611ebcb5a95eebb36de244311b3c8f5",
+      "commit": "bb1a2d8c8dcb42d52f830e5ad088576cfc617a8b",
       "working_tree_dirty": true
     },
     "model": {
@@ -51,16 +51,16 @@
       "numpy": "2.4.4",
       "ultralytics": "8.4.105",
       "onnxruntime": "1.28.0",
-      "onnxruntime_gpu": "1.27.0",
+      "onnxruntime_gpu": null,
       "load_average_before": [
-        0.232421875,
-        0.21337890625,
-        0.29736328125
+        0.14501953125,
+        1.447265625,
+        1.37353515625
       ],
       "load_average_after": [
-        0.9111328125,
-        0.35595703125,
-        0.3427734375
+        0.79248046875,
+        1.546875,
+        1.40673828125
       ]
     }
   },
@@ -96,11 +96,11 @@
     "end_to_end_depth_area_within_15_percent": 0.8421052631578947
   },
   "performance": {
-    "median_latency_ms": 54.98407999994015,
-    "p95_latency_ms": 66.39995760006059,
-    "median_fps": 18.187082515540652,
-    "min_fps": 14.292734468527662,
-    "pairs_at_least_15_fps": 0.9629629629629629
+    "median_latency_ms": 54.812141000184056,
+    "p95_latency_ms": 66.93503089982187,
+    "median_fps": 18.244133174740284,
+    "min_fps": 13.764187453470223,
+    "pairs_at_least_15_fps": 0.9259259259259259
   },
   "limitations": [
     "Depth ground truth is the per-model laser z-extent proxy.",

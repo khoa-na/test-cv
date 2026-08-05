@@ -9,17 +9,16 @@ and dual-frame EKF localization.
 > This project originated as a time-boxed technical assessment and was later
 > extended independently into a reproducible engineering case study. The
 > company, original prompt, and any recruiting material are intentionally not
-> identified or redistributed. The repository contains only public datasets,
-> original implementation work, and attributed benchmark evidence.
+> identified or redistributed. The project uses public datasets and contains
+> original implementation work plus attributed benchmark evidence.
 
-[Technical report](REPORT.md) · [PDF](REPORT.pdf) ·
 [Benchmark notes](BENCHMARK.md) · [Model card](MODEL_CARD.md) ·
 [Third-party notices](THIRD_PARTY_NOTICES.md) ·
 [Demo videos](https://huggingface.co/datasets/khoa-na/pothole-gps-localization-demos)
 
-The technical report and benchmark notes are written in Vietnamese; this
-README is the English entry point and links to the same machine-readable
-evidence.
+The benchmark notes and the archived engineering report under
+[`docs/archive/`](docs/archive/) are written in Vietnamese; this README is the
+English entry point and links to the same machine-readable evidence.
 
 ## What is implemented
 
@@ -52,12 +51,12 @@ kept visible rather than removed from the portfolio.
 
 | Capability | Result | Status |
 |---|---:|---|
-| Pothole box mAP@0.5, Pothole-600 evaluation split | 86.2% | Pass in-domain |
-| Pothole mask mAP@0.5 | 84.6% | Pass in-domain |
-| Box mAP@0.5, independent Mendeley video dataset | 49.9% | Domain gap |
+| Pothole box mAP@0.5, Pothole-600 evaluation split | 89.8% | Tracked ONNX |
+| Pothole mask mAP@0.5 | 87.1% | Tracked ONNX |
+| Box mAP@0.5, independent Mendeley video dataset | 38.5% | Domain gap |
 | Stereo depth median error, 19 held-out pairs | 4.01% | Proxy pass |
 | Stereo area median error | 11.23% | 16/19 within ±15% |
-| Stereo pothole pipeline median throughput | 18.19 FPS | 26/27 pairs ≥15 FPS |
+| Stereo pothole pipeline median throughput | 18.24 FPS | 25/27 pairs ≥15 FPS |
 | VO drift over 500 m windows | 12/13 ≤5% | One 6.01% failure |
 | Landmark retrieval Recall@1 | 0.708 | Below 0.85 target |
 | Garage median error with landmarks | 8.62 m | Improved, still high |
@@ -67,8 +66,8 @@ kept visible rather than removed from the portfolio.
 
 Canonical receipts:
 
-- Detection: `artifacts/verify-final/a1/benchmark.json`
-- Independent-domain detection: `artifacts/cross-dataset-pothole/benchmark.json`
+- Detection: `artifacts/portfolio-detection/a1.json`
+- Independent-domain detection: `artifacts/portfolio-detection/cross-domain.json`
 - Stereo depth/area: `artifacts/portfolio-stereo/benchmark.json`
 - VO: `artifacts/vo-drift-final/benchmark.json`
 - Landmark retrieval: `artifacts/landmark-reid/benchmark.json`
@@ -77,8 +76,8 @@ Canonical receipts:
 - Localization throughput: `artifacts/system-fps-b7/benchmark.json`
 
 Stereo depth/area/FPS numbers above come from the most recent receipt run,
-`artifacts/portfolio-stereo/` (4.01% depth, 11.23% area, 18.19 FPS).
-[REPORT.md](REPORT.md) intentionally pins the earlier full-pipeline artifact
+`artifacts/portfolio-stereo/` (4.01% depth, 11.23% area, 18.24 FPS). The
+archived engineering report pins the earlier full-pipeline artifact
 `artifacts/a3-grid/final-s03125-d112/` (4.97% depth, 11.61% area, 17.45 FPS),
 captured before two later CPU optimizations, so that its accuracy, coverage,
 and latency claims all trace to one artifact. Both receipts are tracked; the
@@ -88,6 +87,11 @@ difference is run-to-run provenance, not a correction.
 
 Python 3.11 or newer is required. The current portfolio receipt was produced
 with Python 3.14.4 on Linux x86-64.
+
+This is a repository application, not a self-contained PyPI package. Clone it,
+install the pinned requirements, and run the modules from the repository root;
+datasets, receipts, documentation, and model provenance are intentionally kept
+as repository-level assets.
 
 ```bash
 python3 -m venv .venv
@@ -129,9 +133,37 @@ split was consulted while comparing multiple exports/checkpoints, so this
 repository calls it an **evaluation split**, not a pristine unseen test set.
 The independent Mendeley result is the stronger generalization check.
 
+The current accuracy receipts evaluate the exact tracked ONNX file on CPU.
+The archived engineering report ([`docs/archive/REPORT.md`](docs/archive/REPORT.md))
+retains earlier PyTorch-checkpoint results at `artifacts/verify-final/a1/` and
+`artifacts/cross-dataset-pothole/` so its historical numbers remain
+self-consistent.
+
+Reproduce the two canonical accuracy receipts after preparing Pothole-600 and
+downloading the Mendeley archive to the path documented by each CLI:
+
+```bash
+.venv/bin/python -m benchmarks.benchmark_a1_receipt
+.venv/bin/python -m benchmarks.benchmark_cross_dataset_pothole
+```
+
+Rebuild the exact 1,008-image / 1,092-instance training manifest and run the
+documented GPU recipe after downloading both datasets. The base checkpoint is
+verified against the SHA-256 in `training/combined_recipe.yaml`:
+
+```bash
+.venv/bin/python -m training.train_pothole600 \
+  --dataset .cache/data/pothole600 --prepare-only
+.venv/bin/python -m data_tools.convert_pothrgbd_yoloseg \
+  --dataset .cache/data/pothrgbd
+.venv/bin/python -m data_tools.build_combined_seg_dataset
+.venv/bin/python -m training.train_combined_detector \
+  --data .cache/data/pothole600-pothrgbd-seg.yaml
+```
+
 ## Pothole perception
 
-The production geometry path combines a YOLO segmentation mask with a robust
+The evaluated geometry path combines a YOLO segmentation mask with a robust
 two-pass road-disparity fit. Stereo inputs must already be rectified and the
 focal length/baseline must match the camera rig.
 
@@ -220,7 +252,7 @@ Datasets are not committed. Local archives belong under `.cache/data/`.
 
 | Dataset | Purpose | License/terms |
 |---|---|---|
-| Pothole-600 | Detector training and evaluation | Public research dataset; explicit standard license not found |
+| Pothole-600 | Detector training and evaluation | MIT on the author-linked Kaggle data card |
 | PothRGBD | Extra masks and ROI depth | MIT on dataset host |
 | Fan stereo pothole | Stereo depth/area | MIT |
 | Mendeley Pothole Videos v2 | Independent-domain evaluation | CC BY 4.0 |
@@ -240,7 +272,7 @@ ros2/         offline bridge and ROS2 integration prototype
 demo/         renderers and clone-ready model smoke test
 tests/        dataset-free unit and integration tests
 artifacts/    selected benchmark receipts and failure evidence
-docs/         architecture diagrams, planning history, and references
+docs/         architecture diagrams, references, and archived planning notes
 ```
 
 ## Known limitations

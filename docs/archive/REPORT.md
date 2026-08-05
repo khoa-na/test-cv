@@ -1,9 +1,14 @@
 # Engineering Decision Report — Stereo pothole perception và GPS-degraded localization
 
-> **Archived assessment report.** Các bảng A2/A3 trong tài liệu này giữ nguyên
-> receipt tại thời điểm nộp. Portfolio rerun mới hơn, bằng code hiện hành và có
-> environment/model receipt đầy đủ, nằm tại
-> `artifacts/portfolio-stereo/benchmark.json` và được tóm tắt trong README.
+> **Archived assessment report.** Tài liệu này giữ nguyên receipt tại thời
+> điểm viết. Portfolio rerun mới hơn, bằng code hiện hành và có
+> environment/model receipt đầy đủ, được tóm tắt trong README gốc repo:
+> A2/A3 stereo tại `artifacts/portfolio-stereo/benchmark.json`, còn detection
+> chạy lại trên chính file ONNX đang track tại
+> `artifacts/portfolio-detection/` (89,8% box mAP@0.5 in-domain, 38,5%
+> cross-domain). Con số 86,2%/49,9% trong tài liệu này đo trên checkpoint
+> PyTorch bằng protocol cũ — khác đường đo, không phải mâu thuẫn; phần
+> "vì sao thấp hơn 89,8%" bên dưới phản ánh hiểu biết tại thời điểm đó.
 
 ## Executive Summary
 
@@ -116,7 +121,7 @@ minh họa không tham gia tính KPI.
 
 Hai phần dùng chung stereo camera và cùng tranh chấp ngân sách CPU:
 
-![Kiến trúc dùng chung stereo perception và localization](docs/assets/system-architecture.svg)
+![Kiến trúc dùng chung stereo perception và localization](../assets/system-architecture.svg)
 
 Chiến lược là khóa các vertical slice có thể kiểm chứng và giữ interface ổn
 định. Một tối ưu cục bộ chỉ được nhận nếu không làm xấu downstream accuracy,
@@ -191,7 +196,7 @@ mAP@0.5 và 5,9 điểm mask mAP@0.5. Tuy nhiên đây không phải ablation ch
 dataset: production đồng thời đổi epoch, cosine learning rate và copy-paste.
 Report chỉ kết luận toàn recipe tốt hơn, không gán toàn bộ gain cho PothRGBD.
 
-![Mask precision–recall trên Pothole-600 test](artifacts/verify-final/a1/MaskPR_curve.png)
+![Mask precision–recall trên Pothole-600 test](../../artifacts/verify-final/a1/MaskPR_curve.png)
 
 Detector latency do Ultralytics báo là 0,4 ms preprocess, 25,7 ms inference và
 3,3 ms postprocess, tổng 29,4 ms / 34,0 FPS. Lần chạy này không lưu phân phối
@@ -229,7 +234,7 @@ không đủ để ước lượng generalization cho mặt đường thật.
 
 #### Case A1 — `model1/L8`: area over-estimate 25,08%
 
-![model1 L8 area failure](artifacts/a3-grid/final-s03125-d112/failures/model1_L8.jpg)
+![model1 L8 area failure](../../artifacts/a3-grid/final-s03125-d112/failures/model1_L8.jpg)
 
 Depth error chỉ 2,70%, detector confidence 0,843 và fusion không fallback,
 nhưng area error là 25,08%. Giả thuyết phù hợp nhất là mask lấy cả vành tối
@@ -239,7 +244,7 @@ opening-mask error khỏi back-projection error trên calibration split riêng.
 
 #### Case A2 — `model2/L20`: held-out area error 21,68%
 
-![model2 L20 area failure](artifacts/a3-grid/final-s03125-d112/failures/model2_L20.jpg)
+![model2 L20 area failure](../../artifacts/a3-grid/final-s03125-d112/failures/model2_L20.jpg)
 
 Đây là held-out group; depth error 4,09% nhưng area error 21,68%. Ca này bác bỏ
 giả thuyết “depth chính xác thì area tự đạt”. Hệ số `yolo_area_scale=0,9096`
@@ -257,10 +262,11 @@ trung thực.
 Trên Pothole-600 test: **30 ảnh** chứa ít nhất một false negative và **36 ảnh**
 chứa ít nhất một false positive, ở ngưỡng confidence 0,25 và IoU khớp 0,5.
 
-| False negative | False positive | Biên mask tệ nhất |
-|---|---|---|
-| ![FN](artifacts/verify-final/a1/failure_samples/false_negative_0111.jpg) | ![FP](artifacts/verify-final/a1/failure_samples/false_positive_0050.jpg) | ![boundary](artifacts/verify-final/a1/failure_samples/mask_boundary_0144.jpg) |
-| `0111.png` — GT có ổ gà, detector không báo | `0050.png` — detector báo, GT không có | `0144.png` — khớp đúng ca nhưng biên lệch |
+Receipt lưu định danh ba ca đại diện: `0111.png` (false negative), `0050.png`
+(false positive) và `0144.png` (biên mask tệ nhất). Raw frame được lược khỏi
+checkout hiện tại để repo gọn; Pothole-600 được tác giả phát hành công khai
+trên Kaggle với license MIT. Metric và metadata xếp hạng vẫn được giữ để
+failure analysis có thể kiểm tra sau khi tải dataset.
 
 Cả ba do `benchmarks/benchmark_a1_receipt.py` chọn tự động bằng thứ hạng IoU,
 không phải tôi nhặt tay.
@@ -285,7 +291,7 @@ Hệ thống dùng **EKF hai frame**:
 Thiết kế này giải thích B6: handover không khởi tạo lại bộ lọc mà chỉ thay đổi
 độ tin cậy của một nhánh correction đã tách sẵn.
 
-![GPS integrity state machine](docs/assets/gps-state-machine.svg)
+![GPS integrity state machine](../assets/gps-state-machine.svg)
 
 ### Trình tự khi mất GPS
 
@@ -328,7 +334,7 @@ thấp nhất dãy, 0,109°/100 m, nên lỗi chủ yếu là translation. Tươ
 drift và quãng đường mỗi frame chỉ 0,213; giả thuyết “chạy nhanh làm scale
 trôi” không được dữ liệu ủng hộ. Nguyên nhân chưa xác định.
 
-![Stereo VO so với reference trên office_loop_1](artifacts/vo-drift-final/office_loop_1.png)
+![Stereo VO so với reference trên office_loop_1](../../artifacts/vo-drift-final/office_loop_1.png)
 
 Quỹ đạo VO (đỏ) bám reference (xám) suốt phần lớn tuyến 3.776 m và tách ra ở
 vài đoạn — đúng hình dạng của drift tích lũy không có loop closure. Vì KPI đo

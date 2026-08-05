@@ -2,10 +2,10 @@
 
 > **Tài liệu lịch sử.** Đây là bản kế hoạch viết *trước* khi chạy benchmark, giữ
 > lại để thấy quá trình. Mọi con số và kết luận trong file này đã bị
-> [`REPORT.md`](../REPORT.md) thay thế — trong đó có một giả thuyết về cổng hiệu
+> [`REPORT.md`](REPORT.md) thay thế — trong đó có một giả thuyết về cổng hiệu
 > chỉnh gyro sau này bị thực nghiệm bác bỏ. Đọc `REPORT.md` để lấy kết quả cuối.
 
-Trạng thái: Phần A xong (xem [README](../README.md), [BENCHMARK.md](../BENCHMARK.md)).
+Trạng thái: Phần A xong (xem [README](../../README.md), [BENCHMARK.md](../../BENCHMARK.md)).
 Phần B là khối việc lớn còn lại. Không còn thời gian tự thu data — dùng dataset open.
 Đánh giá paper nền tại [PAPERS.md](PAPERS.md).
 

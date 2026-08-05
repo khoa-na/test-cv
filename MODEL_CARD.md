@@ -28,22 +28,22 @@ are not included in this repository.
 
 ## Evaluation
 
-The canonical in-domain accuracy receipt is
-`artifacts/verify-final/a1/benchmark.json`:
+The canonical in-domain accuracy receipt for the exact tracked ONNX file is
+`artifacts/portfolio-detection/a1.json`:
 
 | Metric | Result |
 |---|---:|
-| Box mAP@0.5 | 86.2% |
-| Box mAP@0.5:0.95 | 53.4% |
-| Mask mAP@0.5 | 84.6% |
-| Mask mAP@0.5:0.95 | 50.8% |
+| Box mAP@0.5 | 89.8% |
+| Box mAP@0.5:0.95 | 56.3% |
+| Mask mAP@0.5 | 87.1% |
+| Mask mAP@0.5:0.95 | 52.5% |
 
 The Pothole-600 testing split was consulted more than once while comparing
 exports and checkpoints. It is therefore an evaluation split, not a pristine
 unseen test set.
 
 On the independent Mendeley Pothole Videos test split, box mAP@0.5 drops to
-49.9% and mask mAP@0.5 to 45.4%. This domain shift is the most important model
+38.5% and mask mAP@0.5 to 32.8%. This domain shift is the most important model
 limitation.
 
 ## Intended use
@@ -67,8 +67,9 @@ limitation.
 - Large in-domain to cross-domain accuracy drop.
 - A single `pothole` class; severity is computed later from heuristic geometry.
 - The current stereo benchmark represents only three physical potholes.
-- Accuracy was measured with the corresponding PyTorch checkpoint; deployment
-  latency and the tracked ONNX file are recorded separately.
+- Accuracy and deployment inference are measured with the same tracked ONNX
+  file. The archived report retains older PyTorch-checkpoint receipts only for
+  historical traceability.
 - The raw-head ONNX file relies on Ultralytics postprocessing conventions.
 
 ## Reproducibility
@@ -80,5 +81,16 @@ python tools/validate_portfolio.py
 python -m demo.model_smoke
 ```
 
-See `BENCHMARK.md` and `REPORT.md` for protocols, failure cases, and claim
-boundaries.
+Recreate the combined manifest and documented training recipe with:
+
+```bash
+python -m data_tools.build_combined_seg_dataset
+python -m training.train_combined_detector
+```
+
+The canonical `training/combined_recipe.yaml` records 150 epochs, 512 px
+input, batch 16, patience 0, cosine learning rate, `copy_paste=0.3`, base-model
+SHA-256, deterministic seed 42, and the deterministic PothRGBD split.
+
+See `BENCHMARK.md` and the archived `docs/archive/REPORT.md` for protocols,
+failure cases, and claim boundaries.

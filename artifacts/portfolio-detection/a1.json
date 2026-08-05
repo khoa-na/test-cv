@@ -1,0 +1,104 @@
+{
+  "kpi": "A1 — box mAP@0.5 >= 80% (đạt), >= 85% (xuất sắc)",
+  "purpose": "Receipt máy đọc được cho số headline Phần A; lần chạy trước chỉ để lại PNG nên số không tự truy vết được.",
+  "receipt": {
+    "created_at_utc": "2026-08-05T05:25:51.169077+00:00",
+    "git": {
+      "commit": "bb1a2d8c8dcb42d52f830e5ad088576cfc617a8b",
+      "working_tree_dirty": true
+    },
+    "source": {
+      "path": "benchmarks/benchmark_a1_receipt.py",
+      "bytes": 12178,
+      "sha256": "81f97e83fbcc58abf85575223fb7aa7a14fec844026073583362272e887bbbaf"
+    },
+    "environment": {
+      "python": "3.14.4",
+      "platform": "Linux-6.18.33.1-microsoft-standard-WSL2-x86_64-with-glibc2.43",
+      "cpu_count": 16,
+      "torch": "2.13.0+cpu",
+      "ultralytics": "8.4.105",
+      "onnxruntime": "1.28.0",
+      "onnxruntime_gpu": null,
+      "opencv": "5.0.0",
+      "numpy": "2.4.4"
+    }
+  },
+  "model": {
+    "evaluated": {
+      "path": "models/pothole_yolo26n_seg.onnx",
+      "bytes": 11006894,
+      "sha256": "3ab52bdc4b41cc59b4b845b090bcddc2d927870ce272fdcff2dbb473b3a598c5"
+    },
+    "deployed": {
+      "path": "models/pothole_yolo26n_seg.onnx",
+      "bytes": 11006894,
+      "sha256": "3ab52bdc4b41cc59b4b845b090bcddc2d927870ce272fdcff2dbb473b3a598c5"
+    },
+    "same_artifact": true
+  },
+  "dataset": {
+    "name": "Pothole-600 official test split",
+    "data_yaml": ".cache/data/pothole600-pothrgbd-seg.yaml",
+    "split": "test",
+    "images": 180,
+    "note": "Split không tham gia gradient update, nhưng đã được dùng để đối chiếu nhiều export/checkpoint, nên không gọi là test hoàn toàn chưa quan sát."
+  },
+  "run_config": {
+    "imgsz": 512,
+    "confidence_for_failure_ranking": 0.25,
+    "device": "cpu"
+  },
+  "metrics": {
+    "box_map50": 0.8976455581185483,
+    "box_map": 0.5626801509522458,
+    "box_precision": 0.8787813330816812,
+    "box_recall": 0.8137325311634374,
+    "mask_map50": 0.8709216921942611,
+    "mask_map": 0.5248023577471167,
+    "mask_precision": 0.8740905776848933,
+    "mask_recall": 0.8146541216444226
+  },
+  "speed_ms_per_image": {
+    "preprocess": 0.47581861113030754,
+    "inference": 23.772086877776623,
+    "loss": 0.0010345611473086239,
+    "postprocess": 1.089171722226941
+  },
+  "failure_evidence": {
+    "note": "Mẫu chọn bằng xếp hạng theo IoU trên toàn split, không phải ba batch đầu (vốn toàn ca thành công). Receipt chỉ lưu metadata để file máy đọc được gọn; dataset nguồn được phát hành MIT.",
+    "images_with_false_negative": 27,
+    "images_with_false_positive": 37,
+    "selected": {
+      "false_negative": {
+        "image": "0111.png",
+        "truth": 2,
+        "predicted": 1,
+        "false_negatives": 2,
+        "false_positives": 1,
+        "worst_matched_iou": null
+      },
+      "false_positive": {
+        "image": "0053.png",
+        "truth": 1,
+        "predicted": 2,
+        "false_negatives": 1,
+        "false_positives": 2,
+        "worst_matched_iou": null
+      },
+      "mask_boundary": {
+        "image": "0172.png",
+        "truth": 1,
+        "predicted": 1,
+        "false_negatives": 0,
+        "false_positives": 0,
+        "worst_matched_iou": 0.5766907915462797
+      }
+    }
+  },
+  "limitations": [
+    "Pothole-600 test split đã được xem khi chọn export/checkpoint, nên đây là evaluation split chứ không phải unseen test.",
+    "Latency của validation bao gồm protocol khác stereo throughput; không dùng số này thay benchmark pipeline trong README.",
+    "Receipt chỉ lưu tên file và số đo failure; người dùng phải tự tải Pothole-600 để xem raw frame."
+  ]
+}

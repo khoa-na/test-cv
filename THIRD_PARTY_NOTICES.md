@@ -20,13 +20,16 @@ closed-source deployment may require a separate license from Ultralytics.
 ## Pothole-600
 
 - Use: detector training and in-domain evaluation.
-- Source: <https://sites.google.com/view/pothole-600/dataset>
-- Terms observed: the publisher describes the dataset as publicly available
-  for research and requests citation, but the download page does not state a
-  standard open-source license.
+- Official source: <https://sites.google.com/view/pothole-600/dataset>
+- Kaggle mirror linked by the author:
+  <https://www.kaggle.com/datasets/rangerfan/pothole-600>
+- License: MIT, as declared by the official Kaggle data card owned by
+  `rangerfan`.
 
-The trained model is provided for open research and portfolio demonstration.
-Users must confirm that their intended use complies with the dataset terms.
+The dataset license permits reuse and redistribution subject to the MIT
+notice. The trained ONNX model remains governed by this repository's
+AGPL-3.0 license and the Ultralytics terms described above; preserve the
+Pothole-600 attribution when redistributing derived model artifacts.
 
 ## PothRGBD
 
@@ -39,9 +42,10 @@ No PothRGBD source image or depth file is redistributed in this repository.
 ## Fan stereo pothole dataset
 
 - Use: stereo depth/area calibration and evaluation.
-- Source: <https://github.com/ruirangerfan/stereo_pothole_datasets>
+- Source: <https://github.com/ruirangerfan/rethinking_road_reconstruction_pothole_detection>
 - License: MIT, as published with the dataset.
 - Derived files: `artifacts/a3-grid/final-s03125-d112/failures/*.jpg`.
+- Full upstream notice: `third_party_licenses/FAN_STEREO_MIT.txt`.
 
 Those images are retained only as benchmark evidence and should preserve the
 dataset attribution when reused.
@@ -52,6 +56,8 @@ dataset attribution when reused.
 - DOI: <https://doi.org/10.17632/5bwfg4v4cd.2>
 - License: Creative Commons Attribution 4.0 (`CC BY 4.0`).
 - Authors: Muhammad Ihsan, Agus Harjoko, and Muhammad Alfian Amrizal.
+- Changes: source mask videos are decoded, thresholded, converted to YOLO
+  polygons, and overlaid in the derived demonstration video.
 
 ## 4Seasons
 
@@ -71,10 +77,11 @@ is separately subject to `CC BY-NC-SA 4.0`:
   `artifacts/system-fps-b7`
 - the separately hosted Part B demo video
 
+Per-directory provenance is summarized in `artifacts/README.md`.
+
 ## Demo videos
 
 Demo videos are hosted separately at
 <https://huggingface.co/datasets/khoa-na/pothole-gps-localization-demos> and
 are published under `CC BY-NC-SA 4.0`. Each video identifies its source data
 on-screen.
-

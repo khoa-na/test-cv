@@ -231,10 +231,14 @@ __marimo__/
 BENCH_STATUS.md
 luu-y-viet-report-bai-test.md
 
-# Evidence referenced by REPORT.md is kept so the report remains verifiable
+# Evidence referenced by the docs is kept so the claims remain verifiable
 # được trên GitHub. Phần artifacts/ còn lại vẫn bị bỏ qua.
 !artifacts/
 artifacts/*
+!artifacts/README.md
+!artifacts/portfolio-claims.json
+!artifacts/portfolio-detection/
+!artifacts/portfolio-detection/**
 !artifacts/verify-final/
 !artifacts/verify-final/**
 !artifacts/a3-grid/

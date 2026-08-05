@@ -2,11 +2,11 @@
 
 ## Headline có receipt
 
-Kết quả canonical hiện hành là **86,2% box mAP@0.5** và **84,6% mask mAP@0.5**.
+Kết quả canonical hiện hành là **89,8% box mAP@0.5** và **87,1% mask mAP@0.5**.
 `benchmarks/benchmark_a1_receipt.py` lưu model SHA, split và phiên bản thư viện
-tại `artifacts/verify-final/a1/benchmark.json`.
+tại `artifacts/portfolio-detection/a1.json`.
 
-Ngày chạy: 2026-07-26 (detection và stereo), 2026-07-25 (depth monocular)
+Ngày chạy portfolio ONNX: 2026-08-05
 
 CPU: Intel Core i5-13400F
 
@@ -15,23 +15,23 @@ Input: 512x512, batch 1
 
 | Metric | Receipt hiện hành |
 |---|---:|
-| Box precision | 92,5% |
-| Box recall | 78,6% |
-| Box mAP@0.5 | **86,2%** |
-| Box mAP@0.5:0.95 | 53,4% |
-| Mask precision | 91,2% |
-| Mask recall | 77,6% |
-| Mask mAP@0.5 | **84,6%** |
-| Mask mAP@0.5:0.95 | 50,8% |
+| Box precision | 87,9% |
+| Box recall | 81,4% |
+| Box mAP@0.5 | **89,8%** |
+| Box mAP@0.5:0.95 | 56,3% |
+| Mask precision | 87,4% |
+| Mask recall | 81,5% |
+| Mask mAP@0.5 | **87,1%** |
+| Mask mAP@0.5:0.95 | 52,5% |
 
 Model production train trên tập gộp Pothole-600 + PothRGBD (150 epochs,
 `copy_paste=0.3`). Val vẫn chạy trên Pothole-600 official test split để so
 trực tiếp với baseline chỉ-Pothole-600.
 
-Model deploy là raw-head ONNX, chạy bằng ONNX Runtime CPU. Accuracy receipt
-được đo qua checkpoint PyTorch tương ứng vì `YOLO.val()` không decode đúng
-hai output raw-head của file ONNX. Latency deploy đo riêng: preprocess 0,4 ms,
-ONNX inference 25,7 ms, postprocess 3,3 ms, tổng **29,4 ms / 34,0 FPS**.
+Model deploy là raw-head ONNX, chạy bằng ONNX Runtime 1.28 CPU. Benchmark ép
+`task=segment` để Ultralytics decode đúng detection head và mask prototypes.
+Validation đo preprocess 0,7 ms, ONNX inference 25,3 ms và postprocess 1,6 ms,
+tổng **27,7 ms / 36,1 FPS** trên lần chạy receipt.
 
 ```text
 ONNX SHA256 3ab52bdc4b41cc59b4b845b090bcddc2d927870ce272fdcff2dbb473b3a598c5
@@ -39,9 +39,10 @@ ONNX SHA256 3ab52bdc4b41cc59b4b845b090bcddc2d927870ce272fdcff2dbb473b3a598c5
 
 ## Kết quả lịch sử không dùng làm headline
 
-Một run cũ ghi 89,8% box và 87,1% mask nhưng chỉ để lại PNG, không có model
-SHA, split hay phiên bản thư viện. Đường chạy đó không còn tái lập được nên
-không xuất hiện trong bảng headline. Nó chỉ được giữ như lịch sử thử nghiệm.
+Run cũ từng ghi 89,8% box và 87,1% mask nhưng chỉ để lại PNG. Receipt ONNX mới
+tái lập đúng mức đó bằng model SHA đang track. Receipt PyTorch 86,2%/84,6%
+vẫn được giữ tại `artifacts/verify-final/a1/benchmark.json` vì
+`docs/archive/REPORT.md` là báo cáo lịch sử và phải tiếp tục tự kiểm chứng.
 
 | Configuration lịch sử | Box mAP@0.5 | Mask mAP@0.5 |
 |---|---:|---:|
@@ -49,6 +50,11 @@ không xuất hiện trong bảng headline. Nó chỉ được giữ như lịch
 | Baseline Pothole-600 | 85,5% | 81,2% |
 | PyTorch baseline, `end2end=False` | 86,9% | 81,8% |
 | ONNX end-to-end top-300 | 74,1% | 71,9% |
+
+Trên Mendeley Pothole Videos độc lập, cùng ONNX chỉ đạt **38,5% box mAP@0.5**
+và **32,8% mask mAP@0.5**. Receipt nằm tại
+`artifacts/portfolio-detection/cross-domain.json`. Đây là headline domain-gap
+hiện hành; số PyTorch cũ 49,9%/45,4% chỉ còn thuộc báo cáo archived.
 
 Ứng viên thứ ba — fine-tune giai đoạn 2 trên riêng Pothole-600 từ checkpoint
 merged — đạt box mAP@0.5 cao nhất (90.2%) nhưng bị loại: mAP@0.5:0.95 thấp hơn
@@ -108,8 +114,9 @@ residual fallback). Đường mask YOLO dùng hệ số 1,0 (xem bên dưới).
 
 Receipt portfolio hiện hành được chạy lại bằng code trong working tree ngày
 2026-08-05 và lưu tại `artifacts/portfolio-stereo/`. Receipt cũ dùng trong
-`REPORT.md` được giữ nguyên tại `artifacts/a3-grid/final-s03125-d112/` để báo
-cáo đã nộp vẫn tự kiểm chứng được.
+`docs/archive/REPORT.md` được giữ nguyên tại
+`artifacts/a3-grid/final-s03125-d112/` để báo cáo lịch sử vẫn tự kiểm chứng
+được.
 
 | Metric held-out | Receipt báo cáo | Portfolio hiện hành |
 |---|---:|---:|
@@ -123,8 +130,8 @@ cáo đã nộp vẫn tự kiểm chứng được.
 | Area trong ±8% / ±15% | 21,05% / 89,47% | 26,32% / **84,21%** |
 | Area p95 / max | — | 18,3% / 18,7% |
 | Depth + area cùng trong ±15% | 89,47% | 84,21% |
-| Median throughput | 17,45 FPS | **18,19 FPS** |
-| Pair đạt ≥15 FPS | 26/27 | 26/27 |
+| Median throughput | 17,45 FPS | **18,24 FPS** |
+| Pair đạt ≥15 FPS | 26/27 | 25/27 |
 
 Chênh lệch depth đến từ hai thay đổi:
 
@@ -216,8 +223,8 @@ session 22,2 → 17,4 ms nhưng end-to-end chỉ lời ~2 ms, đổi lại area 
 78,9% → 68,4% (một số mask xê dịch biên). A1 của bản INT8 vẫn đạt (box mAP@0.5
 89,6%, mask 88,2%) nên đây là phương án dự phòng nếu cần FPS trên máy yếu hơn.
 
-Receipt portfolio đo trên máy rảnh: **54,98 ms / 18,19 FPS**, p95 66,40 ms,
-min 14,29 FPS và 26/27 pair đạt ≥15 FPS. JSON ghi model SHA, hash source code,
+Receipt portfolio CPU-only đo trên máy rảnh: **54,81 ms / 18,24 FPS**, p95
+66,94 ms, min 13,76 FPS và 25/27 pair đạt ≥15 FPS. JSON ghi model SHA, hash source code,
 cấu hình lệnh, phiên bản thư viện, load average và trạng thái working tree.
 Latency vẫn phụ thuộc tải máy; metric accuracy ổn định giữa các lần chạy cùng
 code/model.

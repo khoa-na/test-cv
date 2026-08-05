@@ -1,7 +1,7 @@
 """Module A trên một bộ dữ liệu độc lập hoàn toàn.
 
-Mốc in-domain hiện tại (box mAP@0.5 86,2%, mask 84,6%) đo trên test split
-của chính họ dữ liệu đã train: Pothole-600 + PothRGBD. Bộ này thì model chưa
+Mốc in-domain hiện tại (box mAP@0.5 89,8%, mask 87,1%) đo trên evaluation
+split Pothole-600 bằng đúng ONNX đang deploy. Bộ này thì model chưa
 thấy một frame nào — Mendeley 5bwfg4v4cd (CC BY 4.0, Indonesia), 123 clip test,
 mỗi clip 48 frame 1080x1080 kèm một clip mask làm ground truth từng frame.
 
@@ -9,7 +9,7 @@ Camera đặt cách mặt đường ~130 cm nhìn xuống, gần miền PothRGBD
 phép thử chuyển miền chứ không phải thử một bài toán khác.
 
 mAP tính bằng chính `YOLO.val()` với imgsz=512 như lúc train, nên số so trực
-tiếp được với receipt 86,2%/84,6%. Không có ngưỡng nào chỉnh theo kết quả.
+tiếp được với receipt canonical. Không có ngưỡng nào chỉnh theo kết quả.
 
 Cảnh báo về ground truth: mask được phát hành dưới dạng mp4 nén mất mát, nên
 biên mask có nhiễu nén. Script nhị phân hoá ở >127 và ghi lại tỉ lệ pixel rơi
@@ -17,10 +17,16 @@ vào vùng xám 64..192 để người đọc tự đánh giá mức nhiễu nà
 """
 
 import argparse
+import hashlib
+import importlib.metadata
 import json
+import os
+import platform
 import shutil
+import subprocess
 import sys
 import zipfile
+from datetime import datetime, timezone
 from pathlib import Path
 
 import cv2
@@ -30,15 +36,47 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 ARCHIVE = Path(".cache/data/pothole-video-id/pothole_video.zip")
 EXTRACT_ROOT = Path(".cache/data/pothole-video-id")
-# Receipt đang báo cáo tại artifacts/verify-final/a1/benchmark.json.
-IN_DOMAIN = {
-    "box_map50": 0.8620183855615893,
-    "box_map": 0.5341035526766775,
-    "mask_map50": 0.8463070271153181,
-    "mask_map": 0.5079244636304266,
-}
+# Canonical receipt evaluates the exact tracked ONNX model.
+IN_DOMAIN_RECEIPT = Path("artifacts/portfolio-detection/a1.json")
 MIN_POLYGON_POINTS = 6
 MIN_INSTANCE_PIXELS = 200
+
+
+def file_digest(path: Path) -> dict:
+    digest = hashlib.sha256()
+    with path.open("rb") as file:
+        for chunk in iter(lambda: file.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return {
+        "path": str(path),
+        "bytes": path.stat().st_size,
+        "sha256": digest.hexdigest(),
+    }
+
+
+def git_receipt() -> dict:
+    try:
+        commit = subprocess.run(
+            ["git", "rev-parse", "HEAD"], check=True, capture_output=True, text=True
+        ).stdout.strip()
+        dirty = bool(
+            subprocess.run(
+                ["git", "status", "--porcelain"],
+                check=True,
+                capture_output=True,
+                text=True,
+            ).stdout.strip()
+        )
+    except (OSError, subprocess.CalledProcessError):
+        return {"commit": None, "working_tree_dirty": None}
+    return {"commit": commit, "working_tree_dirty": dirty}
+
+
+def package_version(name: str) -> str | None:
+    try:
+        return importlib.metadata.version(name)
+    except importlib.metadata.PackageNotFoundError:
+        return None
 
 
 def ensure_test_split(archive: Path, root: Path) -> Path:
@@ -143,13 +181,18 @@ def main() -> None:
     parser.add_argument("--archive", type=Path, default=ARCHIVE)
     parser.add_argument("--extract-root", type=Path, default=EXTRACT_ROOT)
     parser.add_argument(
-        "--detector", type=Path, default=Path("artifacts/final/pothole_yolo26n_seg.pt")
+        "--detector", type=Path, default=Path("models/pothole_yolo26n_seg.onnx")
+    )
+    parser.add_argument(
+        "--in-domain-receipt", type=Path, default=IN_DOMAIN_RECEIPT
     )
     parser.add_argument(
         "--dataset-output", type=Path, default=Path(".cache/data/pothole-video-id/yoloseg")
     )
     parser.add_argument(
-        "--output", type=Path, default=Path("artifacts/cross-dataset-pothole")
+        "--output",
+        type=Path,
+        default=Path("artifacts/portfolio-detection/cross-domain.json"),
     )
     parser.add_argument("--imgsz", type=int, default=512)
     parser.add_argument(
@@ -163,22 +206,31 @@ def main() -> None:
         ),
     )
     args = parser.parse_args()
+    in_domain_report = json.loads(args.in_domain_receipt.read_text(encoding="utf-8"))
+    in_domain = {
+        key: in_domain_report["metrics"][key]
+        for key in ("box_map50", "box_map", "mask_map50", "mask_map")
+    }
 
     split_dir = ensure_test_split(args.archive, args.extract_root)
     dataset = build_dataset(split_dir, args.dataset_output, args.stride)
     print(json.dumps(dataset, indent=2, ensure_ascii=False))
 
+    import torch
+    import onnxruntime
+    import ultralytics
     from ultralytics import YOLO
 
-    metrics = YOLO(str(args.detector)).val(
+    metrics = YOLO(str(args.detector), task="segment").val(
         data=dataset["data_yaml"],
         imgsz=args.imgsz,
         split="val",
         verbose=False,
         plots=False,
-        project=str(args.output),
-        name="val",
+        project=".cache/benchmark-output",
+        name="cross-domain",
         exist_ok=True,
+        device="cpu" if args.detector.suffix == ".onnx" else None,
     )
     measured = {
         "box_map50": float(metrics.box.map50),
@@ -193,6 +245,27 @@ def main() -> None:
     report = {
         "kpi": "mAP@0.5 >= 80% (in-domain target, measured on validation data)",
         "question": "Model giữ được bao nhiêu khi sang bộ dữ liệu chưa từng thấy?",
+        "receipt": {
+            "created_at_utc": datetime.now(timezone.utc).isoformat(),
+            "git": git_receipt(),
+            "model": file_digest(args.detector),
+            "source": {
+                **file_digest(Path(__file__)),
+                "path": "benchmarks/benchmark_cross_dataset_pothole.py",
+            },
+            "in_domain_receipt": file_digest(args.in_domain_receipt),
+            "environment": {
+                "python": platform.python_version(),
+                "platform": platform.platform(),
+                "cpu_count": os.cpu_count(),
+                "torch": torch.__version__,
+                "ultralytics": ultralytics.__version__,
+                "onnxruntime": onnxruntime.__version__,
+                "onnxruntime_gpu": package_version("onnxruntime-gpu"),
+                "opencv": cv2.__version__,
+                "numpy": np.__version__,
+            },
+        },
         "detector": str(args.detector),
         "imgsz": args.imgsz,
         "source_dataset": {
@@ -204,9 +277,9 @@ def main() -> None:
         },
         "dataset_build": dataset,
         "cross_dataset": measured,
-        "in_domain_reference": IN_DOMAIN,
+        "in_domain_reference": in_domain,
         "retention": {
-            key: (measured[key] / IN_DOMAIN[key] if IN_DOMAIN.get(key) else None)
+            key: (measured[key] / in_domain[key] if in_domain.get(key) else None)
             for key in ("box_map50", "box_map", "mask_map50", "mask_map")
         },
         "limitations": [
@@ -218,16 +291,16 @@ def main() -> None:
             "Không thay thế được footage thực địa của target deployment scenario.",
         ],
     }
-    args.output.mkdir(parents=True, exist_ok=True)
-    (args.output / "benchmark.json").write_text(
+    args.output.parent.mkdir(parents=True, exist_ok=True)
+    args.output.write_text(
         json.dumps(report, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
     )
     print(
         f"\nbox  mAP@0.5 {measured['box_map50']:.3f} "
-        f"(cùng miền {IN_DOMAIN['box_map50']:.3f})\n"
+        f"(cùng miền {in_domain['box_map50']:.3f})\n"
         f"mask mAP@0.5 {measured['mask_map50']:.3f} "
-        f"(cùng miền {IN_DOMAIN['mask_map50']:.3f})\n"
-        f"artifact: {args.output / 'benchmark.json'}"
+        f"(cùng miền {in_domain['mask_map50']:.3f})\n"
+        f"artifact: {args.output}"
     )
 
 

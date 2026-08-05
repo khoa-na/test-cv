@@ -1,0 +1,82 @@
+{
+  "kpi": "mAP@0.5 >= 80% (in-domain target, measured on validation data)",
+  "question": "Model giữ được bao nhiêu khi sang bộ dữ liệu chưa từng thấy?",
+  "receipt": {
+    "created_at_utc": "2026-08-05T05:27:27.353528+00:00",
+    "git": {
+      "commit": "bb1a2d8c8dcb42d52f830e5ad088576cfc617a8b",
+      "working_tree_dirty": true
+    },
+    "model": {
+      "path": "models/pothole_yolo26n_seg.onnx",
+      "bytes": 11006894,
+      "sha256": "3ab52bdc4b41cc59b4b845b090bcddc2d927870ce272fdcff2dbb473b3a598c5"
+    },
+    "source": {
+      "path": "benchmarks/benchmark_cross_dataset_pothole.py",
+      "bytes": 11542,
+      "sha256": "41f1b9ad2fc7e246dcae8c7e08ab2694dd52fe643bae9abb424ca8652f844e7f"
+    },
+    "in_domain_receipt": {
+      "path": "artifacts/portfolio-detection/a1.json",
+      "bytes": 3724,
+      "sha256": "e2900b009b5fc6ae77d65fab3afea33f0c0f143300f6b2428dc4a870ff42e7fb"
+    },
+    "environment": {
+      "python": "3.14.4",
+      "platform": "Linux-6.18.33.1-microsoft-standard-WSL2-x86_64-with-glibc2.43",
+      "cpu_count": 16,
+      "torch": "2.13.0+cpu",
+      "ultralytics": "8.4.105",
+      "onnxruntime": "1.28.0",
+      "onnxruntime_gpu": null,
+      "opencv": "5.0.0",
+      "numpy": "2.4.4"
+    }
+  },
+  "detector": "models/pothole_yolo26n_seg.onnx",
+  "imgsz": 512,
+  "source_dataset": {
+    "name": "Mendeley 5bwfg4v4cd v2 - pothole video dataset",
+    "license": "CC BY 4.0",
+    "country": "Indonesia",
+    "split_used": "test",
+    "camera": "top-down, ~130 cm above road"
+  },
+  "dataset_build": {
+    "clips": 123,
+    "frames": 1476,
+    "frame_stride": 4,
+    "gt_instances": 1532,
+    "frames_without_instance": 0,
+    "mask_compression_grey_fraction": 0.000675057318560154,
+    "data_yaml": ".cache/data/pothole-video-id/yoloseg/data.yaml"
+  },
+  "cross_dataset": {
+    "box_map50": 0.3851392182405666,
+    "box_map": 0.19527123814766467,
+    "box_precision": 0.462651338923061,
+    "box_recall": 0.4471279373368146,
+    "mask_map50": 0.328348827017375,
+    "mask_map": 0.14923650646231632,
+    "mask_precision": 0.4383826948834331,
+    "mask_recall": 0.41627114244509195
+  },
+  "in_domain_reference": {
+    "box_map50": 0.8976455581185483,
+    "box_map": 0.5626801509522458,
+    "mask_map50": 0.8709216921942611,
+    "mask_map": 0.5248023577471167
+  },
+  "retention": {
+    "box_map50": 0.42905489227598104,
+    "box_map": 0.347037722615947,
+    "mask_map50": 0.3770130310913602,
+    "mask_map": 0.28436706554246843
+  },
+  "limitations": [
+    "Ground truth phát hành dưới dạng mp4 nén mất mát; biên mask có nhiễu nén. Tỉ lệ pixel xám 64..192 ghi trong dataset_build.",
+    "Instance tách bằng connected components trên mask nhị phân, nên hai ổ gà dính nhau bị đếm thành một.",
+    "Bộ này quay ở Indonesia, không phải môi trường triển khai mục tiêu. Không thay thế được footage thực địa của target deployment scenario."
+  ]
+}

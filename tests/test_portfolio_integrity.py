@@ -6,6 +6,7 @@ from tools.validate_portfolio import REPOSITORY_ROOT, validate_repository
 def test_portfolio_integrity() -> None:
     result = validate_repository()
     assert result["status"] == "ok", result["errors"]
+    assert result["checks"]["headline_claims"] == 17
 
 
 def test_license_matches_model_distribution_terms() -> None:
@@ -16,6 +17,7 @@ def test_license_matches_model_distribution_terms() -> None:
     assert "AGPL-3.0" in notices
 
 
-def test_clone_ready_entrypoints_exist() -> None:
+def test_clone_ready_repository_commands_exist() -> None:
     assert (Path(REPOSITORY_ROOT) / "demo/model_smoke.py").is_file()
+    assert (Path(REPOSITORY_ROOT) / "tools/validate_portfolio.py").is_file()
     assert (Path(REPOSITORY_ROOT) / ".github/workflows/ci.yml").is_file()
