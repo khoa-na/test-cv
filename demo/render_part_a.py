@@ -3,8 +3,8 @@
 Bộ Fan chỉ có 27 cặp stereo tĩnh, không phải video liên tục, nên mỗi cặp được
 giữ vài giây. Ground truth hiển thị cạnh số đo để người xem tự đối chiếu.
 
-Đề yêu cầu quay tại TP.HCM. Không thực hiện được trong thời gian test, nên
-video render từ dataset và banner ghi rõ nguồn.
+Không có footage thực địa tự quay trong time-box, nên video render từ dataset
+công khai và banner ghi rõ nguồn.
 """
 
 import argparse

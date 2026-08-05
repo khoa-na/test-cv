@@ -6,8 +6,8 @@ from pathlib import Path
 
 import cv2
 import numpy as np
-import onnxruntime as ort
 import torch
+import onnxruntime as ort
 from torch import nn
 from torch.utils.data import DataLoader, Dataset
 from torchvision.models import MobileNet_V3_Small_Weights, mobilenet_v3_small

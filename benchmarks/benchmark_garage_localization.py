@@ -314,7 +314,7 @@ def main() -> None:
         action="store_true",
         help=(
             "Thêm các cấu hình chỉ đổi recovery_consensus_count/radius trên nền "
-            "cấu hình A, để đo đường đánh đổi của B8. Không đổi cấu hình nộp bài."
+            "cấu hình A, để đo đường đánh đổi của B8. Không đổi canonical config."
         ),
     )
     args = parser.parse_args()
@@ -363,7 +363,7 @@ def main() -> None:
     reference_timestamps, reference_xyz, _ = reference_in_map_frame(query, fit)
     reference = (reference_timestamps, reference_xyz[:, :2])
 
-    # Cấu hình nộp bài, cộng phần quét ngưỡng consensus nếu được yêu cầu. VO đã
+    # Canonical config, cộng phần quét ngưỡng consensus nếu được yêu cầu. VO đã
     # cache nên mỗi cấu hình thêm gần như miễn phí.
     defaults = FusionConfig()
     configurations = [

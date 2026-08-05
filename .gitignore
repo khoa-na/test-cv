@@ -227,11 +227,11 @@ __marimo__/
 # Streamlit
 .streamlit/secrets.toml
 
-# Ghi chú nội bộ trong lúc làm bài, không thuộc bài nộp
+# Internal working notes; not part of the public portfolio
 BENCH_STATUS.md
 luu-y-viet-report-bai-test.md
 
-# Bằng chứng mà REPORT.md trích dẫn: giữ trong repo để report tự kiểm chứng
+# Evidence referenced by REPORT.md is kept so the report remains verifiable
 # được trên GitHub. Phần artifacts/ còn lại vẫn bị bỏ qua.
 !artifacts/
 artifacts/*
@@ -258,6 +258,10 @@ artifacts/a3-grid/final-s03125-d112/*
 !artifacts/garage-localization-sweep/benchmark.json
 !artifacts/system-fps-b7/
 !artifacts/system-fps-b7/benchmark.json
+!artifacts/portfolio-stereo/
+artifacts/portfolio-stereo/*
+!artifacts/portfolio-stereo/benchmark.json
+!artifacts/portfolio-stereo/rows.csv
 !artifacts/cross-dataset-pothole/
 !artifacts/cross-dataset-pothole/benchmark.json
 !artifacts/gps-fusion-round5-vo/
@@ -270,5 +274,5 @@ artifacts/a3-grid/final-s03125-d112/*
 artifacts/system-fps-b7/landmark_db.npz
 artifacts/a3-grid/final-s03125-d112/failures/model2_L9.jpg
 
-# Tài liệu tuyển dụng của công ty, không thuộc bài nộp
+# Recruiting material is intentionally excluded from the public portfolio
 \[JD\]*.pdf

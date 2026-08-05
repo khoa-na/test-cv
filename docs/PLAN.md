@@ -6,7 +6,7 @@
 > chỉnh gyro sau này bị thực nghiệm bác bỏ. Đọc `REPORT.md` để lấy kết quả cuối.
 
 Trạng thái: Phần A xong (xem [README](../README.md), [BENCHMARK.md](../BENCHMARK.md)).
-Phần B chiếm 55% tổng điểm. Không còn thời gian tự thu data — dùng dataset open.
+Phần B là khối việc lớn còn lại. Không còn thời gian tự thu data — dùng dataset open.
 Đánh giá paper nền tại [PAPERS.md](PAPERS.md).
 
 ## Quyết định chốt

@@ -454,7 +454,7 @@ def parse_args() -> argparse.Namespace:
         "--gyro-gate-override",
         type=float,
         help=(
-            "CHẨN ĐOÁN, không phải config nộp bài: ép ngưỡng "
+            "CHẨN ĐOÁN, không phải canonical config: ép ngưỡng "
             "stationary_gyro_p95_rad_s để chạy phản chứng trên sequence bị "
             "cổng chặn. Mặc định giữ 0.02."
         ),
@@ -465,7 +465,7 @@ def parse_args() -> argparse.Namespace:
         default="recording_start",
         help=(
             "CHẨN ĐOÁN: quietest_window quét cả recording tìm cửa sổ 2 s yên "
-            "nhất thay vì mặc định lấy 2 s đầu. Bài nộp dùng recording_start."
+            "nhất thay vì mặc định lấy 2 s đầu. Canonical receipt dùng recording_start."
         ),
     )
     parser.add_argument(

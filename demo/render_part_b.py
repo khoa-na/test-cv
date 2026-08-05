@@ -4,8 +4,8 @@ Script này chạy vòng fusion riêng thay vì gọi ``benchmark_gps_fusion.run
 vì cần state của integrity monitor ở từng frame để vẽ. Mọi con số KPI trong báo
 cáo vẫn đến từ benchmark, không đến từ đây.
 
-Đề yêu cầu quay tại TP.HCM. Không thực hiện được trong thời gian test, nên
-video render từ 4Seasons và banner ghi rõ nguồn — không trình bày như tự quay.
+Không có footage thực địa tự quay trong time-box, nên video render từ 4Seasons
+và banner ghi rõ nguồn — không trình bày như footage tự quay.
 """
 
 import argparse

@@ -191,7 +191,7 @@ def main() -> None:
         "mask_recall": float(metrics.seg.mr),
     }
     report = {
-        "kpi": "mAP@0.5 >= 80% (đề bài, đo trên val cùng miền)",
+        "kpi": "mAP@0.5 >= 80% (in-domain target, measured on validation data)",
         "question": "Model giữ được bao nhiêu khi sang bộ dữ liệu chưa từng thấy?",
         "detector": str(args.detector),
         "imgsz": args.imgsz,
@@ -214,8 +214,8 @@ def main() -> None:
             "nén. Tỉ lệ pixel xám 64..192 ghi trong dataset_build.",
             "Instance tách bằng connected components trên mask nhị phân, nên hai "
             "ổ gà dính nhau bị đếm thành một.",
-            "Bộ này quay ở Indonesia, không phải TP.HCM. Không thay thế được yêu "
-            "cầu quay thực địa của đề bài.",
+            "Bộ này quay ở Indonesia, không phải môi trường triển khai mục tiêu. "
+            "Không thay thế được footage thực địa của target deployment scenario.",
         ],
     }
     args.output.mkdir(parents=True, exist_ok=True)

@@ -2,7 +2,7 @@
 
 ## Headline có receipt
 
-Số nghiệm thu hiện hành là **86,2% box mAP@0.5** và **84,6% mask mAP@0.5**.
+Kết quả canonical hiện hành là **86,2% box mAP@0.5** và **84,6% mask mAP@0.5**.
 `benchmarks/benchmark_a1_receipt.py` lưu model SHA, split và phiên bản thư viện
 tại `artifacts/verify-final/a1/benchmark.json`.
 
@@ -37,7 +37,7 @@ ONNX inference 25,7 ms, postprocess 3,3 ms, tổng **29,4 ms / 34,0 FPS**.
 ONNX SHA256 3ab52bdc4b41cc59b4b845b090bcddc2d927870ce272fdcff2dbb473b3a598c5
 ```
 
-## Số lịch sử không dùng nghiệm thu
+## Kết quả lịch sử không dùng làm headline
 
 Một run cũ ghi 89,8% box và 87,1% mask nhưng chỉ để lại PNG, không có model
 SHA, split hay phiên bản thư viện. Đường chạy đó không còn tái lập được nên
@@ -106,18 +106,25 @@ Hằng số hiệu chuẩn, tất cả fit trên `model1`:
 `metric_scale=0,8334711918061039`, `area_scale=1,3755604448201877` (đường
 residual fallback). Đường mask YOLO dùng hệ số 1,0 (xem bên dưới).
 
-| Metric held-out | Baseline cũ | Hiện tại |
+Receipt portfolio hiện hành được chạy lại bằng code trong working tree ngày
+2026-08-05 và lưu tại `artifacts/portfolio-stereo/`. Receipt cũ dùng trong
+`REPORT.md` được giữ nguyên tại `artifacts/a3-grid/final-s03125-d112/` để báo
+cáo đã nộp vẫn tự kiểm chứng được.
+
+| Metric held-out | Receipt báo cáo | Portfolio hiện hành |
 |---|---:|---:|
 | Detection/fusion coverage | 100% / 100% | 100% / 100% |
-| Strong alignment | 66,7% | 89,5% |
-| Fallback rate | 33,3% | 10,5% |
+| Strong alignment | 73,68% | 89,47% |
+| Fallback rate | 26,32% | 10,53% |
 | Median depth error | 4,97% | **4,01%** |
-| Mean depth error | — | 3,88% |
-| Depth trong ±8% / ±15% | — / 100% | 100% / 100% |
+| Mean depth error | 4,14% | 3,88% |
+| Depth trong ±8% / ±15% | 100% / 100% | 100% / 100% |
 | Median area error | 11,61% | 11,23% |
-| Area trong ±8% / ±15% | — / 89,47% | 26,32% / **84,21%** |
+| Area trong ±8% / ±15% | 21,05% / 89,47% | 26,32% / **84,21%** |
 | Area p95 / max | — | 18,3% / 18,7% |
 | Depth + area cùng trong ±15% | 89,47% | 84,21% |
+| Median throughput | 17,45 FPS | **18,19 FPS** |
+| Pair đạt ≥15 FPS | 26/27 | 26/27 |
 
 Chênh lệch depth đến từ hai thay đổi:
 
@@ -134,7 +141,7 @@ mask YOLO) từng được thử vì model merged kéo fallback rate xuống th�
 hơn 90% phép đo diện tích chạy qua đường không hiệu chuẩn. Nó nén phần giữa
 phân bố (median 9,48%, ±8% lên 42,11%) nhưng kéo dài đuôi lỗi — p95 18,3% →
 19,1%, max 18,7% → 20,4%, ±15% tụt 84,21% → 78,95% — vì `model1`/`model2` cần
-hệ số ~0,90–0,92 còn `model3` cần ~1,03. Nghiệm thu chấm theo ngưỡng ±8/±15
+hệ số ~0,90–0,92 còn `model3` cần ~1,03. Protocol đánh giá theo ngưỡng ±8/±15
 và hệ số này fit trên đúng một ổ gà vật lý, nên mặc định giữ 1,0; giá trị
 0,9096 vẫn dùng được qua `--yolo-area-scale`.
 
@@ -209,6 +216,8 @@ session 22,2 → 17,4 ms nhưng end-to-end chỉ lời ~2 ms, đổi lại area 
 78,9% → 68,4% (một số mask xê dịch biên). A1 của bản INT8 vẫn đạt (box mAP@0.5
 89,6%, mask 88,2%) nên đây là phương án dự phòng nếu cần FPS trên máy yếu hơn.
 
-FPS đo trên máy rảnh sau tối ưu 1 (chưa gồm tối ưu 2): **56,2 ms / 17,8 FPS,
-100% pair ≥15 FPS** — baseline cùng phiên là 61,0 ms / 16,4 FPS / 85,2%.
-Cần một lần đo chốt cuối trên máy rảnh để gộp cả tối ưu 2 (~2 ms).
+Receipt portfolio đo trên máy rảnh: **54,98 ms / 18,19 FPS**, p95 66,40 ms,
+min 14,29 FPS và 26/27 pair đạt ≥15 FPS. JSON ghi model SHA, hash source code,
+cấu hình lệnh, phiên bản thư viện, load average và trạng thái working tree.
+Latency vẫn phụ thuộc tải máy; metric accuracy ổn định giữa các lần chạy cùng
+code/model.

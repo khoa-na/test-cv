@@ -1,0 +1,16 @@
+cff-version: 1.2.0
+message: "If you use this repository, please cite it using this metadata."
+title: "Stereo pothole perception and GPS-degraded localization"
+type: software
+authors:
+  - family-names: "Na"
+    given-names: "Khoa"
+repository-code: "https://github.com/khoa-na/pothole-gps-localization"
+license: AGPL-3.0-only
+version: 0.1.0
+date-released: 2026-08-05
+keywords:
+  - computer vision
+  - stereo vision
+  - visual odometry
+  - localization

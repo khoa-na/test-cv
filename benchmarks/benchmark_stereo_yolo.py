@@ -5,7 +5,14 @@ from __future__ import annotations
 
 import argparse
 import csv
+import hashlib
+import importlib.metadata
 import json
+import os
+import platform
+import subprocess
+import sys
+from datetime import datetime, timezone
 from pathlib import Path
 
 import cv2
@@ -18,6 +25,62 @@ from benchmarks.benchmark_fan_stereo import (
     robust_z_extent,
 )
 from pipelines.stereo_yolo_pipeline import StereoYOLOPipeline
+
+
+def file_receipt(path: Path) -> dict:
+    digest = hashlib.sha256()
+    with path.open("rb") as file:
+        for chunk in iter(lambda: file.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return {
+        "path": str(path),
+        "bytes": path.stat().st_size,
+        "sha256": digest.hexdigest(),
+    }
+
+
+def source_receipts() -> list[dict]:
+    root = Path(__file__).resolve().parents[1]
+    relative_paths = (
+        "benchmarks/benchmark_stereo_yolo.py",
+        "benchmarks/benchmark_fan_stereo.py",
+        "pipelines/stereo_yolo_pipeline.py",
+        "pipelines/stereo_sgbm.py",
+    )
+    receipts = []
+    for relative_path in relative_paths:
+        receipt = file_receipt(root / relative_path)
+        receipt["path"] = relative_path
+        receipts.append(receipt)
+    return receipts
+
+
+def git_receipt() -> dict:
+    try:
+        commit = subprocess.run(
+            ["git", "rev-parse", "HEAD"],
+            check=True,
+            capture_output=True,
+            text=True,
+        ).stdout.strip()
+        dirty = bool(
+            subprocess.run(
+                ["git", "status", "--porcelain"],
+                check=True,
+                capture_output=True,
+                text=True,
+            ).stdout.strip()
+        )
+    except (OSError, subprocess.CalledProcessError):
+        return {"commit": None, "working_tree_dirty": None}
+    return {"commit": commit, "working_tree_dirty": dirty}
+
+
+def package_version(name: str) -> str | None:
+    try:
+        return importlib.metadata.version(name)
+    except importlib.metadata.PackageNotFoundError:
+        return None
 
 
 def ground_truth_depth(model_dir: Path) -> float:
@@ -116,6 +179,8 @@ def summarize(rows: list[dict]) -> dict:
 
 
 def run(args: argparse.Namespace) -> dict:
+    started_at = datetime.now(timezone.utc)
+    load_before = os.getloadavg() if hasattr(os, "getloadavg") else None
     dataset = args.dataset / "dataset" if (args.dataset / "dataset").is_dir() else args.dataset
     first_model_dir = dataset / "model1"
     first_left, first_right = paired_images(first_model_dir)[0]
@@ -262,6 +327,36 @@ def run(args: argparse.Namespace) -> dict:
 
     result = {
         "method": "YOLO26n-seg ONNX + StereoSGBM road-disparity fusion",
+        "receipt": {
+            "created_at_utc": started_at.isoformat(),
+            "git": git_receipt(),
+            "model": file_receipt(args.detector),
+            "source_files": source_receipts(),
+            "command_config": {
+                "scale": args.scale,
+                "num_disparities": args.num_disparities,
+                "confidence": args.confidence,
+                "opencv_threads": args.opencv_threads,
+                "warmup": args.warmup,
+                "repeats": args.repeats,
+                "min_alignment_iou": args.min_alignment_iou,
+                "area_quantile": args.area_quantile,
+            },
+            "environment": {
+                "python": sys.version.split()[0],
+                "platform": platform.platform(),
+                "cpu_count": os.cpu_count(),
+                "opencv": cv2.__version__,
+                "numpy": np.__version__,
+                "ultralytics": package_version("ultralytics"),
+                "onnxruntime": package_version("onnxruntime"),
+                "onnxruntime_gpu": package_version("onnxruntime-gpu"),
+                "load_average_before": load_before,
+                "load_average_after": (
+                    os.getloadavg() if hasattr(os, "getloadavg") else None
+                ),
+            },
+        },
         "calibration_group": "model1",
         "test_groups": ["model2", "model3"],
         "metric_scale": args.metric_scale,
@@ -316,7 +411,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--area-quantile", type=float, default=0.986)
     parser.add_argument("--area-scale", type=float, default=1.3755604448201877)
     # 0.9095955714468327 (fit trên model1) nén median nhưng kéo dài đuôi lỗi
-    # vì model3 cần hệ số ngược hướng; nghiệm thu theo ngưỡng ±15% nên giữ 1.0.
+    # vì model3 cần hệ số ngược hướng; protocol dùng ngưỡng ±15% nên giữ 1.0.
     parser.add_argument("--yolo-area-scale", type=float, default=1.0)
     parser.add_argument("--opencv-threads", type=int, default=4)
     parser.add_argument("--warmup", type=int, default=3)

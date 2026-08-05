@@ -1,4 +1,9 @@
-# Engineering Decision Report — Hệ thống Computer Vision cho xe điện
+# Engineering Decision Report — Stereo pothole perception và GPS-degraded localization
+
+> **Archived assessment report.** Các bảng A2/A3 trong tài liệu này giữ nguyên
+> receipt tại thời điểm nộp. Portfolio rerun mới hơn, bằng code hiện hành và có
+> environment/model receipt đầy đủ, nằm tại
+> `artifacts/portfolio-stereo/benchmark.json` và được tóm tắt trong README.
 
 ## Executive Summary
 
@@ -41,14 +46,14 @@ ngày một mình không có nghĩa.
 | A2 — Depth & area | **Đạt median proxy; chưa đạt mọi mẫu** | Median 4,97% depth, 11,61% area; area pass 17/19; chỉ 3 hố vật lý | Thêm hố vật lý có số đo tay và opening-mask GT; 3–5 ngày đo + phân tích |
 | A3 — End-to-end FPS | **Đạt median proxy; 26/27 pair pass** | Median 17,45 FPS; min 14,66 FPS | Không cần dữ liệu mới; 0,5 ngày bổ sung receipt A2/A3 với coverage, p50/p95 latency, config và model SHA |
 | A4 — Failure analysis | **Đạt** | Hai failure geometry phân tích sâu, cộng FN/FP/mask-boundary xếp hạng theo IoU trên toàn split | Đã đóng |
-| A5 — Đêm/mưa/nắng | **Chưa làm** | Không có condition-stratified test hoặc footage TP.HCM | Footage có nhãn điều kiện (đêm/mưa/nắng); 2–3 ngày dựng stratified test |
+| A5 — Đêm/mưa/nắng | **Chưa làm** | Không có condition-stratified test hoặc footage thực địa | Footage có nhãn điều kiện (đêm/mưa/nắng); 2–3 ngày dựng stratified test |
 | B1 — VO drift / 500 m | **12/13 pass; chưa đạt strict** | Median 2,40%; một cửa sổ 6,01% | Không cần dữ liệu mới; 1–2 ngày per-frame diagnostics trên cửa sổ 6,01% |
 | B2 — Landmark re-ID | **Chưa đạt** | R@1 0,708 so với ngưỡng 0,85 | Trước hết phải chẩn đoán ra nguồn map drift; nếu nằm ở registration thì 2–4 ngày sửa + đo lại |
 | B3 — U-turn latency | **Đạt metric proxy** | Precision 1,000; recall 0,917/0,900; latency âm, nhưng có tích lũy góc từ cua trước | Footage U-turn đường phố có mốc thời gian GT; 1–2 ngày đo lại |
 | B4 — Lane position | **Không có code** | 4Seasons không có nhãn làn; 3/4 sequence không có vạch phù hợp | Dataset có ego-lane GT khớp sensor suite; 1–3 ngày code + đo |
 | B5 — Garage localization | **Đạt demo + quantitative proxy** | Median trong hầm 14,66 → 8,62 m khi bật landmark | Map consistency (kéo theo từ B2); 2–4 ngày dựng lại database + đo |
 | B6 — GPS handover | **Đạt trên replay** | 13/13 sự kiện phát hiện trong cùng chu kỳ NMEA | Receiver thật trên xe; 0,5 ngày field validation |
-| B7 — System FPS | **Đạt trên pipeline đã triển khai** | 44,3 FPS gồm VO, fusion, U-turn và landmark; chưa có lane | Lane module tồn tại trước (B4); 0,5 ngày đo lại toàn hệ |
+| B7 — Localization throughput | **Đạt trên stack localization đã triển khai** | 44,3 FPS gồm VO, fusion, U-turn và landmark; không gồm pothole/lane | Cần runtime hợp nhất A+B và lane module trước khi gọi là full-system FPS |
 | B8 — GPS re-lock | **Chưa đạt** | 17–26 m sau 2 s; không cấu hình nào ổn định dưới 5 m trong 10 s | Covariance nở đúng trong outage dài + held-out NMEA đo false re-lock; 2–4 ngày. Riêng 4,47 s receiver reacquisition chỉ giải được bằng phần cứng/A-GNSS |
 
 Việc hoãn A5 và B4 là quyết định dữ liệu, không phải quyết định thuật toán.
@@ -312,7 +317,7 @@ matching có thể nối vào `update_position()` mà không phải sửa filter
 | B4 — Lane | Không có code hoặc labeled test | Chưa làm |
 | B5 — Garage | Median trong hầm 14,66 → 8,62 m khi bật landmark | Có quantitative proxy; absolute error còn cao |
 | B6 — Handover | 13/13 event trong cùng NMEA cycle | Đạt replay; chưa field-validated |
-| B7 — FPS | 44,3 FPS throughput | Đạt cho pipeline đã triển khai, chưa có lane |
+| B7 — Localization throughput | 44,3 FPS | Đạt cho VO/fusion/U-turn/landmark; không gồm pothole hoặc lane |
 | B8 — Re-lock | 17,46–26,04 m sau 2 s; không ổn định <5 m trong 10 s | Chưa đạt |
 
 ### B1 — VO đạt phần lớn cửa sổ, chưa rõ failure còn lại
@@ -387,7 +392,7 @@ sai:
 
 | Cấu hình | `consensus_achieved` | Sai số sau 2 s |
 |---|---:|---:|
-| count 3, radius 4 m (nộp bài) | 8,67 s | 17,46 m |
+| count 3, radius 4 m (cấu hình chốt) | 8,67 s | 17,46 m |
 | count 2, radius 4 m | 8,57 s | 17,46 m |
 | count 1, radius 4 m | **8,47 s** | 17,46 m |
 | count 3, radius 8 m | 8,67 s | 17,46 m |
@@ -422,7 +427,7 @@ vào một vị trí sai.
 thì thứ duy nhất có thể bắc cầu qua quãng đó là visual correction — chính là
 thứ đã kéo median trong hầm từ 14,66 m xuống 8,62 m.
 
-### B6 và B7 — continuity và CPU budget
+### B6 và B7 — continuity và localization CPU budget
 
 Handover được log 0,00 s vì state thay đổi trong cùng callback NMEA và local
 EKF không reset. Cách diễn đạt chính xác là **dưới một chu kỳ NMEA**, không
@@ -468,8 +473,8 @@ throughput, tầng landmark nên được đẩy sang luồng riêng.
   VO drift. Dataset replay không thay validation đồng bộ trên xe.
 - **IMU bias:** calibration cần một đoạn đứng yên thật. Cổng hiện tại bảo vệ
   hệ khi điều kiện đó không tồn tại, nhưng cũng làm IMU yaw không khả dụng.
-- **Feature dropout:** 4Seasons chỉ có khoảng 0,6–1,0% dropout; xe điện rung
-  trên đường Việt Nam có thể cao hơn.
+- **Feature dropout:** 4Seasons chỉ có khoảng 0,6–1,0% dropout; xe thật rung
+  trên mặt đường xấu có thể cao hơn.
 - **Map consistency:** landmark đúng trong label frame vẫn có thể kéo pose sai
   nếu database được dựng từ global pose bị drift.
 - **Low light và lane:** chưa có test condition-stratified hoặc lane GT, nên
@@ -503,7 +508,7 @@ trong `demo/`, chạy lại được từ dataset gốc.
 | `part_b.mp4` | 1200×542, 182,9 s | Camera + top-view trajectory + GPS state + U-turn event | B1/B3/B6 | 4Seasons `garage_2` |
 
 Các video đều render từ dataset công khai và có banner nguồn. Không video nào
-được trình bày như footage tự quay tại TP.HCM. `part_a.mp4` lặp ảnh tĩnh vì bộ
+được trình bày như footage tự quay thực địa. `part_a.mp4` lặp ảnh tĩnh vì bộ
 Fan không có video; `part_a_video.mp4` tồn tại để cho thấy hành vi trên chuỗi
 liên tục và không chọn clip theo kết quả.
 

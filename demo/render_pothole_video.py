@@ -7,8 +7,8 @@ xem tự đối chiếu.
 
 Clip lấy theo thứ tự số từ test split, không chọn theo kết quả.
 
-Đề yêu cầu quay tại TP.HCM. Không thực hiện được trong thời gian test, nên
-video render từ dataset công khai và banner ghi rõ nguồn.
+Không có footage thực địa tự quay trong time-box, nên video render từ dataset
+công khai và banner ghi rõ nguồn.
 """
 
 import argparse

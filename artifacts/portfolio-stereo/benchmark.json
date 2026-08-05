@@ -1,0 +1,110 @@
+{
+  "method": "YOLO26n-seg ONNX + StereoSGBM road-disparity fusion",
+  "receipt": {
+    "created_at_utc": "2026-08-05T04:03:23.758925+00:00",
+    "git": {
+      "commit": "ad4b69163611ebcb5a95eebb36de244311b3c8f5",
+      "working_tree_dirty": true
+    },
+    "model": {
+      "path": "models/pothole_yolo26n_seg.onnx",
+      "bytes": 11006894,
+      "sha256": "3ab52bdc4b41cc59b4b845b090bcddc2d927870ce272fdcff2dbb473b3a598c5"
+    },
+    "source_files": [
+      {
+        "path": "benchmarks/benchmark_stereo_yolo.py",
+        "bytes": 16654,
+        "sha256": "e11af748adc0f246042d44d90b13f426b5601a9676411cc4ed25635537a450e4"
+      },
+      {
+        "path": "benchmarks/benchmark_fan_stereo.py",
+        "bytes": 8575,
+        "sha256": "80df7ac4b90afb69a9efdd0a88570ecd25a953bfce9a24e6030d678b43412487"
+      },
+      {
+        "path": "pipelines/stereo_yolo_pipeline.py",
+        "bytes": 14298,
+        "sha256": "bacb5a591ec56b456a1df161ff3889dbc1787cae2a85f89a39fe257ad1c3b8a1"
+      },
+      {
+        "path": "pipelines/stereo_sgbm.py",
+        "bytes": 8539,
+        "sha256": "80bd2759c51b254b350d4904f0ecbf84b26c7ec32a5a9df812fc497e7e837d60"
+      }
+    ],
+    "command_config": {
+      "scale": 0.3125,
+      "num_disparities": 112,
+      "confidence": 0.25,
+      "opencv_threads": 4,
+      "warmup": 3,
+      "repeats": 3,
+      "min_alignment_iou": 0.1,
+      "area_quantile": 0.986
+    },
+    "environment": {
+      "python": "3.14.4",
+      "platform": "Linux-6.18.33.1-microsoft-standard-WSL2-x86_64-with-glibc2.43",
+      "cpu_count": 16,
+      "opencv": "5.0.0",
+      "numpy": "2.4.4",
+      "ultralytics": "8.4.105",
+      "onnxruntime": "1.28.0",
+      "onnxruntime_gpu": "1.27.0",
+      "load_average_before": [
+        0.232421875,
+        0.21337890625,
+        0.29736328125
+      ],
+      "load_average_after": [
+        0.9111328125,
+        0.35595703125,
+        0.3427734375
+      ]
+    }
+  },
+  "calibration_group": "model1",
+  "test_groups": [
+    "model2",
+    "model3"
+  ],
+  "metric_scale": 0.8334711918061039,
+  "area_scale": 1.3755604448201877,
+  "yolo_area_scale": 1.0,
+  "area_ground_truth_definition": "Median robust XY convex-hull area across each model's laser scans",
+  "strong_alignment_definition": "raw YOLO detection-residual IoU >= 0.1; weak alignment uses residual localization fallback",
+  "pairs": 27,
+  "detection_coverage": 1.0,
+  "fusion_coverage": 1.0,
+  "strong_alignment_coverage": 0.9259259259259259,
+  "fallback_rate": 0.07407407407407407,
+  "held_out": {
+    "pairs": 19,
+    "fusion_coverage": 1.0,
+    "strong_alignment_coverage": 0.8947368421052632,
+    "fallback_rate": 0.10526315789473684,
+    "median_relative_error": 0.04012236513381376,
+    "mean_relative_error": 0.03876584505106801,
+    "within_15_percent_of_fused": 1.0,
+    "within_8_percent_of_fused": 1.0,
+    "area_median_relative_error": 0.11225377759950943,
+    "area_mean_relative_error": 0.10260909258741525,
+    "area_within_15_percent": 0.8421052631578947,
+    "area_within_8_percent": 0.2631578947368421,
+    "end_to_end_within_15_percent": 1.0,
+    "end_to_end_depth_area_within_15_percent": 0.8421052631578947
+  },
+  "performance": {
+    "median_latency_ms": 54.98407999994015,
+    "p95_latency_ms": 66.39995760006059,
+    "median_fps": 18.187082515540652,
+    "min_fps": 14.292734468527662,
+    "pairs_at_least_15_fps": 0.9629629629629629
+  },
+  "limitations": [
+    "Depth ground truth is the per-model laser z-extent proxy.",
+    "Area truth is a laser XY convex-hull proxy, not a manually traced opening.",
+    "Only three physical potholes are represented."
+  ]
+}

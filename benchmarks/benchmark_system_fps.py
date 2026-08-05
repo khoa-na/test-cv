@@ -1,4 +1,4 @@
-"""B7 — FPS end-to-end của stack localization Phần B trên CPU.
+"""B7 — throughput của stack localization Phần B trên CPU.
 
 Đo trên cùng một cửa sổ frame cố định để so được giữa các cấu hình thread.
 Tách thời gian từng tầng vì con số tổng không cho biết còn bao nhiêu ngân sách
@@ -183,7 +183,7 @@ def measure(
             "database_keyframes": len(database) if database is not None else 0,
             "queries": landmark_queries,
             "query_rate_per_frame": landmark_queries / max(len(frames), 1),
-            # Amortized: chi phí landmark trải trên MỌI frame, vì FPS end-to-end
+            # Amortized: chi phí landmark trải trên MỌI frame localization
             # là đại lượng theo frame. ms/query là số phụ, quy ước đo cấm dùng
             # nó thay cho FPS.
             "amortized_ms_per_frame": float(np.mean(landmark_ms)) if landmark_ms else 0.0,
@@ -202,7 +202,7 @@ def measure(
             #
             # Số nộp B7 là throughput = frame / tổng thời gian. Landmark chỉ chạy
             # ở nhịp keyframe nên frame TRUNG VỊ không có chi phí landmark; lấy
-            # median sẽ giấu sạch một module khỏi con số end-to-end.
+            # median sẽ giấu sạch một module khỏi con số throughput.
             "throughput": len(frames) / (float(np.sum(pipeline_ms)) / 1000.0),
             "pipeline_median": 1000.0 / float(np.median(pipeline_ms)),
             "pipeline_p95": 1000.0 / float(np.percentile(pipeline_ms, 95)),
@@ -315,7 +315,8 @@ def main() -> None:
         "notes": [
             "FPS chính không tính thời gian đọc PNG từ đĩa; hệ thật nhận frame "
             "từ camera driver. Cột with_disk_read_median cho biết chi phí đó.",
-            "Phần A đo riêng ở benchmark_stereo_yolo (median 17,8 FPS CPU).",
+            "Phần A được đo riêng bởi benchmark_stereo_yolo và không nằm "
+            "trong throughput localization này.",
             (
                 "Vòng đo gồm stereo VO, EKF + integrity, U-turn detector và "
                 "landmark query ở nhịp keyframe."
